@@ -73,7 +73,15 @@ void RHHardwareSPI::begin()
    } else {
        frequency32 = 1000000;
    }
-   uint8_t bOrder;
+
+  #if (RH_PLATFORM == RH_PLATFORM_ARDUINO) && defined (__arm__) && (defined(ARDUINO_SAM_DUE) || defined(ARDUINO_ARCH_SAMD))
+    // Arduino Due in 1.5.5 has its own BitOrder :-(
+    // So too does Arduino Zero
+    ::BitOrder bOrder;
+  #else
+    uint8_t bOrder;
+  #endif
+
    if (_bitOrder == BitOrderLSBFirst) {
        bOrder = LSBFIRST;
    } else {
@@ -95,8 +103,13 @@ void RHHardwareSPI::begin()
 
    Serial.println("SPI has transactions");
    SPI.begin();
+#else
+  #error "Only using transactions in this fork!"
+#endif
 
-#elif (RH_PLATFORM == RH_PLATFORM_ARDUINO) || (RH_PLATFORM == RH_PLATFORM_UNO32) || (RH_PLATFORM == RH_PLATFORM_CHIPKIT_CORE)
+   /*
+
+#if (RH_PLATFORM == RH_PLATFORM_ARDUINO) || (RH_PLATFORM == RH_PLATFORM_UNO32) || (RH_PLATFORM == RH_PLATFORM_CHIPKIT_CORE)
     uint8_t dataMode;
     if (_dataMode == DataMode0)
 	dataMode = SPI_MODE0;
@@ -405,6 +418,9 @@ void RHHardwareSPI::begin()
 #else
  #warning RHHardwareSPI does not support this platform yet. Consider adding it and contributing a patch.
 #endif
+
+   */
+
 }
 
 void RHHardwareSPI::end() 

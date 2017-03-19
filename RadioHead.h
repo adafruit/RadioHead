@@ -759,6 +759,7 @@
 #define RH_PLATFORM_ESP8266          11
 #define RH_PLATFORM_STM32F2          12
 #define RH_PLATFORM_CHIPKIT_CORE     13
+#define RH_PLATFORM_ESP32            14
 
 ////////////////////////////////////////////////////
 // Select platform automatically, if possible
@@ -773,6 +774,8 @@
   #define RH_PLATFORM RH_PLATFORM_NRF51
  #elif defined(ESP8266)
   #define RH_PLATFORM RH_PLATFORM_ESP8266
+ #elif defined(ESP32)
+  #define RH_PLATFORM RH_PLATFORM_ESP32
  #elif defined(ARDUINO)
   #define RH_PLATFORM RH_PLATFORM_ARDUINO
  #elif defined(__MSP430G2452__) || defined(__MSP430G2553__)
@@ -819,6 +822,12 @@
  #include <SPI.h>
  #define RH_HAVE_HARDWARE_SPI
  #define RH_HAVE_SERIAL
+#elif (RH_PLATFORM == RH_PLATFORM_ESP32)   // ESP32 processor on Arduino IDE
+ #include <Arduino.h>
+ #include <SPI.h>
+ #define RH_HAVE_HARDWARE_SPI
+ #define RH_HAVE_SERIAL
+
 #elif (RH_PLATFORM == RH_PLATFORM_MSP430) // LaunchPad specific
  #include "legacymsp430.h"
  #include "Energia.h"

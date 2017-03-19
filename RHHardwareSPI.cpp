@@ -60,7 +60,43 @@ void RHHardwareSPI::detachInterrupt()
 void RHHardwareSPI::begin() 
 {
     // Sigh: there are no common symbols for some of these SPI options across all platforms
-#if (RH_PLATFORM == RH_PLATFORM_ARDUINO) || (RH_PLATFORM == RH_PLATFORM_UNO32) || (RH_PLATFORM == RH_PLATFORM_CHIPKIT_CORE)
+#if defined(SPI_HAS_TRANSACTION)
+   uint32_t frequency32;
+   if (_frequency == Frequency16MHz) {
+       frequency32 = 16000000;
+   } else if (_frequency == Frequency8MHz) {
+       frequency32 = 8000000;
+   } else if (_frequency == Frequency4MHz) {
+       frequency32 = 4000000;
+   } else if (_frequency == Frequency2MHz) {
+       frequency32 = 2000000;
+   } else {
+       frequency32 = 1000000;
+   }
+   uint8_t bOrder;
+   if (_bitOrder == BitOrderLSBFirst) {
+       bOrder = LSBFIRST;
+   } else {
+       bOrder = MSBFIRST;
+   }
+    uint8_t dataMode;
+    if (_dataMode == DataMode0)
+	dataMode = SPI_MODE0;
+    else if (_dataMode == DataMode1)
+	dataMode = SPI_MODE1;
+    else if (_dataMode == DataMode2)
+	dataMode = SPI_MODE2;
+    else if (_dataMode == DataMode3)
+	dataMode = SPI_MODE3;
+    else
+	dataMode = SPI_MODE0;
+
+   _settings = SPISettings(frequency32, bOrder, dataMode);
+
+   Serial.println("SPI has transactions");
+   SPI.begin();
+
+#elif (RH_PLATFORM == RH_PLATFORM_ARDUINO) || (RH_PLATFORM == RH_PLATFORM_UNO32) || (RH_PLATFORM == RH_PLATFORM_CHIPKIT_CORE)
     uint8_t dataMode;
     if (_dataMode == DataMode0)
 	dataMode = SPI_MODE0;

@@ -1,7 +1,7 @@
 // RH_RF69.cpp
 //
 // Copyright (C) 2011 Mike McCauley
-// $Id: RH_RF69.cpp,v 1.26 2015/12/11 01:10:24 mikem Exp $
+// $Id: RH_RF69.cpp,v 1.27 2017/01/12 23:58:00 mikem Exp $
 
 #include <RH_RF69.h>
 
@@ -378,35 +378,48 @@ void RH_RF69::setModeTx()
     }
 }
 
-void RH_RF69::setTxPower(int8_t power)
+void RH_RF69::setTxPower(int8_t power, bool ishighpowermodule)
 {
-    _power = power;
-
-    uint8_t palevel;
-    if (_power < -18)
-	_power = -18;
-
-    // See http://www.hoperf.com/upload/rfchip/RF69-V1.2.pdf section 3.3.6
-    // for power formulas
+  _power = power;
+  uint8_t palevel;
+  
+  if (ishighpowermodule)
+  {
+    if (_power < -2)
+      _power = -2; //RFM69HW only works down to -2. 
     if (_power <= 13)
     {
-	// -18dBm to +13dBm
-	palevel = RH_RF69_PALEVEL_PA0ON | ((_power + 18) & RH_RF69_PALEVEL_OUTPUTPOWER);
+      // -2dBm to +13dBm
+      //Need PA1 exclusivelly on RFM69HW
+      palevel = RH_RF69_PALEVEL_PA1ON | ((_power + 18) & 
+      RH_RF69_PALEVEL_OUTPUTPOWER);
     }
     else if (_power >= 18)
     {
-	// +18dBm to +20dBm
-	// Need PA1+PA2
-	// Also need PA boost settings change when tx is turned on and off, see setModeTx()
-	palevel = RH_RF69_PALEVEL_PA1ON | RH_RF69_PALEVEL_PA2ON | ((_power + 11) & RH_RF69_PALEVEL_OUTPUTPOWER);
+      // +18dBm to +20dBm
+      // Need PA1+PA2
+      // Also need PA boost settings change when tx is turned on and off, see setModeTx()
+      palevel = RH_RF69_PALEVEL_PA1ON
+	| RH_RF69_PALEVEL_PA2ON
+	| ((_power + 11) & RH_RF69_PALEVEL_OUTPUTPOWER);
     }
     else
     {
-	// +14dBm to +17dBm
-	// Need PA1+PA2
-	palevel = RH_RF69_PALEVEL_PA1ON | RH_RF69_PALEVEL_PA2ON | ((_power + 14) & RH_RF69_PALEVEL_OUTPUTPOWER);
+      // +14dBm to +17dBm
+      // Need PA1+PA2
+      palevel = RH_RF69_PALEVEL_PA1ON
+	| RH_RF69_PALEVEL_PA2ON
+	| ((_power + 14) & RH_RF69_PALEVEL_OUTPUTPOWER);
     }
-    spiWrite(RH_RF69_REG_11_PALEVEL, palevel);
+  }
+  else
+  {
+    if (_power < -18) _power = -18;
+    if (_power > 13) _power = 13; //limit for RFM69W
+    palevel = RH_RF69_PALEVEL_PA0ON
+      | ((_power + 18) & RH_RF69_PALEVEL_OUTPUTPOWER);
+  }
+  spiWrite(RH_RF69_REG_11_PALEVEL, palevel);
 }
 
 // Sets registers from a canned modem configuration structure

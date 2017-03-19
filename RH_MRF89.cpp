@@ -1,7 +1,7 @@
 // RH_MRF89.cpp
 //
 // Copyright (C) 2015 Mike McCauley
-// $Id: RH_MRF89.cpp,v 1.7 2015/12/31 04:23:12 mikem Exp $
+// $Id: RH_MRF89.cpp,v 1.8 2017/01/12 23:58:00 mikem Exp $
 
 #include <RH_MRF89.h>
 #define BAND_915

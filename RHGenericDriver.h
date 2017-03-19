@@ -1,7 +1,7 @@
 // RHGenericDriver.h
 // Author: Mike McCauley (mikem@airspayce.com)
 // Copyright (C) 2014 Mike McCauley
-// $Id: RHGenericDriver.h,v 1.17 2016/04/04 01:40:12 mikem Exp $
+// $Id: RHGenericDriver.h,v 1.19 2017/03/08 09:30:47 mikem Exp mikem $
 
 #ifndef RHGenericDriver_h
 #define RHGenericDriver_h
@@ -296,6 +296,8 @@ protected:
     
     /// Channel activity detected
     volatile bool       _cad;
+
+    /// Channel activity timeout in ms
     unsigned int        _cad_timeout;
 
 private:

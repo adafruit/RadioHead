@@ -30,7 +30,6 @@ RadioHead/RH_RF22.cpp
 RadioHead/RH_RF22.h
 RadioHead/RH_RF24.cpp
 RadioHead/RH_RF24.h
-RadioHead/radio_config_Si4460.h
 RadioHead/RH_RF69.cpp
 RadioHead/RH_RF69.h
 RadioHead/RH_MRF89.cpp
@@ -81,6 +80,7 @@ RadioHead/examples/rf22/rf22_router_server3/rf22_router_server3.pde
 RadioHead/examples/rf22/rf22_router_test/rf22_router_test.pde
 RadioHead/examples/rf22/rf22_server/rf22_server.pde
 RadioHead/examples/rf24/rf24_client/rf24_client.pde
+RadioHead/examples/rf24/rf24_lowpower_client/rf24_lowpower_client.pde
 RadioHead/examples/rf24/rf24_reliable_datagram_client/rf24_reliable_datagram_client.pde
 RadioHead/examples/rf24/rf24_reliable_datagram_server/rf24_reliable_datagram_server.pde
 RadioHead/examples/rf24/rf24_server/rf24_server.pde
@@ -123,3 +123,10 @@ RadioHead/STM32ArduinoCompat/HardwareSPI.h
 RadioHead/STM32ArduinoCompat/wirish.cpp
 RadioHead/STM32ArduinoCompat/wirish.h
 RadioHead/STM32ArduinoCompat/README
+RadioHead/RH_RF24_property_data/convert.pl
+RadioHead/RF24configs/radio_config_Si4464_27_434_2GFSK_5_10.h
+RadioHead/RF24configs/radio_config_Si4464_30_915_2GFSK_10_20.h
+RadioHead/RF24configs/radio_config_Si4464_30_434_2GFSK_10_20.h
+RadioHead/RF24configs/radio_config_Si4464_30_915_2GFSK_5_10.h
+RadioHead/RF24configs/radio_config_Si4464_30_434_2GFSK_5_10.h
+RadioHead/RF24configs/README

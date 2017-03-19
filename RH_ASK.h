@@ -1,7 +1,7 @@
 // RH_ASK.h
 //
 // Copyright (C) 2014 Mike McCauley
-// $Id: RH_ASK.h,v 1.16 2016/07/07 00:02:53 mikem Exp $
+// $Id: RH_ASK.h,v 1.17 2017/03/04 00:59:41 mikem Exp $
 
 #ifndef RH_ASK_h
 #define RH_ASK_h
@@ -147,16 +147,17 @@
 /// - Receivers
 ///  - RX-B1 (433.92MHz) (also known as ST-RX04-ASK)
 ///  - RFM83C from HopeRF http://www.hoperfusa.com/details.jsp?pid=126
+///  - SYN480R and other similar ASK receivers
 /// - Transmitters: 
 ///  - TX-C1 (433.92MHz)
 ///  - RFM85 from HopeRF http://www.hoperfusa.com/details.jsp?pid=127
+///  - SYN115, F115 and other similar ASK transmitters
 /// - Transceivers
 ///  - DR3100 (433.92MHz)
 ///
 /// \par Connecting to Arduino
 ///
 /// Most transmitters can be connected to Arduino like this:
-
 /// \code
 /// Arduino                         Transmitter
 ///  GND------------------------------GND

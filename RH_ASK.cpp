@@ -1,12 +1,12 @@
 // RH_ASK.cpp
 //
 // Copyright (C) 2014 Mike McCauley
-// $Id: RH_ASK.cpp,v 1.19 2016/08/17 01:53:21 mikem Exp mikem $
+// $Id: RH_ASK.cpp,v 1.20 2017/01/12 23:58:00 mikem Exp $
 
 #include <RH_ASK.h>
 #include <RHCRC.h>
 
-#if (RH_PLATFORM == RH_PLATFORM_STM32) ||  (RH_PLATFORM == RH_PLATFORM_FEATHERWICED) // Maple etc
+#if (RH_PLATFORM == RH_PLATFORM_STM32) // Maple etc
 HardwareTimer timer(MAPLE_TIMER);
 
 #endif
@@ -328,7 +328,7 @@ void RH_ASK::timerSetup()
   #endif
  #endif
 
-#elif (RH_PLATFORM == RH_PLATFORM_STM32) || (RH_PLATFORM == RH_PLATFORM_FEATHERWICED) // Maple etc
+#elif (RH_PLATFORM == RH_PLATFORM_STM32) // Maple etc
     // Pause the timer while we're configuring it
     timer.pause();
     timer.setPeriod((1000000/8)/_speed);
@@ -622,7 +622,7 @@ ISR(RH_ASK_TIMER_VECTOR)
     thisASKDriver->handleTimerInterrupt();
 }
 
-#elif (RH_PLATFORM == RH_PLATFORM_MSP430) || (RH_PLATFORM == RH_PLATFORM_STM32) || (RH_PLATFORM == RH_PLATFORM_FEATHERWICED)
+#elif (RH_PLATFORM == RH_PLATFORM_MSP430) || (RH_PLATFORM == RH_PLATFORM_STM32)
 // LaunchPad, Maple
 void interrupt()
 {

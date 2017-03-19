@@ -1,7 +1,7 @@
 // RH_NRF905.h
 // Author: Mike McCauley (mikem@airspayce.com)
 // Copyright (C) 2014 Mike McCauley
-// $Id: RH_NRF905.h,v 1.9 2016/04/04 01:40:12 mikem Exp $
+// $Id: RH_NRF905.h,v 1.10 2017/01/12 23:58:00 mikem Exp $
 //
 
 #ifndef RH_NRF905_h
@@ -339,10 +339,11 @@ public:
     /// Sends data to the address set by setTransmitAddress()
     /// Sets the radio to TX mode
     /// \param [in] data Data bytes to send.
-    /// \param [in] len Number of data bytes to set in teh TX buffer. The actual size of the 
-    /// transmitted data payload is set by setPayloadSize
+    /// \param [in] len Number of data bytes to set in the TX buffer. The actual size of the 
+    /// transmitted data payload is set by setPayloadSize. Maximum message length actually 
+    /// transmitted is RH_NRF905_MAX_MESSAGE_LEN = 27.
     /// \return true on success (which does not necessarily mean the receiver got the message, only that the message was
-    /// successfully transmitted).
+    /// successfully transmitted). Returns false if the requested message length exceeds RH_NRF905_MAX_MESSAGE_LEN.
     bool send(const uint8_t* data, uint8_t len);
 
     /// Blocks until the current message (if any) 

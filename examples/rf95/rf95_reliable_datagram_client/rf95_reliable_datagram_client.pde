@@ -14,7 +14,7 @@
 
 // Singleton instance of the radio driver
 RH_RF95 driver;
-//RH_RF95 rf95(5, 2); // Rocket Scream Mini Ultra Pro with the RFM95W
+//RH_RF95 driver(5, 2); // Rocket Scream Mini Ultra Pro with the RFM95W
 
 // Class to manage message delivery and receipt, using the driver declared above
 RHReliableDatagram manager(driver, CLIENT_ADDRESS);

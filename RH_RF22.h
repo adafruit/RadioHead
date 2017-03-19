@@ -1,7 +1,7 @@
 // RH_RF22.h
 // Author: Mike McCauley (mikem@airspayce.com)
 // Copyright (C) 2011 Mike McCauley
-// $Id: RH_RF22.h,v 1.31 2016/08/17 01:53:21 mikem Exp mikem $
+// $Id: RH_RF22.h,v 1.32 2017/03/04 00:59:41 mikem Exp $
 //
 
 #ifndef RH_RF22_h
@@ -581,7 +581,6 @@
 /// \endcode
 /// and use the default constructor:
 /// RH_RF22 driver;
-
 /// For connecting an Arduino to an RFM23BP module. Note that the antenna control pins are reversed 
 /// compared to the RF22.
 /// \code

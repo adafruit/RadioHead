@@ -1,7 +1,7 @@
 // RH_RF69.h
 // Author: Mike McCauley (mikem@airspayce.com)
 // Copyright (C) 2014 Mike McCauley
-// $Id: RH_RF69.h,v 1.32 2016/07/07 00:02:53 mikem Exp $
+// $Id: RH_RF69.h,v 1.34 2017/03/08 09:30:47 mikem Exp mikem $
 //
 ///
 
@@ -52,6 +52,16 @@
 
 // This is the default node address,
 #define RH_RF69_DEFAULT_NODE_ADDRESS 0
+
+// You can define the following macro (either by editing here or by passing it as a compiler definition
+// to change the default value of the ishighpowermodule argument to setTxPower to true
+// 
+// #define RFM69_HW
+#ifdef RFM69_HW
+#define RH_RF69_DEFAULT_HIGHPOWER true
+#else
+#define RH_RF69_DEFAULT_HIGHPOWER false
+#endif
 
 // Register names
 #define RH_RF69_REG_00_FIFO                                 0x00
@@ -301,10 +311,16 @@
 ///  the marvellous high powered MinWireless-HW (with 20dBm output for excellent range)
 /// - the excellent Rocket Scream Mini Ultra Pro with the RFM69HCW 
 ///   http://www.rocketscream.com/blog/product/mini-ultra-pro-with-radio/
-/// - The excellent talk2 Whisper Node boards 
-///   (https://talk2.wisen.com.au/ and https://bitbucket.org/talk2/), 
-///   an Arduino Nano compatible board, which include an on-board RF69 radio, external antenna, 
-///   run on 2xAA batteries and support low power operations. RF69 examples work without modification.
+/// - The excellent Talk2 Whisper Node boards 
+///   (https://talk2.wisen.com.au/ and https://bitbucket.org/talk2/whisper-node-avr), 
+///   an Arduino compatible board, which include an on-board RF69 radio, external antenna, 
+///   run on 2xAAA batteries and support low power operations. RF69 examples work without modification.
+///   Use Arduino Board Manager to install the Talk2 code support as described in 
+///   https://bitbucket.org/talk2/whisper-node-avr
+/// - The excellent Adafruit Feather. These are excellent boards that are available with a variety of radios. 
+///   We tested with the 
+///   Feather 32u4 with RFM69HCW radio, with Arduino IDE 1.6.8 and the Adafruit AVR Boards board manager version 1.6.10.
+///   https://www.adafruit.com/products/3076
 ///
 /// \par Overview
 ///
@@ -485,6 +501,33 @@
 /// with the default constructor:
 /// \code
 ///  RH_RF69 driver;
+/// \endcode
+///
+/// If you have a Feather 32u4 with RFM69HCW you need to initialise the driver like:
+/// \code
+///  RH_RF69 driver(8, 7);
+/// \endcode
+/// and since the radio is the high power HCW model, you must set the Tx power in the
+/// range 14 to 20 like this:
+/// \code
+///  driver.setTxPower(14);
+/// \endcode
+///
+/// If you are connecting an RF69 to a ESP8266 board breakout board that exposes pins
+/// 12, 13, 14, 15 (ie NOT an ESP-01) you can connect like this:
+/// \code
+///                   ESP8266      RFM69W
+///                    GND-----------GND   (ground in)
+///                    VIN-----------3.3V  (3.3V in)
+/// interrupt D0 pin GPIO0-----------DIO0  (interrupt request out)
+///           SS pin GPIO15----------NSS   (chip select in)
+///      SCK SPI pin GPIO14----------SCK   (SPI clock in)
+///     MOSI SPI pin GPIO13----------MOSI  (SPI Data in)
+///     MISO SPI pin GPIO12----------MISO  (SPI Data out)
+/// \endcode
+/// and initialise with
+/// \code
+/// RH_RF69 driver(15, 0);
 /// \endcode
 ///
 /// It is possible to have 2 or more radios connected to one Arduino, provided
@@ -761,12 +804,18 @@ public:
     /// Sets the transmitter power output level.
     /// Be a good neighbour and set the lowest power level you need.
     /// Caution: legal power limits may apply in certain countries.
-    /// After init(), the power will be set to 13dBm.
-    /// \param[in] power Transmitter power level in dBm. For RF69W, valid values are from -18 to +13 
-    /// (higher power settings disable the transmitter).
-    /// For RF69HW, valid values are from +14 to +20. Caution: at +20dBm, duty cycle is limited to 1% and a 
+    /// After init(), the power will be set to 13dBm for a low power module.
+    /// If you are using a high p[ower modfule such as an RFM69HW, you MUST set the power level
+    /// with the ishighpowermodule flag set to true. Else you wil get no measurable power output.
+    /// Simlarly if you are not using a high power module, you must NOT set the ishighpowermodule
+    /// (which is the default)
+    /// \param[in] power Transmitter power level in dBm. For RF69W (ishighpowermodule = false),
+    /// valid values are from -18 to +13.; Values outside this range are trimmed.
+    /// For RF69HW (ishighpowermodule = true), valid values are from -2 to +20.
+    /// Caution: at +20dBm, duty cycle is limited to 1% and a 
     /// maximum VSWR of 3:1 at the antenna port.
-    void           setTxPower(int8_t power);
+    /// \param ishighpowermodule Set to true if the connected module is a high power module RFM69HW
+    void           setTxPower(int8_t power, bool ishighpowermodule = RH_RF69_DEFAULT_HIGHPOWER);
 
     /// Sets all the registers required to configure the data modem in the RF69, including the data rate, 
     /// bandwidths etc. You can use this to configure the modem with custom configurations if none of the 
@@ -818,6 +867,8 @@ public:
     /// value on all nodes in your network. Nodes with different SyncWords set will never receive
     /// each others messages, so different SyncWords can be used to isolate different
     /// networks from each other. Default is { 0x2d, 0xd4 }.
+    /// Caution: tests here show that with a single sync word (ie where len == 1), 
+    /// RFM69 reception can be unreliable.
     /// \param[in] syncWords Array of sync words, 1 to 4 octets long. NULL if no sync words to be used.
     /// \param[in] len Number of sync words to set, 1 to 4. 0 if no sync words to be used.
     void           setSyncWords(const uint8_t* syncWords = NULL, uint8_t len = 0);
@@ -826,7 +877,7 @@ public:
     /// to encrypt and decrypt all messages. The default is disabled.
     /// \param[in] key The key to use. Must be 16 bytes long. The same key must be installed
     /// in other instances of RF69, otherwise communications will not work correctly. If key is NULL,
-    /// encryption is disabled.
+    /// encryption is disabled, which is the default.
     void           setEncryptionKey(uint8_t* key = NULL);
 
     /// Returns the time in millis since the most recent preamble was received, and when the most recent
@@ -864,6 +915,13 @@ public:
     /// Caution: there is a time penalty as the radio takes a finite time to wake from sleep mode.
     /// \return true if sleep mode was successfully entered.
     virtual bool    sleep();
+
+    /// Return the integer value of the device type
+    /// as read from the device in from RH_RF69_REG_10_VERSION.
+    /// Expect 0x24, depending on the type of device actually
+    /// connected.
+    /// \return The integer device type
+    uint16_t deviceType() {return _deviceType;};
 
 protected:
     /// This is a low level function to handle the interrupts for one instance of RF69.

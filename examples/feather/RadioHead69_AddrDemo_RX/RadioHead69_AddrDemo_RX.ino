@@ -88,7 +88,7 @@ void setup()
   pinMode(RFM69_RST, OUTPUT);
   digitalWrite(RFM69_RST, LOW);
 
-  Serial.println("Feather Addressed RFM69 TX Test!");
+  Serial.println("Feather Addressed RFM69 RX Test!");
   Serial.println();
 
   // manual reset

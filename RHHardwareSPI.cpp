@@ -40,7 +40,9 @@ RHHardwareSPI::RHHardwareSPI(Frequency frequency, BitOrder bitOrder, DataMode da
 
 uint8_t RHHardwareSPI::transfer(uint8_t data) 
 {
-    return SPI.transfer(data);
+   uint8_t r = SPI.transfer(data);
+   //Serial.print("TX: "); Serial.print(data, HEX); Serial.print(" RX: "); Serial.println(r, HEX);
+   return r;
 }
 
 void RHHardwareSPI::attachInterrupt() 
@@ -101,7 +103,7 @@ void RHHardwareSPI::begin()
 
    _settings = SPISettings(frequency32, bOrder, dataMode);
 
-   Serial.println("SPI has transactions");
+   //Serial.println("SPI has transactions");
    SPI.begin();
 #else
   #error "Only using transactions in this fork!"

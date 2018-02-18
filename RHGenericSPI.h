@@ -7,7 +7,6 @@
 #ifndef RHGenericSPI_h
 #define RHGenericSPI_h
 
-#include <SPI.h> // for SPI_HAS_TRANSACTION and SPISettings
 #include <RadioHead.h>
 
 /////////////////////////////////////////////////////////////////////
@@ -134,15 +133,5 @@ protected:
 
     /// SPI bus mode, one of RHGenericSPI::DataMode
     DataMode     _dataMode;  
-
-
-public:
-#if defined(SPI_HAS_TRANSACTION)
-    // An ugly hack... this probably belongs in RHHardwareSPI.cpp, but
-    // beginTransaction() needs to be called at a higher level which does
-    // not know if the underlying SPI is hardware or software.  This hack
-    // is merely for testing.
-    SPISettings  _settings;
-#endif
 };
 #endif

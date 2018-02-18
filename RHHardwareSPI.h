@@ -2,12 +2,10 @@
 // Author: Mike McCauley (mikem@airspayce.com)
 // Copyright (C) 2011 Mike McCauley
 // Contributed by Joanna Rutkowska
-// $Id: RHHardwareSPI.h,v 1.10 2017/01/12 23:58:00 mikem Exp $
+// $Id: RHHardwareSPI.h,v 1.9 2014/08/12 00:54:52 mikem Exp $
 
 #ifndef RHHardwareSPI_h
 #define RHHardwareSPI_h
-
-#include <SPI.h>
 
 #include <RHGenericSPI.h>
 
@@ -56,7 +54,7 @@ public:
     void end();
 #else
     // not supported on ATTiny etc
-    uint8_t transfer(uint8_t /*data*/) {return 0;}
+    uint8_t transfer(uint8_t data) {return 0;}
     void begin(){}
     void end(){}
 

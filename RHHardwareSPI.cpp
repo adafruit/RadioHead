@@ -40,9 +40,7 @@ RHHardwareSPI::RHHardwareSPI(Frequency frequency, BitOrder bitOrder, DataMode da
 
 uint8_t RHHardwareSPI::transfer(uint8_t data) 
 {
-   uint8_t r = SPI.transfer(data);
-   //Serial.print("TX: "); Serial.print(data, HEX); Serial.print(" RX: "); Serial.println(r, HEX);
-   return r;
+    return SPI.transfer(data);
 }
 
 void RHHardwareSPI::attachInterrupt() 
@@ -62,55 +60,6 @@ void RHHardwareSPI::detachInterrupt()
 void RHHardwareSPI::begin() 
 {
     // Sigh: there are no common symbols for some of these SPI options across all platforms
-#if defined(SPI_HAS_TRANSACTION)
-   uint32_t frequency32;
-   if (_frequency == Frequency16MHz) {
-       frequency32 = 16000000;
-   } else if (_frequency == Frequency8MHz) {
-       frequency32 = 8000000;
-   } else if (_frequency == Frequency4MHz) {
-       frequency32 = 4000000;
-   } else if (_frequency == Frequency2MHz) {
-       frequency32 = 2000000;
-   } else {
-       frequency32 = 1000000;
-   }
-
-  #if (RH_PLATFORM == RH_PLATFORM_ARDUINO) && defined (__arm__) && (defined(ARDUINO_SAM_DUE) || defined(ARDUINO_ARCH_SAMD))
-    // Arduino Due in 1.5.5 has its own BitOrder :-(
-    // So too does Arduino Zero
-    ::BitOrder bOrder;
-  #else
-    uint8_t bOrder;
-  #endif
-
-   if (_bitOrder == BitOrderLSBFirst) {
-       bOrder = LSBFIRST;
-   } else {
-       bOrder = MSBFIRST;
-   }
-    uint8_t dataMode;
-    if (_dataMode == DataMode0)
-	dataMode = SPI_MODE0;
-    else if (_dataMode == DataMode1)
-	dataMode = SPI_MODE1;
-    else if (_dataMode == DataMode2)
-	dataMode = SPI_MODE2;
-    else if (_dataMode == DataMode3)
-	dataMode = SPI_MODE3;
-    else
-	dataMode = SPI_MODE0;
-
-   _settings = SPISettings(frequency32, bOrder, dataMode);
-
-   //Serial.println("SPI has transactions");
-   SPI.begin();
-#else
-  #error "Only using transactions in this fork!"
-#endif
-
-   /*
-
 #if (RH_PLATFORM == RH_PLATFORM_ARDUINO) || (RH_PLATFORM == RH_PLATFORM_UNO32) || (RH_PLATFORM == RH_PLATFORM_CHIPKIT_CORE)
     uint8_t dataMode;
     if (_dataMode == DataMode0)
@@ -420,9 +369,6 @@ void RHHardwareSPI::begin()
 #else
  #warning RHHardwareSPI does not support this platform yet. Consider adding it and contributing a patch.
 #endif
-
-   */
-
 }
 
 void RHHardwareSPI::end() 

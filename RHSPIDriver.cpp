@@ -1,7 +1,7 @@
 // RHSPIDriver.cpp
 //
 // Copyright (C) 2014 Mike McCauley
-// $Id: RHSPIDriver.cpp,v 1.11 2017/11/06 00:04:08 mikem Exp $
+// $Id: RHSPIDriver.cpp,v 1.10 2015/12/16 04:55:33 mikem Exp $
 
 #include <RHSPIDriver.h>
 
@@ -16,7 +16,13 @@ bool RHSPIDriver::init()
 {
     // start the SPI library with the default speeds etc:
     // On Arduino Due this defaults to SPI1 on the central group of 6 SPI pins
-    _spi.begin();
+
+#if defined(RH_HAVE_SERIAL) && (RH_DEBUG_VERBOSE >= 1)
+	Serial.print(" -RHSPIDriver::init. SPI.Begin SS = ");
+	Serial.println(_slaveSelectPin);
+#endif
+
+	_spi.begin();
 
     // Initialise the slave select pin
     // On Maple, this must be _after_ spi.begin
@@ -31,10 +37,16 @@ uint8_t RHSPIDriver::spiRead(uint8_t reg)
 {
     uint8_t val;
     ATOMIC_BLOCK_START;
+//#if defined(SPI_HAS_TRANSACTION)
+    //SPI.beginTransaction(_spi._settings);
+//#endif
     digitalWrite(_slaveSelectPin, LOW);
     _spi.transfer(reg & ~RH_SPI_WRITE_MASK); // Send the address with the write mask off
     val = _spi.transfer(0); // The written value is ignored, reg value is read
     digitalWrite(_slaveSelectPin, HIGH);
+//#if defined(SPI_HAS_TRANSACTION)
+    //SPI.endTransaction();
+//#endif
     ATOMIC_BLOCK_END;
     return val;
 }
@@ -44,11 +56,18 @@ uint8_t RHSPIDriver::spiWrite(uint8_t reg, uint8_t val)
     uint8_t status = 0;
     ATOMIC_BLOCK_START;
     _spi.beginTransaction();
+
+//#if defined(SPI_HAS_TRANSACTION)
+    //SPI.beginTransaction(_spi._settings);
+//#endif
     digitalWrite(_slaveSelectPin, LOW);
     status = _spi.transfer(reg | RH_SPI_WRITE_MASK); // Send the address with the write mask on
     _spi.transfer(val); // New value follows
     digitalWrite(_slaveSelectPin, HIGH);
     _spi.endTransaction();
+//#if defined(SPI_HAS_TRANSACTION)
+    //SPI.endTransaction();
+//#endif
     ATOMIC_BLOCK_END;
     return status;
 }
@@ -58,12 +77,19 @@ uint8_t RHSPIDriver::spiBurstRead(uint8_t reg, uint8_t* dest, uint8_t len)
     uint8_t status = 0;
     ATOMIC_BLOCK_START;
     _spi.beginTransaction();
+//#if defined(SPI_HAS_TRANSACTION)
+    //SPI.beginTransaction(_spi._settings);
+//#endif
     digitalWrite(_slaveSelectPin, LOW);
     status = _spi.transfer(reg & ~RH_SPI_WRITE_MASK); // Send the start address with the write mask off
     while (len--)
 	*dest++ = _spi.transfer(0);
     digitalWrite(_slaveSelectPin, HIGH);
     _spi.endTransaction();
+
+//#if defined(SPI_HAS_TRANSACTION)
+    //SPI.endTransaction();
+//#endif
     ATOMIC_BLOCK_END;
     return status;
 }
@@ -73,12 +99,20 @@ uint8_t RHSPIDriver::spiBurstWrite(uint8_t reg, const uint8_t* src, uint8_t len)
     uint8_t status = 0;
     ATOMIC_BLOCK_START;
     _spi.beginTransaction();
+
+//#if defined(SPI_HAS_TRANSACTION)
+    //SPI.beginTransaction(_spi._settings);
+//#endif
     digitalWrite(_slaveSelectPin, LOW);
     status = _spi.transfer(reg | RH_SPI_WRITE_MASK); // Send the start address with the write mask on
     while (len--)
 	_spi.transfer(*src++);
     digitalWrite(_slaveSelectPin, HIGH);
+
     _spi.endTransaction();
+//#if defined(SPI_HAS_TRANSACTION)
+    //SPI.endTransaction();
+//#endif
     ATOMIC_BLOCK_END;
     return status;
 }
@@ -87,6 +121,12 @@ void RHSPIDriver::setSlaveSelectPin(uint8_t slaveSelectPin)
 {
     _slaveSelectPin = slaveSelectPin;
 }
+
+uint8_t RHSPIDriver::getSlaveSelectPin()
+{
+	return _slaveSelectPin;
+}
+
 
 void RHSPIDriver::spiUsingInterrupt(uint8_t interruptNumber)
 {

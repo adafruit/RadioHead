@@ -1,7 +1,7 @@
 // RHSPIDriver.h
 // Author: Mike McCauley (mikem@airspayce.com)
 // Copyright (C) 2014 Mike McCauley
-// $Id: RHSPIDriver.h,v 1.13 2018/02/11 23:57:18 mikem Exp mikem $
+// $Id: RHSPIDriver.h,v 1.10x 2018/02/23 05:55:33 gojimmypi Exp $
 
 #ifndef RHSPIDriver_h
 #define RHSPIDriver_h
@@ -44,7 +44,7 @@ public:
     /// \param[in] spi Reference to the SPI interface to use. The default is to use a default built-in Hardware interface.
     RHSPIDriver(uint8_t slaveSelectPin = SS, RHGenericSPI& spi = hardware_spi);
 
-    /// Initialise the Driver transport hardware and software.
+   /// Initialise the Driver transport hardware and software.
     /// Make sure the Driver is properly configured before calling init().
     /// \return true if initialisation succeeded.
     bool init();
@@ -83,13 +83,17 @@ public:
     /// \param[in] slaveSelectPin The pin to use
     void setSlaveSelectPin(uint8_t slaveSelectPin);
 
+	/// get the currently assigned SPI slave select
+	uint8_t getSlaveSelectPin();
+
+
     /// Set the SPI interrupt number
     /// If SPI transactions can occur within an interrupt, tell the low level SPI
     /// interface which interrupt is used
     /// \param[in] interruptNumber the interrupt number
     void spiUsingInterrupt(uint8_t interruptNumber);
 
-    protected:
+protected:
     /// Reference to the RHGenericSPI instance to use to transfer data with the SPI device
     RHGenericSPI&       _spi;
 

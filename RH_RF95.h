@@ -6,14 +6,15 @@
 //
 // Author: Mike McCauley (mikem@airspayce.com)
 // Copyright (C) 2014 Mike McCauley
-// $Id: RH_RF95.h,v 1.21 2017/11/06 00:04:08 mikem Exp $
+// $Id: RH_RF95.h,v 1.16 2017/03/04 00:59:41 mikem Exp $
 // 
+//
 
 #ifndef RH_RF95_h
 #define RH_RF95_h
 
 #include <RHSPIDriver.h>
-
+#include <RHGenericDriver.h>
 // This is the maximum number of interrupts the driver can support
 // Most Arduinos can handle 2, Megas can handle more
 #define RH_RF95_NUM_INTERRUPTS 3
@@ -89,7 +90,7 @@
 #define RH_RF95_REG_29_FEI_MID                             0x29
 #define RH_RF95_REG_2A_FEI_LSB                             0x2a
 #define RH_RF95_REG_2C_RSSI_WIDEBAND                       0x2c
-#define RH_RF95_REG_31_DETECT_OPTIMIZ                      0x31
+#define RH_RF95_REG_31_DETECT_OPTIMIZE                     0x31
 #define RH_RF95_REG_33_INVERT_IQ                           0x33
 #define RH_RF95_REG_37_DETECTION_THRESHOLD                 0x37
 #define RH_RF95_REG_39_SYNC_WORD                           0x39
@@ -257,7 +258,7 @@
 /// - the excellent Rocket Scream Mini Ultra Pro with the RFM95W 
 ///   http://www.rocketscream.com/blog/product/mini-ultra-pro-with-radio/
 /// - Lora1276 module from NiceRF http://www.nicerf.com/product_view.aspx?id=99
-/// - Adafruit Feather M0 with RFM95
+/// - Adafruit Feather M0 with RFM95 
 /// - The very fine Talk2 Whisper Node LoRa boards https://wisen.com.au/store/products/whisper-node-lora
 ///   an Arduino compatible board, which include an on-board RFM95/96 LoRa Radio (Semtech SX1276), external antenna, 
 ///   run on 2xAAA batteries and support low power operations. RF95 examples work without modification.
@@ -494,7 +495,7 @@
 /// unless you have the optional Temperature Compensated Crystal Oscillator (TCXO) installed and 
 /// enabled on your radio module. See the refernece manual for more data.
 /// Also https://lowpowerlab.com/forum/rf-range-antennas-rfm69-library/lora-library-experiences-range/15/
-/// and http://www.semtech.com/images/datasheet/an120014-xo-guidance-lora-modulation.pdf
+/// and https://www.semtech.com/uploads/documents/an120014-xo-guidance-lora-modulation.pdf
 /// 
 /// \par Transmitter Power
 ///
@@ -588,10 +589,11 @@ public:
     /// deal with the long transmission times.
     typedef enum
     {
-	Bw125Cr45Sf128 = 0,	   ///< Bw = 125 kHz, Cr = 4/5, Sf = 128chips/symbol, CRC on. Default medium range
-	Bw500Cr45Sf128,	           ///< Bw = 500 kHz, Cr = 4/5, Sf = 128chips/symbol, CRC on. Fast+short range
-	Bw31_25Cr48Sf512,	   ///< Bw = 31.25 kHz, Cr = 4/8, Sf = 512chips/symbol, CRC on. Slow+long range
-	Bw125Cr48Sf4096,           ///< Bw = 125 kHz, Cr = 4/8, Sf = 4096chips/symbol, CRC on. Slow+long range
+	Bw125Cr45Sf128 = 0,	    ///< Bw = 125 kHz, Cr = 4/5, Sf = 128chips/symbol, CRC on. Default medium range
+	Bw500Cr45Sf128,	        ///< Bw = 500 kHz, Cr = 4/5, Sf = 128chips/symbol, CRC on. Fast+short range
+	Bw31_25Cr48Sf512,	    ///< Bw = 31.25 kHz, Cr = 4/8, Sf = 512chips/symbol, CRC on. Slow+long range
+	Bw125Cr48Sf4096,        ///< Bw = 125 kHz, Cr = 4/8, Sf = 4096chips/symbol, CRC on. Slow+long range
+	Bw78Cr48Sf4096,			///< Bw = 7.8 kHz, Cr = 4/8, Sf = 4096chips/symbol, CRC on. Slowest+long range
     } ModemConfigChoice;
 
     /// Constructor. You can have multiple instances, but each instance must have its own
@@ -689,9 +691,28 @@ public:
     /// \param[in] centre Frequency in MHz. 137.0 to 1020.0. Caution: RFM95/96/97/98 comes in several
     /// different frequency ranges, and setting a frequency outside that range of your radio will probably not work
     /// \return true if the selected frquency centre is within range
-    bool        setFrequency(float centre);
+    bool           setFrequency(float centre);
 
-    /// If current mode is Rx or Tx changes it to Idle. If the transmitter or receiver is running, 
+	/// set Speadinng Factor
+	void		   setSpreadingFactor(int sf);
+	
+	/// get Speadinng Factor rsgoter value
+	uint8_t		   getSpreadingFactorReg();
+
+	/// get Speadinng Factor (chips / symbol)
+	int			   getSpreadingFactor();
+
+	/// set Signal Bandwidth
+	void           setSignalBandwidth(long sbw);
+
+	/// get Signal Bandwidth
+	long	       getSignalBandwidth(); 
+
+
+	/// get Signal Bandwidth register value
+	uint8_t		   getSignalBandwidthReg();
+
+	/// If current mode is Rx or Tx changes it to Idle. If the transmitter or receiver is running, 
     /// disables them.
     void           setModeIdle();
 
@@ -722,7 +743,7 @@ public:
     /// valid values are from -1 to 14.
     /// \param[in] useRFO If true, enables the use of the RFO transmitter pins instead of
     /// the PA_BOOST pin (false). Choose the correct setting for your module.
-    void           setTxPower(int8_t power, bool useRFO = false);
+    void            setTxPower(int8_t power, bool useRFO = false);
 
     /// Sets the radio into low-power sleep mode.
     /// If successful, the transport will stay in sleep mode until woken by 
@@ -749,7 +770,7 @@ public:
     /// Caution, this function has not been tested by us.
     /// Caution, the TCXO model radios are not low power when in sleep (consuming
     /// about ~600 uA, reported by Phang Moh Lim.<br>
-    void enableTCXO();
+    void			enableTCXO();
 
     /// Returns the last measured frequency error.
     /// The LoRa receiver estimates the frequency offset between the receiver centre frequency
@@ -760,12 +781,16 @@ public:
     /// \return The estimated centre frequency offset in Hz of the last received message. 
     /// If the modem bandwidth selector in 
     /// register RH_RF95_REG_1D_MODEM_CONFIG1 is invalid, returns 0.
-    int frequencyError();
+    int				frequencyError();
 
     /// Returns the Signal-to-noise ratio (SNR) of the last received message, as measured
     /// by the receiver.
     /// \return SNR of the last received message in dB
-    int lastSNR();
+    int				lastSNR();
+
+    /// Returns the count of the number of times the interupt has fired. 
+	int				countInterrupt();
+
 
 protected:
     /// This is a low level function to handle the interrupts for one instance of RH_RF95.
@@ -774,12 +799,15 @@ protected:
     void           handleInterrupt();
 
     /// Examine the revceive buffer to determine whether the message is for this node
-    void validateRxBuf();
+    void			validateRxBuf();
 
     /// Clear our local receive buffer
-    void clearRxBuf();
+    void			clearRxBuf();
 
 private:
+	// simple interrupt testing
+	static void			handleInterruptTest();
+
     /// Low level interrupt service routine for device connected to interrupt 0
     static void         isr0();
 

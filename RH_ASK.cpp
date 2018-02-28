@@ -19,6 +19,15 @@ HardwareTimer timer(MAPLE_TIMER);
     #define INTERRUPT_ATTR
 #endif
 
+// TODO: ESP32 needs these attributes too, no?
+//#if (RH_PLATFORM == RH_PLATFORM_ESP32)
+//	// interrupt handler and related code must be in RAM on ESP32,
+//	#define INTERRUPT_ATTR ICACHE_RAM_ATTR
+//#else
+//	#define INTERRUPT_ATTR
+//#endif
+
+
 // RH_ASK on Arduino uses Timer 1 to generate interrupts 8 times per bit interval
 // Define RH_ASK_ARDUINO_USE_TIMER2 if you want to use Timer 2 instead of Timer 1 on Arduino
 // You may need this to work around other librraies that insist on using timer 1

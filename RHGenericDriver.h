@@ -35,7 +35,7 @@
 /// Each message sent and received by a RadioHead driver includes 4 headers:
 /// -TO The node address that the message is being sent to (broadcast RH_BROADCAST_ADDRESS (255) is permitted)
 /// -FROM The node address of the sending node
-/// -ID A message ID, distinct (over short time scales) for each message sent by a particilar node
+/// -ID A message ID, distinct (over short time scales) for each message sent by a particular  node
 /// -FLAGS A bitmask of flags. The most significant 4 bits are reserved for use by RadioHead. The least
 /// significant 4 bits are reserved for applications.
 class RHGenericDriver
@@ -66,7 +66,7 @@ public:
     /// Tests whether a new message is available
     /// from the Driver. 
     /// On most drivers, if there is an uncollected received message, and there is no message
-    /// currently bing transmitted, this will also put the Driver into RHModeRx mode until
+    /// currently being transmitted, this will also put the Driver into RHModeRx mode until
     /// a message is actually received by the transport, when it will be returned to RHModeIdle.
     /// This can be called multiple times in a timeout loop.
     /// \return true if a new, complete, error-free uncollected message is available to be retreived by recv().
@@ -85,7 +85,7 @@ public:
 
     /// Waits until any previous transmit packet is finished being transmitted with waitPacketSent().
     /// Then optionally waits for Channel Activity Detection (CAD) 
-    /// to show the channnel is clear (if the radio supports CAD) by calling waitCAD().
+    /// to show the channel is clear (if the radio supports CAD) by calling waitCAD().
     /// Then loads a message into the transmitter and starts the transmitter. Note that a message length
     /// of 0 is NOT permitted. If the message is too long for the underlying radio technology, send() will
     /// return false and will not send the message.
@@ -110,7 +110,7 @@ public:
     virtual bool            waitPacketSent();
 
     /// Blocks until the transmitter is no longer transmitting.
-    /// or until the timeout occuers, whichever happens first
+    /// or until the timeout occurs, whichever happens first
     /// \param[in] timeout Maximum time to wait in milliseconds.
     /// \return true if the radio completed transmission within the timeout period. False if it timed out.
     virtual bool            waitPacketSent(uint16_t timeout);
@@ -150,13 +150,13 @@ public:
     virtual bool            isChannelActive();
 
     /// Sets the address of this node. Defaults to 0xFF. Subclasses or the user may want to change this.
-    /// This will be used to test the adddress in incoming messages. In non-promiscuous mode,
-    /// only messages with a TO header the same as thisAddress or the broadcast addess (0xFF) will be accepted.
+    /// This will be used to test the address in incoming messages. In non-promiscuous mode,
+    /// only messages with a TO header the same as thisAddress or the broadcast address (0xFF) will be accepted.
     /// In promiscuous mode, all messages will be accepted regardless of the TO header.
     /// In a conventional multinode system, all nodes will have a unique address 
     /// (which you could store in EEPROM).
-    /// You would normally set the header FROM address to be the same as thisAddress (though you dont have to, 
-    /// allowing the possibilty of address spoofing).
+    /// You would normally set the header FROM address to be the same as thisAddress (though you don't have to, 
+    /// allowing the possibility of address spoofing).
     /// \param[in] thisAddress The address of this node.
     virtual void setThisAddress(uint8_t thisAddress);
 
@@ -216,11 +216,11 @@ public:
     void            setMode(RHMode mode);
 
     /// Sets the transport hardware into low-power sleep mode
-    /// (if supported). May be overridden by specific drivers to initialte sleep mode.
+    /// (if supported). May be overridden by specific drivers to initiate sleep mode.
     /// If successful, the transport will stay in sleep mode until woken by 
     /// changing mode it idle, transmit or receive (eg by calling send(), recv(), available() etc)
     /// \return true if sleep mode is supported by transport hardware and the RadioHead driver, and if sleep mode
-    ///         was successfully entered. If sleep mode is not suported, return false.
+    ///         was successfully entered. If sleep mode is not supported, return false.
     virtual bool    sleep();
 
     /// Prints a data buffer in HEX.
@@ -246,6 +246,12 @@ public:
     /// packets successfully transmitted (though not necessarily received by the destination)
     /// \return The number of packets successfully transmitted
     virtual uint16_t       txGood();
+
+
+	/// Returns the count of the number of 
+	/// received packets that were received but failed validation (see validateRxBuf)
+	/// \return The number of invalid packets received.
+	virtual uint16_t       rxInvalid();
 
 protected:
 
@@ -288,7 +294,10 @@ protected:
     /// Count of the number of bad messages (eg bad checksum etc) received
     volatile uint16_t   _rxBad;
 
-    /// Count of the number of successfully transmitted messaged
+	/// Count of the number of invalid messages (eg failed validateRxBuf) received
+	volatile uint16_t   _rxInvalid;
+
+	/// Count of the number of successfully transmitted messaged
     volatile uint16_t   _rxGood;
 
     /// Count of the number of bad messages (correct checksum etc) received

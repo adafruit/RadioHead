@@ -201,6 +201,11 @@ uint16_t RHGenericDriver::rxGood()
     return _rxGood;
 }
 
+uint16_t RHGenericDriver::rxInvalid()
+{
+	return _rxInvalid;
+}
+
 uint16_t RHGenericDriver::txGood()
 {
     return _txGood;

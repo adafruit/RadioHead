@@ -9,8 +9,8 @@
 // $Id: RH_MRF89.h,v 1.7 2017/07/25 05:26:50 mikem Exp $
 // 
 
-#ifndef RH_RF95_h
-#define RH_RF95_h
+#ifndef RH_MRF89_h
+#define RH_MRF89_h
 
 #include <RHNRFSPIDriver.h>
 

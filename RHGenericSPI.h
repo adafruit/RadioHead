@@ -19,11 +19,11 @@
 /// without changing the main code.
 ///
 /// You must provide a subclass of this class to driver constructors that require SPI.
-/// A concrete subclass that encapsualates the standard Arduino hardware SPI and a bit-banged
+/// A concrete subclass that encapsulates the standard Arduino hardware SPI and a bit-banged
 /// software implementation is included.
 ///
 /// Do not directly use this class: it must be subclassed and the following abstract functions at least 
-/// must be implmented:
+/// must be implemented:
 /// - begin()
 /// - end() 
 /// - transfer()
@@ -75,7 +75,7 @@ public:
 
     /// Constructor
     /// Creates an instance of an abstract SPI interface.
-    /// Do not use this contructor directly: you must instead use on of the concrete subclasses provided 
+    /// Do not use this constructor directly: you must instead use on of the concrete subclasses provided 
     /// such as RHHardwareSPI or RHSoftwareSPI
     /// \param[in] frequency One of RHGenericSPI::Frequency to select the SPI bus frequency. The frequency
     /// is mapped to the closest available bus frequency on the platform.
@@ -138,7 +138,7 @@ public:
 
     /// Specify the interrupt number of the interrupt that will use SPI transactions
     /// Tells the SPI support software that SPI transactions will occur with the interrupt
-    /// handler assocated with interruptNumber
+    /// handler associated with interruptNumber
     /// Base does nothing
     /// Might be overridden in subclass
     /// \param[in] interruptNumber The number of the interrupt

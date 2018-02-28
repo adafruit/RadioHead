@@ -1103,6 +1103,12 @@ these examples and explanations and extend them to suit your needs.
 #define RH_PLATFORM_ESP32            14						   
 #define RH_PLATFORM_NRF52            15
 
+// serial debug verbosity; 0 = no debug messages; 
+// set to value > 1 for optional serial port debugging messages
+// (higher number for greater verbosity)
+#define RH_DEBUG_VERBOSE 0     //  general debug messages
+#define RH_DEBUG_SPI_VERBOSE 0 //  SPI-specific debug messages
+
 ////////////////////////////////////////////////////
 // Select platform automatically, if possible
 #ifndef RH_PLATFORM
@@ -1172,6 +1178,7 @@ these examples and explanations and extend them to suit your needs.
  #include <SPI.h>
  #define RH_HAVE_HARDWARE_SPI
  #define RH_HAVE_SERIAL
+ #define SS 5 // needed in RHSPIDriver, SS is otherwise defined for ESP32 and should not default later; added gojimmypi 12FEB18
 
 #elif (RH_PLATFORM == RH_PLATFORM_MSP430) // LaunchPad specific
  #include "legacymsp430.h"
@@ -1309,6 +1316,8 @@ these examples and explanations and extend them to suit your needs.
  #define YIELD yield();
 #elif (RH_PLATFORM == RH_PLATFORM_ESP8266)
 // ESP8266 also has it
+ #define YIELD yield();
+#elif (RH_PLATFORM == RH_PLATFORM_ESP32)
  #define YIELD yield();
 #else
  #define YIELD

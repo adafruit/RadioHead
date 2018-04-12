@@ -754,12 +754,12 @@
 #define RH_PLATFORM_STM32STD         7
 #define RH_PLATFORM_STM32F4_HAL      8 
 #define RH_PLATFORM_RASPI            9
-// Also nRF52 family:
 #define RH_PLATFORM_NRF51            10
 #define RH_PLATFORM_ESP8266          11
 #define RH_PLATFORM_STM32F2          12
 #define RH_PLATFORM_CHIPKIT_CORE     13
 #define RH_PLATFORM_ESP32            14
+#define RH_PLATFORM_NRF52            15
 
 ////////////////////////////////////////////////////
 // Select platform automatically, if possible
@@ -770,8 +770,10 @@
  #elif defined(MPIDE)
   // Uno32 under old MPIDE, which has been discontinued:
   #define RH_PLATFORM RH_PLATFORM_UNO32
-#elif defined(NRF51) || defined(NRF52)
+ #elif defined(NRF51)
   #define RH_PLATFORM RH_PLATFORM_NRF51
+ #elif defined(NRF52)
+  #define RH_PLATFORM RH_PLATFORM_NRF52
  #elif defined(ESP8266)
   #define RH_PLATFORM RH_PLATFORM_ESP8266
  #elif defined(ESP32)
@@ -905,7 +907,16 @@
 #elif (RH_PLATFORM == RH_PLATFORM_NRF51)
  #define RH_HAVE_SERIAL
  #define PROGMEM
-  #include <Arduino.h>
+ #define RH_HAVE_HARDWARE_SPI
+ #include <SPI.h> 
+ #include <Arduino.h>
+
+#elif (RH_PLATFORM == RH_PLATFORM_NRF52)
+ #define RH_HAVE_SERIAL
+ #define PROGMEM
+ #define RH_HAVE_HARDWARE_SPI
+ #include <SPI.h> 
+ #include <Arduino.h>
 
 #elif (RH_PLATFORM == RH_PLATFORM_UNIX) 
  // Simulate the sketch on Linux and OSX

@@ -76,9 +76,9 @@ void RHHardwareSPI::begin()
        frequency32 = 1000000;
    }
 
-  #if (RH_PLATFORM == RH_PLATFORM_ARDUINO) && defined (__arm__) && (defined(ARDUINO_SAM_DUE) || defined(ARDUINO_ARCH_SAMD))
+#if (RH_PLATFORM == RH_PLATFORM_ARDUINO) && defined (__arm__) && (defined(ARDUINO_SAM_DUE) || defined(ARDUINO_ARCH_SAMD)) || (RH_PLATFORM == RH_PLATFORM_NRF52)
     // Arduino Due in 1.5.5 has its own BitOrder :-(
-    // So too does Arduino Zero
+    // So too does Arduino Zero and nRF52
     ::BitOrder bOrder;
   #else
     uint8_t bOrder;

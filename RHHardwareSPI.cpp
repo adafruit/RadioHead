@@ -76,28 +76,29 @@ void RHHardwareSPI::begin()
 #if defined(SPI_HAS_TRANSACTION)
     // Perhaps this is a uniform interface for SPI?
     // Currently Teensy and ESP32 only
-   uint32_t frequency;
-   if (_frequency == Frequency16MHz)
-       frequency = 16000000;
-   else if (_frequency == Frequency8MHz)
-       frequency = 8000000;
-   else if (_frequency == Frequency4MHz)
-       frequency = 4000000;
-   else if (_frequency == Frequency2MHz)
-       frequency = 2000000;
-   else
-       frequency = 1000000;
+	uint32_t frequency32;
+	if (_frequency == Frequency16MHz) {
+		frequency32 = 16000000;
+	}
+	else if (_frequency == Frequency8MHz) {
+		frequency32 = 8000000;
+	}
+	else if (_frequency == Frequency4MHz) {
+		frequency32 = 4000000;
+	}
+	else if (_frequency == Frequency2MHz) {
+		frequency32 = 2000000;
+	}
+	else {
+		frequency32 = 1000000;
+	}
 
-#if ((RH_PLATFORM == RH_PLATFORM_ARDUINO) && defined (__arm__) && (defined(ARDUINO_SAM_DUE) || defined(ARDUINO_ARCH_SAMD))) || defined(ARDUINO_ARCH_NRF52)
-    // Arduino Due in 1.5.5 has its own BitOrder :-(
-    // So too does Arduino Zero
-    ::BitOrder bitOrder;
-  #if defined(RH_HAVE_SERIAL) && (RH_DEBUG_SPI_VERBOSE  >= 1)
-	Serial.println("special bit order ");
-  #endif
+#if (RH_PLATFORM == RH_PLATFORM_ARDUINO) && defined (__arm__) && (defined(ARDUINO_SAM_DUE) || defined(ARDUINO_ARCH_SAMD)) || (RH_PLATFORM == RH_PLATFORM_NRF52)
+	// Arduino Due in 1.5.5 has its own BitOrder :-(
+	// So too does Arduino Zero and nRF52
+	::BitOrder bOrder;
 #else
-    uint8_t bitOrder;
-  #endif
+	uint8_t bOrder;  #endif
 
    if (_bitOrder == BitOrderLSBFirst) 
    {

@@ -1,4 +1,7 @@
 // LoRa Simple Hello World Client with encrypted communications 
+// In order for this to compile you MUST uncomment the #define RH_ENABLE_ENCRYPTION_MODULE line
+// at the bottom of RadioHead.h, AND you MUST have installed the Crypto directory from arduinolibs:
+// http://rweather.github.io/arduinolibs/index.html
 //  Philippe.Rochat'at'gmail.com
 //  06.07.2017
 

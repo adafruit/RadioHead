@@ -1,7 +1,7 @@
 // NRF24.cpp
 //
 // Copyright (C) 2012 Mike McCauley
-// $Id: RH_NRF24.cpp,v 1.25 2017/07/25 05:26:50 mikem Exp $
+// $Id: RH_NRF24.cpp,v 1.26 2018/01/06 23:50:45 mikem Exp mikem $
 
 #include <RH_NRF24.h>
 
@@ -216,8 +216,13 @@ bool RH_NRF24::waitPacketSent()
     // end of transmission
     // We dont actually use auto-ack, so prob dont expect to see RH_NRF24_MAX_RT
     uint8_t status;
+    uint32_t start = millis();
     while (!((status = statusRead()) & (RH_NRF24_TX_DS | RH_NRF24_MAX_RT)))
+    {
+	if (((uint32_t)millis() - start) > 100) // Longer than any possible message
+	    break;  // Should never happen: TX never completed. Why?
 	YIELD;
+    }
 
     // Must clear RH_NRF24_MAX_RT if it is set, else no further comm
     if (status & RH_NRF24_MAX_RT)

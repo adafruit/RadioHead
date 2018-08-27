@@ -1,7 +1,7 @@
 // RadioHead.h
 // Author: Mike McCauley (mikem@airspayce.com) DO NOT CONTACT THE AUTHOR DIRECTLY
 // Copyright (C) 2014 Mike McCauley
-// $Id: RadioHead.h,v 1.68 2017/11/06 00:04:08 mikem Exp mikem $
+// $Id: RadioHead.h,v 1.69 2018/01/06 23:50:45 mikem Exp mikem $
 
 /// \mainpage RadioHead Packet Radio library for embedded microprocessors
 ///
@@ -10,7 +10,7 @@
 /// via a variety of common data radios and other transports on a range of embedded microprocessors.
 ///
 /// The version of the package that this documentation refers to can be downloaded 
-/// from http://www.airspayce.com/mikem/arduino/RadioHead/RadioHead-1.81.zip
+/// from http://www.airspayce.com/mikem/arduino/RadioHead/RadioHead-1.82.zip
 /// You can find the latest version of the documentation at http://www.airspayce.com/mikem/arduino/RadioHead
 ///
 /// You can also find online help and discussion at 
@@ -800,7 +800,6 @@
 ///              Added support for SPI transactions in development environments that support it with SPI_HAS_TRANSACTION.
 ///              Tested on ESP32 with RFM-22 and Teensy 3.1 with RF69
 ///              Added support for ESP32, tested with RFM-22 connected by SPI.<br>
-///
 ///\version 1.81 2017-11-15
 ///              RH_CC110, moved setPaTable() from protected to public.<br>
 ///              RH_RF95 modem config Bw125Cr48Sf4096 altered to enable slow daat rate in register 26
@@ -810,6 +809,12 @@
 ///              Fixed a problem where rev 1.80 broke Adafruit M0 LoRa support by declaring 
 ///              bitOrder variable always as a unsigned char. Reported by Guilherme Jardim.<br>
 ///              In RH_RF95, all modes now have AGC enabled, as suggested by Dieter Kneffel.<br>
+/// \version 1.82 2018-01-07
+///              Added guard code to RH_NRF24::waitPacketSent() so that if the transmit never completes for some
+///              reason, the code will eventually return with FALSE.
+///              Added the low-datarate-optimization bit to config for RH_RF95::Bw125Cr48Sf4096.
+///              Fix from Jurie Pieterse to ensure RH_CC110::sleep always enters sleep mode.
+///              Update ESP32 support to include ASK timers. RH_ASK module is now working on ESP32.
 ///
 /// \author  Mike McCauley. DO NOT CONTACT THE AUTHOR DIRECTLY. USE THE GOOGLE LIST GIVEN ABOVE
 
@@ -1056,7 +1061,7 @@ these examples and explanations and extend them to suit your needs.
 
 // Official version numbers are maintained automatically by Makefile:
 #define RH_VERSION_MAJOR 1
-#define RH_VERSION_MINOR 81
+#define RH_VERSION_MINOR 82
 
 // Symbolic names for currently supported platform types
 #define RH_PLATFORM_ARDUINO          1

@@ -1,7 +1,7 @@
 // RH_RF95.cpp
 //
 // Copyright (C) 2011 Mike McCauley
-// $Id: RH_RF95.cpp,v 1.17 2017/11/06 00:04:08 mikem Exp mikem $
+// $Id: RH_RF95.cpp,v 1.18 2018/01/06 23:50:45 mikem Exp mikem $
 
 #include <RH_RF95.h>
 
@@ -19,7 +19,7 @@ PROGMEM static const RH_RF95::ModemConfig MODEM_CONFIG_TABLE[] =
     { 0x72,   0x74,    0x04}, // Bw125Cr45Sf128 (the chip default), AGC enabled
     { 0x92,   0x74,    0x04}, // Bw500Cr45Sf128, AGC enabled
     { 0x48,   0x94,    0x04}, // Bw31_25Cr48Sf512, AGC enabled
-    { 0x78,   0xc4,    0x04}, // Bw125Cr48Sf4096, AGC enabled
+    { 0x78,   0xc4,    0x0c}, // Bw125Cr48Sf4096, AGC enabled
     
 };
 

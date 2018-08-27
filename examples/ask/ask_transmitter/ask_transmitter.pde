@@ -8,7 +8,7 @@
 #include <SPI.h> // Not actually used but needed to compile
 
 RH_ASK driver;
-// RH_ASK driver(2000, 2, 4, 5); // ESP8266: do not use pin 11
+// RH_ASK driver(2000, 2, 4, 5); // ESP8266 or ESP32: do not use pin 11
 
 void setup()
 {

@@ -5,7 +5,7 @@
 //
 // Author: Mike McCauley (mikem@airspayce.com)
 // Copyright (C) 2017 Mike McCauley
-// $Id: RH_E32.h,v 1.2 2017/06/24 20:36:15 mikem Exp $
+// $Id: RH_E32.h,v 1.3 2018/01/06 23:50:45 mikem Exp mikem $
 // 
 
 #ifndef RH_E32_h
@@ -97,7 +97,7 @@
 ///
 /// Note: it should also be possible to use the E32-TTL-1W with the RadioHead RH_Serial module,
 /// which will also you to send longer packets, but will require you to use the EBYTE Wireless Module Setting program
-/// to configure teh radio first. In this arrangement the E32 would act as a transparent serial connection.
+/// to configure the radio first. In this arrangement the E32 would act as a transparent serial connection.
 /// This has not been tested by us.
 ///
 /// \par Overview

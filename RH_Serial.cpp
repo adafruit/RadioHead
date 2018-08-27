@@ -185,7 +185,6 @@ bool RH_Serial::recv(uint8_t* buf, uint8_t* len)
 {
     if (!available())
 	return false;
-
     if (buf && len)
     {
 	// Skip the 4 headers that are at the beginning of the rxBuf
@@ -200,6 +199,9 @@ bool RH_Serial::recv(uint8_t* buf, uint8_t* len)
 // Caution: this may block
 bool RH_Serial::send(const uint8_t* data, uint8_t len)
 {
+    if (len > RH_SERIAL_MAX_MESSAGE_LEN)
+	return false;
+
     if (!waitCAD()) 
 	return false;  // Check channel activity
 

@@ -1,7 +1,7 @@
 // RHGenericDriver.h
 // Author: Mike McCauley (mikem@airspayce.com)
 // Copyright (C) 2014 Mike McCauley
-// $Id: RHGenericDriver.h,v 1.20 2017/06/24 20:36:15 mikem Exp $
+// $Id: RHGenericDriver.h,v 1.21 2017/07/25 05:26:50 mikem Exp mikem $
 
 #ifndef RHGenericDriver_h
 #define RHGenericDriver_h
@@ -235,17 +235,17 @@ public:
     /// Caution: not all drivers can correctly report this count. Some underlying hardware only report
     /// good packets.
     /// \return The number of bad packets received.
-    uint16_t       rxBad();
+    virtual uint16_t       rxBad();
 
     /// Returns the count of the number of 
     /// good received packets
     /// \return The number of good packets received.
-    uint16_t       rxGood();
+    virtual uint16_t       rxGood();
 
     /// Returns the count of the number of 
     /// packets successfully transmitted (though not necessarily received by the destination)
     /// \return The number of packets successfully transmitted
-    uint16_t       txGood();
+    virtual uint16_t       txGood();
 
 protected:
 

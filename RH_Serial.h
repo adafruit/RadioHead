@@ -254,5 +254,7 @@ protected:
 /// @example serial_reliable_datagram_client.pde
 /// @example serial_reliable_datagram_server.pde
 /// @example serial_gateway.pde
+/// @example serial_encrypted_reliable_datagram_client.pde
+/// @example serial_encrypted_reliable_datagram_server.pde
 
 #endif

@@ -2,7 +2,7 @@
 // Author: Mike McCauley (mikem@airspayce.com)
 // Copyright (C) 2011 Mike McCauley
 // Contributed by Joanna Rutkowska
-// $Id: RHHardwareSPI.cpp,v 1.16 2016/07/07 00:02:53 mikem Exp $
+// $Id: RHHardwareSPI.cpp,v 1.17 2017/07/25 05:26:50 mikem Exp mikem $
 
 #include <RHHardwareSPI.h>
 
@@ -284,7 +284,6 @@ void RHHardwareSPI::begin()
     SPI.begin(frequency, bitOrder, dataMode);
 
 #elif (RH_PLATFORM == RH_PLATFORM_STM32F2) // Photon
-    Serial.println("HERE");
     uint8_t dataMode;
     if (_dataMode == DataMode0)
 	dataMode = SPI_MODE0;

@@ -1,7 +1,7 @@
 // RadioHead.h
 // Author: Mike McCauley (mikem@airspayce.com) DO NOT CONTACT THE AUTHOR DIRECTLY
 // Copyright (C) 2014 Mike McCauley
-// $Id: RadioHead.h,v 1.65 2017/06/25 09:41:17 mikem Exp $
+// $Id: RadioHead.h,v 1.66 2017/07/25 05:26:50 mikem Exp mikem $
 
 /// \mainpage RadioHead Packet Radio library for embedded microprocessors
 ///
@@ -10,7 +10,7 @@
 /// via a variety of common data radios and other transports on a range of embedded microprocessors.
 ///
 /// The version of the package that this documentation refers to can be downloaded 
-/// from http://www.airspayce.com/mikem/arduino/RadioHead/RadioHead-1.78.zip
+/// from http://www.airspayce.com/mikem/arduino/RadioHead/RadioHead-1.79.zip
 /// You can find the latest version of the documentation at http://www.airspayce.com/mikem/arduino/RadioHead
 ///
 /// You can also find online help and discussion at 
@@ -309,6 +309,8 @@
 ///
 /// \htmlonly <form action="https://www.paypal.com/cgi-bin/webscr" method="post"><input type="hidden" name="cmd" value="_donations" /> <input type="hidden" name="business" value="mikem@airspayce.com" /> <input type="hidden" name="lc" value="AU" /> <input type="hidden" name="item_name" value="Airspayce" /> <input type="hidden" name="item_number" value="RadioHead" /> <input type="hidden" name="currency_code" value="USD" /> <input type="hidden" name="bn" value="PP-DonationsBF:btn_donateCC_LG.gif:NonHosted" /> <input type="image" alt="PayPal — The safer, easier way to pay online." name="submit" src="https://www.paypalobjects.com/en_AU/i/btn/btn_donateCC_LG.gif" /> <img alt="" src="https://www.paypalobjects.com/en_AU/i/scr/pixel.gif" width="1" height="1" border="0" /></form> \endhtmlonly
 /// 
+/// \subpage packingdata "Passing Sensor Data Between RadioHead nodes"
+///
 /// \par Trademarks
 ///
 /// RadioHead is a trademark of AirSpayce Pty Ltd. The RadioHead mark was first used on April 12 2014 for
@@ -759,18 +761,261 @@
 /// \version 1.78 2017-07-19
 ///              Fixed a number of unused variable warnings from g++.<br>
 ///              Added new module RHEncryptedDriver and examples, contributed by Philippe Rochat, which
-///              adds encryption and decryption to any RadioHead transport driver, using any encrpytion cipher
-///              supported by ArduinoLibs Cryptogrphic Library http://rweather.github.io/arduinolibs/crypto.html
+///              adds encryption and decryption to any RadioHead transport driver, using any encryption cipher
+///              supported by ArduinoLibs Cryptographic Library http://rweather.github.io/arduinolibs/crypto.html
 ///              Includes several examples.<br>
+/// \version 1.79 2017-07-25
+///              Added documentation about 'Passing Sensor Data Between RadioHead nodes'.<br>
+///              Changes to RH_CC110 driver to calculate RSSI in dBm, based on a patch from Jurie Pieterse.<br>
+///              Added missing passthroughmethoids to RHEncryptedDriver, allowing it to be used with RHDatagram,
+///              RHReliableDatagram etc. Tested with RH_Serial. Added examples 
 ///
 /// \author  Mike McCauley. DO NOT CONTACT THE AUTHOR DIRECTLY. USE THE MAILING LIST GIVEN ABOVE
+
+/*! \page packingdata 
+\par Passing Sensor Data Between RadioHead nodes
+
+People often ask about how to send data (such as numbers, sensor
+readings etc) from one RadioHead node to another. Although this issue
+is not specific to RadioHead, and more properly lies in the area of
+programming for networks, we will try to give some guidance here.
+
+One reason for the uncertainty and confusion in this area, especially
+amongst beginners, is that there is no *best* way to do it. The best
+solution for your project may depend on the range of processors and
+data that you have to deal with. Also, it gets more difficult if you
+need to send several numbers in one packet, and/or deal with floating
+point numbers.
+
+The principal cause of difficulty is that different microprocessors of
+the kind that run RadioHead may have different ways of representing
+binary data such as integers. Some processors are little-endian and
+some are big-endian in the way they represent multi-byte integers
+(https://en.wikipedia.org/wiki/Endianness). And different processors
+and maths libraries may represent floating point numbers in radically
+different ways:
+(https://en.wikipedia.org/wiki/Floating-point_arithmetic)
+
+All the RadioHead examples show how to send and receive simple ASCII
+strings, and if thats all you want, refer to the examples folder in
+your RadioHead distribution.  But your needs may be more complicated
+than that.
+
+The essence of all engineering is compromise so it will be up to you to
+decide whats best for your paricular needs. The main choices are:
+- Raw Binary
+- Network Order Binary
+- ASCII
+
+\par Raw Binary
+
+With this technique you just pack the raw binary numbers into the packet:
+
+\code
+// Sending a single integer
+// in the transmitter:
+...
+uint16_t data = getsomevalue();
+if (!driver.send((uint8_t*)&data, sizeof(data)))
+{
+    ...
+\endcode
+
+\code
+// and in the receiver:
+...
+uint16_t data;
+uint8_t datalen = sizeof(data);
+if (   driver.recv((uint8_t*)&data, &datalen)
+    && datalen == sizeof(data))
+{
+    // Have the data, so do something with it
+    uint16_t xyz = data;
+    ...
+\endcode
+
+If you need to send more than one number at a time, its best to pack
+them into a structure
+
+\code
+// Sending several integers in a structure
+// in a common header for your project:
+typedef struct
+{
+    uint16_t   dataitem1;
+    uint16_t   dataitem2;
+} MyDataStruct;
+...
+\endcode
+
+\code
+// In the transmitter
+...
+MyDataStruct data;
+data.dataitem1 = getsomevalue();
+data.dataitem2 = getsomeothervalue();
+if (!driver.send((uint8_t*)&data, sizeof(data)))
+{
+    ...
+\endcode
+
+\code
+// in the receiver
+MyDataStruct data;
+uint8_t datalen = sizeof(data);
+if (   driver.recv((uint8_t*)&data, &datalen)
+    && datalen == sizeof(data))
+{
+    // Have the data, so do something with it
+    uint16_t pqr = data.dataitem1;
+    uint16_t xyz = data.dataitem2;
+    ....
+\endcode
+
+
+The disadvantage with this simple technique becomes apparent if your
+transmitter and receiver have different endianness: the integers you
+receive will not be the same as the ones you sent (actually they are,
+but with the internal bytes swapped around, so they probably wont make
+sense to you). Endianness is not a problem if *every* data item you
+send is a just single byte (uint8_t or int8_t or char).
+
+So you should only adopt this technique if:
+- You only send data items of a single byte each, or
+- You are absolutely sure (now and forever into the future) that you
+will only ever use the same processor in the transmitter and receiver.
+
+\par Network Order Binary
+
+One solution to the issue of endianness in your processors to to
+always convert your data from the processor's native byte order to
+'network byte order' before transmission and then convert it back to
+the receiver's native byte order. You do this with the htons (host to
+network short) macro and friends. These functions may be a no-op on
+big-endian processors.
+
+With this technique you convert every multi-byte number to and from
+network byte order (note that in most Arduino processors an integer is
+in fact a short, and is the same as int16_t. We prefer to use types
+that explicitly specify their size so we can be sure of applying the
+right conversions):
+
+\code
+// Sending a single integer
+// in the transmitter:
+...
+uint16_t data = htons(getsomevalue());
+if (!driver.send((uint8_t*)&data, sizeof(data)))
+{
+    ...
+\endcode
+\code
+// and in the receiver:
+...
+uint16_t data;
+uint8_t datalen = sizeof(data);
+if (   driver.recv((uint8_t*)&data, &datalen)
+    && datalen == sizeof(data))
+{
+    // Have the data, so do something with it
+    uint16_t xyz = ntohs(data);
+    ...
+\endcode
+
+If you need to send more than one number at a time, its best to pack
+them into a structure
+
+\code
+// Sending several integers in a structure
+// in a common header for your project:
+typedef struct
+{
+    uint16_t   dataitem1;
+    uint16_t   dataitem2;
+} MyDataStruct;
+...
+\endcode
+\code
+// In the transmitter
+...
+MyDataStruct data;
+data.dataitem1 = htons(getsomevalue());
+data.dataitem2 = htons(getsomeothervalue());
+if (!driver.send((uint8_t*)&data, sizeof(data)))
+{
+    ...
+\endcode
+\code
+// in the receiver
+MyDataStruct data;
+uint8_t datalen = sizeof(data);
+if (   driver.recv((uint8_t*)&data, &datalen)
+    && datalen == sizeof(data))
+{
+    // Have the data, so do something with it
+    uint16_t pqr = ntohs(data.dataitem1);
+    uint16_t xyz = ntohs(data.dataitem2);
+    ....
+\endcode
+
+This technique is quite general for integers but may not work if you
+want to send floating point number between transmitters and receivers
+that have different floating point number representations.
+
+
+\par ASCII
+
+In this technique, you transmit the printable ASCII equivalent of
+each floating point and then convert it back to a float in the receiver:
+
+\code
+// In the transmitter
+...
+float data = getsomevalue();
+uint8_t buf[15]; // Bigger than the biggest possible ASCII
+snprintf(buf, sizeof(buf), "%f", data);
+if (!driver.send(buf, strlen(buf) + 1)) // Include the trailing NUL
+{
+    ...
+\endcode
+\code
+
+// In the receiver
+...
+float data;
+uint8_t buf[15]; // Bigger than the biggest possible ASCII
+uint8_t buflen = sizeof(buf);
+if (driver.recv(buf, &buflen))
+{
+    // Have the data, so do something with it
+    float data = atof(buf); // String to float
+    ...
+\endcode
+
+\par Conclusion:
+
+- This is just a basic introduction to the issues. You may need to
+extend your study into related C/C++ programming techniques.
+
+- You can extend these ideas to signed 16 bit (int16_t) and 32 bit
+(uint32_t, int32_t) numbers.
+
+- Things can be simple or complicated depending on the needs of your
+project.
+
+- We are not going to write your code for you: its up to you to take
+these examples and explanations and extend them to suit your needs.
+
+*/
+
+
 
 #ifndef RadioHead_h
 #define RadioHead_h
 
 // Official version numbers are maintained automatically by Makefile:
 #define RH_VERSION_MAJOR 1
-#define RH_VERSION_MINOR 78
+#define RH_VERSION_MINOR 79
 
 // Symbolic names for currently supported platform types
 #define RH_PLATFORM_ARDUINO          1
@@ -1062,7 +1307,7 @@
 // that have a lot of excess baggage
 #if RH_PLATFORM != RH_PLATFORM_UNIX && !defined(htons)
 // #ifndef htons
-// These predefined macros availble on modern GCC compilers
+// These predefined macros available on modern GCC compilers
  #if   __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
   // Atmel processors
   #define htons(x) ( ((x)<<8) | (((x)>>8)&0xFF) )
@@ -1088,7 +1333,7 @@
 // This is the address that indicates a broadcast
 #define RH_BROADCAST_ADDRESS 0xff
 
-// Uncomment this is to enable Encryption module (see RHEncryptedDriver driver):
+// Uncomment this is to enable Encryption (see RHEncryptedDriver):
 // But ensure you have installed the Crypto directory from arduinolibs first:
 // http://rweather.github.io/arduinolibs/index.html
 //#define RH_ENABLE_ENCRYPTION_MODULE

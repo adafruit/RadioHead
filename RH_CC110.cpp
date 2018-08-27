@@ -3,7 +3,7 @@
 // Driver for Texas Instruments CC110L transceiver.
 //
 // Copyright (C) 2016 Mike McCauley
-// $Id: RH_CC110.cpp,v 1.5 2017/01/12 23:58:00 mikem Exp $
+// $Id: RH_CC110.cpp,v 1.6 2017/07/25 05:26:50 mikem Exp mikem $
 
 #include <RH_CC110.h>
 
@@ -159,8 +159,14 @@ void RH_CC110::handleInterrupt()
     {
 	// Radio is configured to stay in RX until we move it to IDLE after a CRC_OK message for us
 	// We only get interrupts in RX mode, on CRC_OK
-	// CRC OK
-	_lastRssi = spiBurstReadRegister(RH_CC110_REG_34_RSSI); // Was set when sync word was detected
+
+	uint8_t raw_rssi = spiBurstReadRegister(RH_CC110_REG_34_RSSI); // Was set when sync word was detected
+	// Conversion of RSSI value to received power level in dBm per TI section 5.18.2
+	if (raw_rssi >= 128) 
+	    _lastRssi = (((int16_t)raw_rssi - 256) / 2) - 74;
+	else 
+	    _lastRssi = ((int16_t)raw_rssi / 2) - 74;
+
 	_bufLen = spiReadRegister(RH_CC110_REG_3F_FIFO);
 	if (_bufLen < 4)
 	{

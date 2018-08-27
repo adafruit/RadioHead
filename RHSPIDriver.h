@@ -1,7 +1,7 @@
 // RHSPIDriver.h
 // Author: Mike McCauley (mikem@airspayce.com)
 // Copyright (C) 2014 Mike McCauley
-// $Id: RHSPIDriver.h,v 1.10 2015/12/16 04:55:33 mikem Exp $
+// $Id: RHSPIDriver.h,v 1.11 2017/07/25 05:26:50 mikem Exp mikem $
 
 #ifndef RHSPIDriver_h
 #define RHSPIDriver_h
@@ -16,7 +16,7 @@ class RHGenericSPI;
 
 /////////////////////////////////////////////////////////////////////
 /// \class RHSPIDriver RHSPIDriver.h <RHSPIDriver.h>
-/// \brief Base class for a RadioHead drivers that use the SPI bus
+/// \brief Base class for RadioHead drivers that use the SPI bus
 /// to communicate with its transport hardware.
 ///
 /// This class can be subclassed by Drivers that require to use the SPI bus.

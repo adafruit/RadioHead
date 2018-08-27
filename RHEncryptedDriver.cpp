@@ -2,7 +2,7 @@
 //
 // Author: Philippe.Rochat'at'gmail.com
 // Contributed to the RadioHead project by the author
-// $Id: RadioHead.h,v 1.65 2017/06/25 09:41:17 mikem Exp $
+// $Id: RHEncryptedDriver.cpp,v 1.1 2017/07/25 05:26:50 mikem Exp mikem $
 
 #include <RHEncryptedDriver.h>
 #ifdef RH_ENABLE_ENCRYPTION_MODULE
@@ -14,27 +14,18 @@ RHEncryptedDriver::RHEncryptedDriver(RHGenericDriver& driver, BlockCipher& block
     _buffer = (uint8_t *)calloc(_driver.maxMessageLength(), sizeof(uint8_t));
 }
 
-// Just a passthru method
-bool RHEncryptedDriver::available()
-{
-    return _driver.available();
-}
-bool RHEncryptedDriver::waitPacketSent()
-{
-    return _driver.waitPacketSent();
-}
-
 bool RHEncryptedDriver::recv(uint8_t* buf, uint8_t* len)
 {
     int h = 0; // Index of output _buffer
 
-    bool status = _driver.recv(_buffer, len); // Was buf before
+    bool status = _driver.recv(_buffer, len);
     if (status)
     {
 	int blockSize = _blockcipher.blockSize(); // Size of blocks used by encryption
 	int nbBlocks = *len / blockSize; 		  // Number of blocks in that message
 	if (nbBlocks * blockSize == *len)
-	{ // Or we have a missmatch ... this is probably not symetrically encrypted 
+	{
+	    // Or we have a missmatch ... this is probably not symetrically encrypted 
 	    for (int k = 0; k < nbBlocks; k++)
 	    {
 		// Decrypt each block
@@ -43,13 +34,11 @@ bool RHEncryptedDriver::recv(uint8_t* buf, uint8_t* len)
 #ifdef STRICT_CONTENT_LEN	
 		if (k == 0)
 		{
+//		    if (buf[0] > *len - 1)
+//			return false; // Bogus payload length
 		    *len = buf[0]; // First byte contains length
 		    h--;			// First block is of length--
-		    for (int j = 0; j < blockSize - 1; j++)
-		    {
-			// Left shift every byte in that block
-			buf[j] = buf[j + 1];
-		    }
+		    memmove(buf, buf+1, blockSize - 1);
 		}
 #endif			
 	    }
@@ -61,6 +50,9 @@ bool RHEncryptedDriver::recv(uint8_t* buf, uint8_t* len)
 
 bool RHEncryptedDriver::send(const uint8_t* data, uint8_t len)
 {
+    if (len > maxMessageLength())
+	return false;
+    
     bool status = true;
     int blockSize = _blockcipher.blockSize(); // Size of blocks used by encryption
 	

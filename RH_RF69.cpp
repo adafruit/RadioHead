@@ -1,7 +1,7 @@
 // RH_RF69.cpp
 //
 // Copyright (C) 2011 Mike McCauley
-// $Id: RH_RF69.cpp,v 1.28 2017/06/20 05:21:17 mikem Exp mikem $
+// $Id: RH_RF69.cpp,v 1.29 2017/06/25 09:41:17 mikem Exp $
 
 #include <RH_RF69.h>
 
@@ -293,6 +293,7 @@ bool RH_RF69::setFrequency(float centre, float afcPullInRange)
     spiWrite(RH_RF69_REG_09_FRFLSB, frf & 0xff);
 
     // afcPullInRange is not used
+    (void)afcPullInRange;
     return true;
 }
 

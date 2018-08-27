@@ -191,8 +191,10 @@
 /// If you run the chip at 1MHz, you will get RK_ASK speeds 1/8th of the expected.
 ///
 /// Initialise RH_ASK for ATTiny85 like this:
+/// \code
 /// // #include <SPI.h> // comment this out, not needed
 /// RH_ASK driver(2000, 4, 3); // 200bps, TX on D3 (pin 2), RX on D4 (pin 3)
+/// \endcode
 /// then:
 /// Connect D3 (pin 2) as the output to the transmitter
 /// Connect D4 (pin 3) as the input from the receiver.

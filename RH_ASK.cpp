@@ -1,7 +1,7 @@
 // RH_ASK.cpp
 //
 // Copyright (C) 2014 Mike McCauley
-// $Id: RH_ASK.cpp,v 1.20 2017/01/12 23:58:00 mikem Exp $
+// $Id: RH_ASK.cpp,v 1.21 2017/06/25 09:41:17 mikem Exp $
 
 #include <RH_ASK.h>
 #include <RHCRC.h>
@@ -47,8 +47,8 @@ RH_ASK::RH_ASK(uint16_t speed, uint8_t rxPin, uint8_t txPin, uint8_t pttPin, boo
     _rxPin(rxPin),
     _txPin(txPin),
     _pttPin(pttPin),
-    _pttInverted(pttInverted),
-    _rxInverted(false)
+    _rxInverted(false),
+    _pttInverted(pttInverted)
 {
     // Initialise the first 8 nibbles of the tx buffer to be the standard
     // preamble. We will append messages after that. 0x38, 0x2c is the start symbol before

@@ -157,7 +157,7 @@ void RH_CC110::handleInterrupt()
 //    Serial.println("I");
     if (_mode == RHModeRx)
     {
-	// Radio is confgigured to stay in RX until we move it to IDLE after a CRC_OK message for us
+	// Radio is configured to stay in RX until we move it to IDLE after a CRC_OK message for us
 	// We only get interrupts in RX mode, on CRC_OK
 	// CRC OK
 	_lastRssi = spiBurstReadRegister(RH_CC110_REG_34_RSSI); // Was set when sync word was detected

@@ -1,7 +1,7 @@
 // RH_RF95.cpp
 //
 // Copyright (C) 2011 Mike McCauley
-// $Id: RH_RF95.cpp,v 1.15 2017/06/20 05:21:17 mikem Exp mikem $
+// $Id: RH_RF95.cpp,v 1.16 2017/06/24 20:36:15 mikem Exp $
 
 #include <RH_RF95.h>
 

@@ -6,7 +6,7 @@
 //
 // Author: Mike McCauley (mikem@airspayce.com)
 // Copyright (C) 2014 Mike McCauley
-// $Id: RH_RF95.h,v 1.17 2017/06/20 05:21:17 mikem Exp mikem $
+// $Id: RH_RF95.h,v 1.18 2017/06/24 20:36:15 mikem Exp $
 // 
 
 #ifndef RH_RF95_h
@@ -808,6 +808,8 @@ private:
 
 /// @example rf95_client.pde
 /// @example rf95_server.pde
+/// @example rf95_encrypted_client.pde
+/// @example rf95_encrypted_server.pde
 /// @example rf95_reliable_datagram_client.pde
 /// @example rf95_reliable_datagram_server.pde
 

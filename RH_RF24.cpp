@@ -1,7 +1,7 @@
 // RH_RF24.cpp
 //
 // Copyright (C) 2011 Mike McCauley
-// $Id: RH_RF24.cpp,v 1.20 2017/03/08 09:30:47 mikem Exp $
+// $Id: RH_RF24.cpp,v 1.21 2017/06/25 09:41:17 mikem Exp $
 
 #include <RH_RF24.h>
 
@@ -411,6 +411,7 @@ uint8_t RH_RF24::maxMessageLength()
 void RH_RF24::setModemRegisters(const ModemConfig* config)
 {
   Serial.println("Programming Error: setModemRegisters is obsolete. Generate custom radio config file with WDS instead");
+  (void)config; // Prevent warnings
 }
 
 // Set one of the canned Modem configs
@@ -418,6 +419,7 @@ void RH_RF24::setModemRegisters(const ModemConfig* config)
 bool RH_RF24::setModemConfig(ModemConfigChoice index)
 {
   Serial.println("Programming Error: setModemRegisters is obsolete. Generate custom radio config file with WDS instead");
+  (void)index; // Prevent warnings
   return false;
 }
 
@@ -452,6 +454,7 @@ void RH_RF24::setSyncWords(const uint8_t* syncWords, uint8_t len)
 
 bool RH_RF24::setFrequency(float centre, float afcPullInRange)
 {
+  (void)afcPullInRange; // Not used
     // See Si446x Data Sheet section 5.3.1
     // Also the Si446x PLL Synthesizer / VCO_CNT Calculator Rev 0.4
     uint8_t outdiv;

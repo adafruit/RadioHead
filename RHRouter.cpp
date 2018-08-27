@@ -9,7 +9,7 @@
 //
 // Author: Mike McCauley (mikem@airspayce.com)
 // Copyright (C) 2011 Mike McCauley
-// $Id: RHRouter.cpp,v 1.7 2015/08/13 02:45:47 mikem Exp $
+// $Id: RHRouter.cpp,v 1.8 2017/06/25 09:41:17 mikem Exp $
 
 #include <RHRouter.h>
 
@@ -198,6 +198,8 @@ uint8_t RHRouter::route(RoutedMessage* message, uint8_t messageLen)
 void RHRouter::peekAtMessage(RoutedMessage* message, uint8_t messageLen)
 {
     // Default does nothing
+  (void)message; // Not used
+  (void)messageLen; // Not used
 }
 
 ////////////////////////////////////////////////////////////////////

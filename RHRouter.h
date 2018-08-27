@@ -24,7 +24,7 @@
 #define RH_ROUTER_ERROR_UNABLE_TO_DELIVER 5
 
 // This size of RH_ROUTER_MAX_MESSAGE_LEN is OK for Arduino Mega, but too big for
-// Duemilanova. Size of 50 works with the sample router programs on Duemilanova.
+// Duemilanove. Size of 50 works with the sample router programs on Duemilanove.
 #define RH_ROUTER_MAX_MESSAGE_LEN (RH_MAX_MESSAGE_LEN - sizeof(RHRouter::RoutedMessageHeader))
 //#define RH_ROUTER_MAX_MESSAGE_LEN 50
 

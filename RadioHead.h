@@ -1,7 +1,7 @@
 // RadioHead.h
 // Author: Mike McCauley (mikem@airspayce.com) DO NOT CONTACT THE AUTHOR DIRECTLY
 // Copyright (C) 2014 Mike McCauley
-// $Id: RadioHead.h,v 1.63 2017/06/20 05:21:17 mikem Exp mikem $
+// $Id: RadioHead.h,v 1.65 2017/06/25 09:41:17 mikem Exp $
 
 /// \mainpage RadioHead Packet Radio library for embedded microprocessors
 ///
@@ -10,7 +10,7 @@
 /// via a variety of common data radios and other transports on a range of embedded microprocessors.
 ///
 /// The version of the package that this documentation refers to can be downloaded 
-/// from http://www.airspayce.com/mikem/arduino/RadioHead/RadioHead-1.77.zip
+/// from http://www.airspayce.com/mikem/arduino/RadioHead/RadioHead-1.78.zip
 /// You can find the latest version of the documentation at http://www.airspayce.com/mikem/arduino/RadioHead
 ///
 /// You can also find online help and discussion at 
@@ -122,6 +122,10 @@
 /// For use with simulated sketches compiled and running on Linux.
 /// Works with tools/etherSimulator.pl to pass messages between simulated sketches, allowing
 /// testing of Manager classes on Linux and without need for real radios or other transport hardware.
+///
+/// - RHEncryptedDriver
+/// Adds encryption and decryption to any RadioHead transport driver, using any encrpytion cipher
+/// supported by ArduinoLibs Cryptogrphic Library http://rweather.github.io/arduinolibs/crypto.html
 ///
 /// Drivers can be used on their own to provide unaddressed, unreliable datagrams. 
 /// All drivers have the same identical API.
@@ -272,7 +276,7 @@
 /// cp /usr/local/projects/arduino/libraries/RadioHead/*.cpp .
 /// cp /usr/local/projects/arduino/libraries/RadioHead/examples/cc110/cc110_client/cc110_client.pde application.cpp
 /// \endcode
-/// - Edit application.cpp and comment out any #include <SPI.h> so it looks like:
+/// - Edit application.cpp and comment out any \#include <SPI.h> so it looks like:
 /// \code
 ///   // #include <SPI.h>
 /// \endcode
@@ -752,6 +756,12 @@
 ///              Increased the size of rssi variables to 16 bits to permit RSSI less than -128 as reported by RF95.
 /// \version 1.77 2017-06-25
 ///              Fixed a compilation error with lastRssi().<br>
+/// \version 1.78 2017-07-19
+///              Fixed a number of unused variable warnings from g++.<br>
+///              Added new module RHEncryptedDriver and examples, contributed by Philippe Rochat, which
+///              adds encryption and decryption to any RadioHead transport driver, using any encrpytion cipher
+///              supported by ArduinoLibs Cryptogrphic Library http://rweather.github.io/arduinolibs/crypto.html
+///              Includes several examples.<br>
 ///
 /// \author  Mike McCauley. DO NOT CONTACT THE AUTHOR DIRECTLY. USE THE MAILING LIST GIVEN ABOVE
 
@@ -760,7 +770,7 @@
 
 // Official version numbers are maintained automatically by Makefile:
 #define RH_VERSION_MAJOR 1
-#define RH_VERSION_MINOR 77
+#define RH_VERSION_MINOR 78
 
 // Symbolic names for currently supported platform types
 #define RH_PLATFORM_ARDUINO          1
@@ -1077,5 +1087,10 @@
 
 // This is the address that indicates a broadcast
 #define RH_BROADCAST_ADDRESS 0xff
+
+// Uncomment this is to enable Encryption module (see RHEncryptedDriver driver):
+// But ensure you have installed the Crypto directory from arduinolibs first:
+// http://rweather.github.io/arduinolibs/index.html
+//#define RH_ENABLE_ENCRYPTION_MODULE
 
 #endif

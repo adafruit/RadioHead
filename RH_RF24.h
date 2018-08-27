@@ -596,7 +596,7 @@
 ///
 /// The RH_RF24 module uses a radio configuration header file to configure the basic radio operation
 /// frequency and modulation scheme. The radio configuration header file must be generated with the
-/// Silicon Labs Wireless Development Suite (WDS) program and #included by RH_RF24.cpp
+/// Silicon Labs Wireless Development Suite (WDS) program and \#included by RH_RF24.cpp
 /// 
 /// The library will work out of the box and without further configuring with these parameters:
 /// - Si4464 or equvalent

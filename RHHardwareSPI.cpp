@@ -1,8 +1,8 @@
-// RHHardwareSPI.h
+// RHHardwareSPI.cpp
 // Author: Mike McCauley (mikem@airspayce.com)
 // Copyright (C) 2011 Mike McCauley
 // Contributed by Joanna Rutkowska
-// $Id: RHHardwareSPI.cpp,v 1.19 2018/01/06 23:50:45 mikem Exp mikem $
+// $Id: RHHardwareSPI.cpp,v 1.20 2018/02/11 23:57:18 mikem Exp mikem $
 
 #include <RHHardwareSPI.h>
 
@@ -103,7 +103,7 @@ void RHHardwareSPI::begin()
    _settings = SPISettings(frequency, bitOrder, dataMode);
    SPI.begin();
 
-#else
+#else // SPI_HAS_TRANSACTION
 
     // Sigh: there are no common symbols for some of these SPI options across all platforms
 #if (RH_PLATFORM == RH_PLATFORM_ARDUINO) || (RH_PLATFORM == RH_PLATFORM_UNO32) || (RH_PLATFORM == RH_PLATFORM_CHIPKIT_CORE || RH_PLATFORM == RH_PLATFORM_NRF52)

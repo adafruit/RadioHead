@@ -5,6 +5,8 @@
 
 #include <RH_Serial.h>
 #if (RH_PLATFORM == RH_PLATFORM_STM32F2)
+#elif defined (ARDUINO_ARCH_STM32F4)
+ #include <libmaple/HardwareSerial.h>
 #else
  #include <HardwareSerial.h>
 #endif

@@ -110,6 +110,10 @@ class HardwareSerial;
 /// - On Linux, names like /dev/ttyUSB0 (for a FTDO USB-serial converter)
 /// - On OSX, names like /dev/tty.usbserial-A501YSWL (for a FTDO USB-serial converter)
 ///
+/// On STM32 F4 Discovery with Arduino and Arduino_STM32, there are 4 serial ports. We had success with port 2
+/// (TX on pin PA2 and RX on pin PA3) and initialising the driver like this:
+/// RH_Serial driver(Serial2);
+///
 /// Note that it is necessary for you to select which Serial port your RF_Serial will use and pass it to the 
 /// contructor. On Linux you must pass an instance of HardwareSerial.
 ///

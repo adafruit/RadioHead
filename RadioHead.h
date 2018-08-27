@@ -1,7 +1,7 @@
 // RadioHead.h
 // Author: Mike McCauley (mikem@airspayce.com) DO NOT CONTACT THE AUTHOR DIRECTLY
 // Copyright (C) 2014 Mike McCauley
-// $Id: RadioHead.h,v 1.70 2018/02/11 23:57:18 mikem Exp mikem $
+// $Id: RadioHead.h,v 1.71 2018/05/06 22:23:51 mikem Exp mikem $
 
 /*! \mainpage RadioHead Packet Radio library for embedded microprocessors
 
@@ -10,7 +10,7 @@ It provides a complete object-oriented library for sending and receiving packeti
 via a variety of common data radios and other transports on a range of embedded microprocessors.
 
 The version of the package that this documentation refers to can be downloaded 
-from http://www.airspayce.com/mikem/arduino/RadioHead/RadioHead-1.83.zip
+from http://www.airspayce.com/mikem/arduino/RadioHead/RadioHead-1.84.zip
 You can find the latest version of the documentation at http://www.airspayce.com/mikem/arduino/RadioHead
 
 You can also find online help and discussion at 
@@ -62,7 +62,7 @@ The following Drivers are provided:
 Works with Hope-RF
 RF22B and RF23B based transceivers, and compatible chips and modules, 
 including the RFM22B transceiver module such as 
-this bare module: http://www.sparkfun.com/products/10153
+hthis bare module: http://www.sparkfun.com/products/10153
 and this shield: http://www.sparkfun.com/products/11018 
 and this board: http://www.anarduino.com/miniwireless
 and RF23BP modules such as: http://www.anarduino.com/details.jsp?pid=130
@@ -183,6 +183,12 @@ Including Diecimila, Uno, Mega, Leonardo, Yun, Due, Zero etc. http://arduino.cc/
  - Various Talk2 Whisper boards eg https://wisen.com.au/store/products/whisper-node-lora.
    Use Arduino Board Manager to install the Talk2 code support. 
  - etc.
+
+- STM32 F4 Discover board, using Arduino 1.8.2 or later and
+   Roger Clarkes Arduino_STM from https://github.com/rogerclarkmelbourne/Arduino_STM32
+   Caution: with this library and board, sending text to Serial causes the board to hang in mysterious ways. 
+   Serial2 emits to PA2. The default SPI pins are SCK: PB3, MOSI PB5, MISO PB4. 
+   We tested with PB0 as slave select and PB1 as interrupt pin for various radios. RH_ASK and RH_Serial also work.
 
 - ChipKIT Core with Arduino IDE on any ChipKIT Core supported Digilent processor (tested on Uno32)
 http://chipkit.net/wiki/index.php?title=ChipKIT_core
@@ -836,6 +842,10 @@ application. Purchase commercial licenses at http://airspayce.binpress.com
              Fixed a problem with RHEncryptedDriver that could cause a crash on some platforms when used
              with RHReliableDatagram. Reported by Joachim Baumann.<br>
 	     Improvments to doxygen doc layout in RadioHead.h
+\version 1.84 2018-05-07
+             Compiles with Roger Clarkes Arduino_STM32 https://github.com/rogerclarkmelbourne/Arduino_STM32,
+	     to support STM32F103C etc, and STM32 F4 Discovery etc.<br>
+	     Tested STM32 F4 Discovery board with RH_RF22, RH_ASK and RH_Serial.
 
 \author  Mike McCauley. DO NOT CONTACT THE AUTHOR DIRECTLY. USE THE GOOGLE LIST GIVEN ABOVE
 */
@@ -870,7 +880,7 @@ your RadioHead distribution.  But your needs may be more complicated
 than that.
 
 The essence of all engineering is compromise so it will be up to you to
-decide whats best for your paricular needs. The main choices are:
+decide whats best for your particular needs. The main choices are:
 - Raw Binary
 - Network Order Binary
 - ASCII
@@ -880,7 +890,7 @@ decide whats best for your paricular needs. The main choices are:
 With this technique you just pack the raw binary numbers into the packet:
 
 \code
-// Sending a single integer
+// Sending a single 16 bit unsigned integer
 // in the transmitter:
 ...
 uint16_t data = getsomevalue();
@@ -906,7 +916,7 @@ If you need to send more than one number at a time, its best to pack
 them into a structure
 
 \code
-// Sending several integers in a structure
+// Sending several 16 bit unsigned integers in a structure
 // in a common header for your project:
 typedef struct
 {
@@ -959,7 +969,7 @@ will only ever use the same processor endianness in the transmitter and receiver
 One solution to the issue of endianness in your processors is to
 always convert your data from the processor's native byte order to
 'network byte order' before transmission and then convert it back to
-the receiver's native byte order on receoption. You do this with the
+the receiver's native byte order on reception. You do this with the
 htons (host to network short) macro and friends. These functions may
 be a no-op on big-endian processors.
 
@@ -970,7 +980,7 @@ that explicitly specify their size so we can be sure of applying the
 right conversions):
 
 \code
-// Sending a single integer
+// Sending a single 16 bit unsigned integer
 // in the transmitter:
 ...
 uint16_t data = htons(getsomevalue());
@@ -995,7 +1005,7 @@ If you need to send more than one number at a time, its best to pack
 them into a structure
 
 \code
-// Sending several integers in a structure
+// Sending several 16 bit unsigned integers in a structure
 // in a common header for your project:
 typedef struct
 {
@@ -1084,7 +1094,7 @@ these examples and explanations and extend them to suit your needs.
 
 // Official version numbers are maintained automatically by Makefile:
 #define RH_VERSION_MAJOR 1
-#define RH_VERSION_MINOR 83
+#define RH_VERSION_MINOR 84
 
 // Symbolic names for currently supported platform types
 #define RH_PLATFORM_ARDUINO          1
@@ -1159,6 +1169,11 @@ these examples and explanations and extend them to suit your needs.
   #include <SPI.h>
   #define RH_HAVE_HARDWARE_SPI
   #define RH_HAVE_SERIAL
+ #endif
+ #if defined(ARDUINO_ARCH_STM32F4)
+  // output to Serial causes hangs on STM32 F4 Discovery board
+  // There seems to be no way to output text to the USB connection
+  #define Serial Serial2
  #endif
 
 #elif (RH_PLATFORM == RH_PLATFORM_ESP8266) // ESP8266 processor on Arduino IDE

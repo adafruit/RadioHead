@@ -10,7 +10,7 @@
 /// via a variety of common data radios and other transports on a range of embedded microprocessors.
 ///
 /// The version of the package that this documentation refers to can be downloaded 
-/// from http://www.airspayce.com/mikem/arduino/RadioHead/RadioHead-1.75.zip
+/// from http://www.airspayce.com/mikem/arduino/RadioHead/RadioHead-1.76.zip
 /// You can find the latest version of the documentation at http://www.airspayce.com/mikem/arduino/RadioHead
 ///
 /// You can also find online help and discussion at 
@@ -746,6 +746,10 @@
 ///              about ~600 uA, reported by Phang Moh Lim).<br>
 ///              Added support for EBYTE E32-TTL-1W and family serial radio transceivers. These RF95 LoRa based radios
 ///              can deliver reliable messages at up to 7km measured.
+/// \version 1.76 2017-06-23
+///              Fixed a problem with RH_RF95 hanging on transmit under some mysterious circumstances.
+///              Reported by several people at  https://forum.pjrc.com/threads/41878-Probable-race-condition-in-Radiohead-library?p=146601#post146601 <br>
+///              Increased the size of rssi variables to 16 bits to permit RSSI less than -128 as reported by RF95.
 ///
 /// \author  Mike McCauley. DO NOT CONTACT THE AUTHOR DIRECTLY. USE THE MAILING LIST GIVEN ABOVE
 
@@ -754,7 +758,7 @@
 
 // Official version numbers are maintained automatically by Makefile:
 #define RH_VERSION_MAJOR 1
-#define RH_VERSION_MINOR 75
+#define RH_VERSION_MINOR 76
 
 // Symbolic names for currently supported platform types
 #define RH_PLATFORM_ARDUINO          1

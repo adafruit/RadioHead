@@ -339,9 +339,9 @@
 /// this (tested).
 /// \code
 ///                 Teensy      inAir4 inAir9
-///                 GND----------GND   (ground in)
+///                 GND----------0V   (ground in)
 ///                 3V3----------3.3V  (3.3V in)
-/// interrupt 0 pin D2-----------D00   (interrupt request out)
+/// interrupt 0 pin D2-----------D0   (interrupt request out)
 ///          SS pin D10----------CS    (CS chip select in)
 ///         SCK pin D13----------CK    (SPI clock in)
 ///        MOSI pin D11----------SI    (SPI Data in)

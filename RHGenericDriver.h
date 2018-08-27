@@ -206,7 +206,7 @@ public:
     /// Usually it is the RSSI of the last received message, which is measured when the preamble is received.
     /// If you called readRssi() more recently, it will return that more recent value.
     /// \return The most recent RSSI measurement in dBm.
-    int8_t        lastRssi();
+    int16_t        lastRssi();
 
     /// Returns the operating mode of the library.
     /// \return the current mode, one of RF69_MODE_*
@@ -283,7 +283,7 @@ protected:
     uint8_t             _txHeaderFlags;
 
     /// The value of the last received RSSI value, in some transport specific units
-    volatile int8_t     _lastRssi;
+    volatile int16_t     _lastRssi;
 
     /// Count of the number of bad messages (eg bad checksum etc) received
     volatile uint16_t   _rxBad;

@@ -170,7 +170,7 @@ void RH_E32::validateRxBuf()
     if (_bufLen < RH_E32_HEADER_LEN)
 	return; // Too short to be a real message
     if (_bufLen != _buf[0])
-      return false; // Do we have all the message?
+      return; // Do we have all the message?
     
     // Extract the 4 headers
     _rxHeaderTo    = _buf[1];

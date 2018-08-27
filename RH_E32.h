@@ -176,6 +176,8 @@
 /// send too many or too long messages per unit of time, lest you monopolise the airwaves.
 /// Be a good neighbour and use the lowest power and fastest speed that you can.
 ///
+/// Forward Error Correction (FEC) is always enabled in these radios by RH_E32.
+///
 /// \par Range
 ///
 /// When running with a power output of 1W and at the slowest speed of 1kbps, this module has an impressive range.

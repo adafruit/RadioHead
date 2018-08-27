@@ -76,7 +76,11 @@ bool RHEncryptedDriver::send(const uint8_t* data, uint8_t len)
 #endif	
     int k = 0, j = 0; // k is block index, j is original message index
 #ifndef ALLOW_MULTIPLE_MSG	
+#ifdef STRICT_CONTENT_LEN
+    for (k = 0; k < nbBpM && k * blockSize < len + 1; k++)
+#else
     for (k = 0; k < nbBpM && k * blockSize < len ; k++)
+#endif
     {
 	// k blocks in that message
 	int h = 0; // h is block content index

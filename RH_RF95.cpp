@@ -125,7 +125,14 @@ void RH_RF95::handleInterrupt()
 {
     // Read the interrupt register
     uint8_t irq_flags = spiRead(RH_RF95_REG_12_IRQ_FLAGS);
-    if (_mode == RHModeRx && irq_flags & (RH_RF95_RX_TIMEOUT | RH_RF95_PAYLOAD_CRC_ERROR))
+    // Read the RegHopChannel register to check if CRC presence is signalled
+    // in the header. If not it might be a stray (noise) packet.*
+    uint8_t crc_present = spiRead(RH_RF95_REG_1C_HOP_CHANNEL);
+
+    if (_mode == RHModeRx
+	&& ((irq_flags & (RH_RF95_RX_TIMEOUT | RH_RF95_PAYLOAD_CRC_ERROR))
+	    | !(crc_present & RH_RF95_RX_PAYLOAD_CRC_IS_ON)))
+//    if (_mode == RHModeRx && irq_flags & (RH_RF95_RX_TIMEOUT | RH_RF95_PAYLOAD_CRC_ERROR))
     {
 	_rxBad++;
     }

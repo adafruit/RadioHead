@@ -206,14 +206,14 @@ public:
     /// Usually it is the RSSI of the last received message, which is measured when the preamble is received.
     /// If you called readRssi() more recently, it will return that more recent value.
     /// \return The most recent RSSI measurement in dBm.
-    int16_t        lastRssi();
+    virtual int16_t        lastRssi();
 
     /// Returns the operating mode of the library.
     /// \return the current mode, one of RF69_MODE_*
-    RHMode          mode();
+    virtual RHMode          mode();
 
     /// Sets the operating mode of the transport.
-    void            setMode(RHMode mode);
+    virtual void            setMode(RHMode mode);
 
     /// Sets the transport hardware into low-power sleep mode
     /// (if supported). May be overridden by specific drivers to initialte sleep mode.

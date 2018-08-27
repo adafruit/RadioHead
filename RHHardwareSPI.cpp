@@ -446,4 +446,3 @@ void RHHardwareSPI::usingInterrupt(uint8_t interrupt)
 }
 
 #endif
-

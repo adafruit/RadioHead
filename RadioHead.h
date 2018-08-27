@@ -10,7 +10,7 @@ It provides a complete object-oriented library for sending and receiving packeti
 via a variety of common data radios and other transports on a range of embedded microprocessors.
 
 The version of the package that this documentation refers to can be downloaded 
-from http://www.airspayce.com/mikem/arduino/RadioHead/RadioHead-1.84.zip
+from http://www.airspayce.com/mikem/arduino/RadioHead/RadioHead-1.85.zip
 You can find the latest version of the documentation at http://www.airspayce.com/mikem/arduino/RadioHead
 
 You can also find online help and discussion at 
@@ -136,7 +136,7 @@ testing of Manager classes on Linux and without need for real radios or other tr
 
 - RHEncryptedDriver
 Adds encryption and decryption to any RadioHead transport driver, using any encrpytion cipher
-supported by ArduinoLibs Cryptogrphic Library http://rweather.github.io/arduinolibs/crypto.html
+supported by ArduinoLibs Cryptographic Library http://rweather.github.io/arduinolibs/crypto.html
 
 Drivers can be used on their own to provide unaddressed, unreliable datagrams. 
 All drivers have the same identical API.
@@ -218,7 +218,7 @@ https://www.adafruit.com/product/3406
 - Adafruit Feather. These are excellent boards that are available with a variety of radios. We tested with the 
   Feather 32u4 with RFM69HCW radio, with Arduino IDE 1.6.8 and the Adafruit AVR Boards board manager version 1.6.10.
   https://www.adafruit.com/products/3076
-//
+
 - Adafruit Feather M0 boards with Arduino 1.8.1 and later, using the Arduino and Adafruit SAMD board support.
   https://learn.adafruit.com/adafruit-feather-m0-basic-proto/using-with-arduino-ide
 
@@ -275,7 +275,7 @@ http://arduino.cc/en/Guide/Libraries
 The Photon is not supported by the Arduino IDE, so it takes a little effort to set up a build environment.
 Heres what we did to enable building of RadioHead example sketches on Linux, 
 but there are other ways to skin this cat.
-Basic reference for getting stated is: http://particle-firmware.readthedocs.org/en/develop/build/
+Basic reference for getting started is: http://particle-firmware.readthedocs.org/en/develop/build/
 - Download the ARM gcc cross compiler binaries and unpack it in a suitable place:
 \code
 cd /tmp
@@ -363,7 +363,7 @@ It is not to be confused with any other similar marks covering other goods and s
 
 \par Copyright
 
-This software is Copyright (C) 2011-2016 Mike McCauley. Use is subject to license
+This software is Copyright (C) 2011-2018 Mike McCauley. Use is subject to license
 conditions. The main licensing options available are GPL V2 or Commercial:
 
 \par Open Source Licensing GPL V2
@@ -847,6 +847,16 @@ application. Purchase commercial licenses at http://airspayce.binpress.com
 	     to support STM32F103C etc, and STM32 F4 Discovery etc.<br>
 	     Tested STM32 F4 Discovery board with RH_RF22, RH_ASK and RH_Serial.
 
+\version 1.85 2018-07-09
+             RHGenericDriver methods changed to virtual, to allow overriding by RHEncrypredDriver: 
+	     lastRssi(), mode(), setMode(). Reported by Eyal Gal.<br>
+	     Fixed a problem with compiling RH_E32 on some older IDEs, contributed by Philippe Rochat.<br>
+	     Improvements to RH_RF95 to improve detection of bad packets, contributed by PiNi.<br>
+	     Fixed an error in RHEncryptedDriver that caused incorrect message lengths for messages multiples of 16 bytes 
+	     when STRICT_CONTENT_LEN is defined.<br>
+	     Fixed a bug in RHMesh which causes the creation of a route to the address which is the byte 
+	     behind the end of the route array. Reported by Pascal Gillès de Pélichy.<br>
+
 \author  Mike McCauley. DO NOT CONTACT THE AUTHOR DIRECTLY. USE THE GOOGLE LIST GIVEN ABOVE
 */
 
@@ -1094,7 +1104,7 @@ these examples and explanations and extend them to suit your needs.
 
 // Official version numbers are maintained automatically by Makefile:
 #define RH_VERSION_MAJOR 1
-#define RH_VERSION_MINOR 84
+#define RH_VERSION_MINOR 85
 
 // Symbolic names for currently supported platform types
 #define RH_PLATFORM_ARDUINO          1

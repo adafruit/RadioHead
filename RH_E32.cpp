@@ -75,7 +75,7 @@ bool RH_E32::writeParameters(Parameters& params, bool save)
   setOperatingMode(ModeSleep);
   params.head = save ? RH_E32_COMMAND_WRITE_PARAMS_SAVE : RH_E32_COMMAND_WRITE_PARAMS_NOSAVE;
   //  printBuffer("writing now", (uint8_t*)&params, sizeof(params));
-  size_t result = _s->write((char*)&params, sizeof(params));
+  size_t result = _s->write((uint8_t*)&params, sizeof(params));
   if (result != sizeof(params))
     return false;
   
@@ -127,7 +127,7 @@ bool RH_E32::getVersion()
   uint8_t readVersionCommand[] = { RH_E32_COMMAND_READ_VERSION, RH_E32_COMMAND_READ_VERSION, RH_E32_COMMAND_READ_VERSION };
   _s->write(readVersionCommand, sizeof(readVersionCommand));
   uint8_t version[4];
-  size_t result = _s->readBytes(version, sizeof(version)); // default 1 sec timeout
+  size_t result = _s->readBytes((char *)version, sizeof(version)); // default 1 sec timeout
   setOperatingMode(ModeNormal);
   if (result == 4)
     {
@@ -205,7 +205,7 @@ bool RH_E32::available()
 
 	// Suck up all the characters we can
 	uint8_t data;
-	while (_s->readBytes(&data, 1) == 1) // Not read timeout
+	while (_s->readBytes((char *)&data, 1) == 1) // Not read timeout
 	  {
 	    _buf[_bufLen++] = data;
 	  }

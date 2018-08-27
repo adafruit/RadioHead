@@ -6,7 +6,7 @@
 //
 // Author: Mike McCauley (mikem@airspayce.com)
 // Copyright (C) 2014 Mike McCauley
-// $Id: RH_RF95.h,v 1.20 2017/10/03 06:04:59 mikem Exp mikem $
+// $Id: RH_RF95.h,v 1.21 2017/11/06 00:04:08 mikem Exp mikem $
 // 
 
 #ifndef RH_RF95_h
@@ -262,6 +262,7 @@
 ///   an Arduino compatible board, which include an on-board RFM95/96 LoRa Radio (Semtech SX1276), external antenna, 
 ///   run on 2xAAA batteries and support low power operations. RF95 examples work without modification.
 ///   Use Arduino Board Manager to install the Talk2 code support. Upload the code with an FTDI adapter set to 5V.
+/// - heltec / TTGO ESP32 LoRa OLED https://www.aliexpress.com/item/Internet-Development-Board-SX1278-ESP32-WIFI-chip-0-96-inch-OLED-Bluetooth-WIFI-Lora-Kit-32/32824535649.html
 ///
 /// \par Overview
 ///

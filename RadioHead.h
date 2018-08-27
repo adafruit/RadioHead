@@ -1,7 +1,7 @@
 // RadioHead.h
 // Author: Mike McCauley (mikem@airspayce.com) DO NOT CONTACT THE AUTHOR DIRECTLY
 // Copyright (C) 2014 Mike McCauley
-// $Id: RadioHead.h,v 1.67 2017/10/03 06:04:59 mikem Exp mikem $
+// $Id: RadioHead.h,v 1.68 2017/11/06 00:04:08 mikem Exp mikem $
 
 /// \mainpage RadioHead Packet Radio library for embedded microprocessors
 ///
@@ -10,7 +10,7 @@
 /// via a variety of common data radios and other transports on a range of embedded microprocessors.
 ///
 /// The version of the package that this documentation refers to can be downloaded 
-/// from http://www.airspayce.com/mikem/arduino/RadioHead/RadioHead-1.80.zip
+/// from http://www.airspayce.com/mikem/arduino/RadioHead/RadioHead-1.81.zip
 /// You can find the latest version of the documentation at http://www.airspayce.com/mikem/arduino/RadioHead
 ///
 /// You can also find online help and discussion at 
@@ -193,6 +193,9 @@
 ///
 /// - nRF51 compatible Arm chips such as nRF51822 with Arduino 1.6.4 and later using the procedures
 ///   in http://redbearlab.com/getting-started-nrf51822/
+///
+/// - nRF52 compatible Arm chips such as as Adafruit BLE Feather board
+/// https://www.adafruit.com/product/3406
 ///
 /// - Adafruit Feather. These are excellent boards that are available with a variety of radios. We tested with the 
 ///   Feather 32u4 with RFM69HCW radio, with Arduino IDE 1.6.8 and the Adafruit AVR Boards board manager version 1.6.10. 
@@ -798,7 +801,17 @@
 ///              Tested on ESP32 with RFM-22 and Teensy 3.1 with RF69
 ///              Added support for ESP32, tested with RFM-22 connected by SPI.<br>
 ///
-/// \author  Mike McCauley. DO NOT CONTACT THE AUTHOR DIRECTLY. USE THE MAILING LIST GIVEN ABOVE
+///\version 1.81 2017-11-15
+///              RH_CC110, moved setPaTable() from protected to public.<br>
+///              RH_RF95 modem config Bw125Cr48Sf4096 altered to enable slow daat rate in register 26
+///              as suggested by Dieter Kneffel.
+///              Added support for nRF52 compatible Arm chips such as as Adafruit BLE Feather board
+///              https://www.adafruit.com/product/3406, with a patch from Mike Bell.<br>
+///              Fixed a problem where rev 1.80 broke Adafruit M0 LoRa support by declaring 
+///              bitOrder variable always as a unsigned char. Reported by Guilherme Jardim.<br>
+///              In RH_RF95, all modes now have AGC enabled, as suggested by Dieter Kneffel.<br>
+///
+/// \author  Mike McCauley. DO NOT CONTACT THE AUTHOR DIRECTLY. USE THE GOOGLE LIST GIVEN ABOVE
 
 /*! \page packingdata 
 \par Passing Sensor Data Between RadioHead nodes
@@ -1043,7 +1056,7 @@ these examples and explanations and extend them to suit your needs.
 
 // Official version numbers are maintained automatically by Makefile:
 #define RH_VERSION_MAJOR 1
-#define RH_VERSION_MINOR 80
+#define RH_VERSION_MINOR 81
 
 // Symbolic names for currently supported platform types
 #define RH_PLATFORM_ARDUINO          1
@@ -1209,15 +1222,13 @@ these examples and explanations and extend them to suit your needs.
 #elif (RH_PLATFORM == RH_PLATFORM_NRF51)
  #define RH_HAVE_SERIAL
  #define PROGMEM
- #define RH_HAVE_HARDWARE_SPI
- #include <SPI.h> 
  #include <Arduino.h>
 
 #elif (RH_PLATFORM == RH_PLATFORM_NRF52)
+ #include <SPI.h>
+ #define RH_HAVE_HARDWARE_SPI
  #define RH_HAVE_SERIAL
  #define PROGMEM
- #define RH_HAVE_HARDWARE_SPI
- #include <SPI.h> 
  #include <Arduino.h>
 
 #elif (RH_PLATFORM == RH_PLATFORM_UNIX) 

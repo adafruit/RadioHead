@@ -1,7 +1,7 @@
 // RH_RF22.h
 // Author: Mike McCauley (mikem@airspayce.com)
 // Copyright (C) 2011 Mike McCauley
-// $Id: RH_RF22.h,v 1.33 2017/10/03 06:04:59 mikem Exp mikem $
+// $Id: RH_RF22.h,v 1.34 2017/11/06 00:04:08 mikem Exp mikem $
 //
 
 #ifndef RH_RF22_h
@@ -776,7 +776,7 @@
 ///
 /// - RH_RF22_RF23BP_TXPOW_28DBM
 /// - RH_RF22_RF23BP_TXPOW_29DBM
-/// - RH_RF22_RF23BP_TXPOW_38DBM
+/// - RH_RF22_RF23BP_TXPOW_30DBM
 ///
 /// CAUTION: the high power settings available on the RFM23BP require
 /// significant power supply current.  For example at +30dBm, the typical chip

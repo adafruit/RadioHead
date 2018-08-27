@@ -7,7 +7,7 @@
 // 
 // Author: Mike McCauley (mikem@airspayce.com)
 // Copyright (C) 2016 Mike McCauley
-// $Id: RH_CC110.h,v 1.7 2017/10/03 06:04:59 mikem Exp mikem $
+// $Id: RH_CC110.h,v 1.8 2017/11/06 00:04:08 mikem Exp mikem $
 // 
 
 #ifndef RH_CC110_h
@@ -800,6 +800,11 @@ public:
     /// \param[in] len Number of sync words to set. MUST be 2.
     void setSyncWords(const uint8_t* syncWords, uint8_t len);
 
+    /// Sets the PaTable registers directly.
+    /// Ensure you use suitable PATABLE values per Tbale 5-15 or 5-16
+    /// You may need to do this to implement an OOK modulation scheme.
+    void setPaTable(uint8_t* patable, uint8_t patablesize);
+
 protected:
     /// This is a low level function to handle the interrupts for one instance of RH_RF95.
     /// Called automatically by isr*()
@@ -842,10 +847,6 @@ protected:
     /// \return The value of the status byte per Table 5-2
     uint8_t statusRead();
 
-    /// Sets the PaTable registers directly.
-    /// Ensure you use suitable PATABLE values per Tbale 5-15 or 5-16
-    /// You may need to do this to implement an OOK modulation scheme.
-    void setPaTable(uint8_t* patable, uint8_t patablesize);
     
 private:
     /// Low level interrupt service routine for device connected to interrupt 0

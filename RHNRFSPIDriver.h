@@ -1,7 +1,7 @@
 // RHNRFSPIDriver.h
 // Author: Mike McCauley (mikem@airspayce.com)
 // Copyright (C) 2014 Mike McCauley
-// $Id: RHNRFSPIDriver.h,v 1.4 2017/07/25 05:26:50 mikem Exp $
+// $Id: RHNRFSPIDriver.h,v 1.5 2017/11/06 00:04:08 mikem Exp mikem $
 
 #ifndef RHNRFSPIDriver_h
 #define RHNRFSPIDriver_h

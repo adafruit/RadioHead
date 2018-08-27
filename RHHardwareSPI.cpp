@@ -2,7 +2,7 @@
 // Author: Mike McCauley (mikem@airspayce.com)
 // Copyright (C) 2011 Mike McCauley
 // Contributed by Joanna Rutkowska
-// $Id: RHHardwareSPI.cpp,v 1.17 2017/07/25 05:26:50 mikem Exp $
+// $Id: RHHardwareSPI.cpp,v 1.18 2017/11/06 00:04:08 mikem Exp mikem $
 
 #include <RHHardwareSPI.h>
 
@@ -22,7 +22,7 @@ HardwareSPI SPI(1);
 // Arduino Due has default SPI pins on central SPI headers, and not on 10, 11, 12, 13
 // as per other Arduinos
 // http://21stdigitalhome.blogspot.com.au/2013/02/arduino-due-hardware-spi.html
-#if defined (__arm__) && !defined(CORE_TEENSY) && !defined(SPI_CLOCK_DIV16)
+#if defined (__arm__) && !defined(CORE_TEENSY) && !defined(SPI_CLOCK_DIV16) && !defined(RH_PLATFORM_NRF52)
  // Arduino Due in 1.5.5 has no definitions for SPI dividers
  // SPI clock divider is based on MCK of 84MHz  
  #define SPI_CLOCK_DIV16 (VARIANT_MCK/84000000) // 1MHz
@@ -45,14 +45,14 @@ uint8_t RHHardwareSPI::transfer(uint8_t data)
 
 void RHHardwareSPI::attachInterrupt() 
 {
-#if (RH_PLATFORM == RH_PLATFORM_ARDUINO)
+#if (RH_PLATFORM == RH_PLATFORM_ARDUINO || RH_PLATFORM == RH_PLATFORM_NRF52)
     SPI.attachInterrupt();
 #endif
 }
 
 void RHHardwareSPI::detachInterrupt() 
 {
-#if (RH_PLATFORM == RH_PLATFORM_ARDUINO)
+#if (RH_PLATFORM == RH_PLATFORM_ARDUINO || RH_PLATFORM == RH_PLATFORM_NRF52)
     SPI.detachInterrupt();
 #endif
 }
@@ -74,7 +74,13 @@ void RHHardwareSPI::begin()
    else
        frequency = 1000000;
 
+#if ((RH_PLATFORM == RH_PLATFORM_ARDUINO) && defined (__arm__) && (defined(ARDUINO_SAM_DUE) || defined(ARDUINO_ARCH_SAMD))) || defined(ARDUINO_ARCH_NRF52)
+    // Arduino Due in 1.5.5 has its own BitOrder :-(
+    // So too does Arduino Zero
+    ::BitOrder bitOrder;
+#else
    uint8_t bitOrder;
+#endif
 
    if (_bitOrder == BitOrderLSBFirst)
        bitOrder = LSBFIRST;
@@ -100,7 +106,7 @@ void RHHardwareSPI::begin()
 #else
 
     // Sigh: there are no common symbols for some of these SPI options across all platforms
-#if (RH_PLATFORM == RH_PLATFORM_ARDUINO) || (RH_PLATFORM == RH_PLATFORM_UNO32) || (RH_PLATFORM == RH_PLATFORM_CHIPKIT_CORE)
+#if (RH_PLATFORM == RH_PLATFORM_ARDUINO) || (RH_PLATFORM == RH_PLATFORM_UNO32) || (RH_PLATFORM == RH_PLATFORM_CHIPKIT_CORE || RH_PLATFORM == RH_PLATFORM_NRF52)
     uint8_t dataMode;
     if (_dataMode == DataMode0)
 	dataMode = SPI_MODE0;
@@ -116,7 +122,7 @@ void RHHardwareSPI::begin()
     // Temporary work-around due to problem where avr_emulation.h does not work properly for the setDataMode() cal
     SPCR &= ~SPI_MODE_MASK;
 #else
- #if (RH_PLATFORM == RH_PLATFORM_ARDUINO) && defined (__arm__) && defined(ARDUINO_ARCH_SAMD)
+ #if ((RH_PLATFORM == RH_PLATFORM_ARDUINO) && defined (__arm__) && defined(ARDUINO_ARCH_SAMD)) || defined(ARDUINO_ARCH_NRF52)
     // Zero requires begin() before anything else :-)
     SPI.begin();
  #endif
@@ -124,7 +130,7 @@ void RHHardwareSPI::begin()
     SPI.setDataMode(dataMode);
 #endif
 
-#if (RH_PLATFORM == RH_PLATFORM_ARDUINO) && defined (__arm__) && (defined(ARDUINO_SAM_DUE) || defined(ARDUINO_ARCH_SAMD))
+#if ((RH_PLATFORM == RH_PLATFORM_ARDUINO) && defined (__arm__) && (defined(ARDUINO_SAM_DUE) || defined(ARDUINO_ARCH_SAMD))) || defined(ARDUINO_ARCH_NRF52)
     // Arduino Due in 1.5.5 has its own BitOrder :-(
     // So too does Arduino Zero
     ::BitOrder bitOrder;

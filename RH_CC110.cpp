@@ -3,7 +3,7 @@
 // Driver for Texas Instruments CC110L transceiver.
 //
 // Copyright (C) 2016 Mike McCauley
-// $Id: RH_CC110.cpp,v 1.7 2017/10/03 06:04:59 mikem Exp mikem $
+// $Id: RH_CC110.cpp,v 1.8 2017/11/06 00:04:08 mikem Exp mikem $
 
 #include <RH_CC110.h>
 

@@ -1,7 +1,7 @@
 // RadioHead.h
 // Author: Mike McCauley (mikem@airspayce.com) DO NOT CONTACT THE AUTHOR DIRECTLY
 // Copyright (C) 2014 Mike McCauley
-// $Id: RadioHead.h,v 1.62 2017/03/08 09:30:47 mikem Exp mikem $
+// $Id: RadioHead.h,v 1.63 2017/06/20 05:21:17 mikem Exp mikem $
 
 /// \mainpage RadioHead Packet Radio library for embedded microprocessors
 ///
@@ -10,7 +10,7 @@
 /// via a variety of common data radios and other transports on a range of embedded microprocessors.
 ///
 /// The version of the package that this documentation refers to can be downloaded 
-/// from http://www.airspayce.com/mikem/arduino/RadioHead/RadioHead-1.74.zip
+/// from http://www.airspayce.com/mikem/arduino/RadioHead/RadioHead-1.75.zip
 /// You can find the latest version of the documentation at http://www.airspayce.com/mikem/arduino/RadioHead
 ///
 /// You can also find online help and discussion at 
@@ -103,6 +103,9 @@
 /// - RH_CC110
 /// Works with Texas Instruments CC110L transceivers and compatible modules such as Anaren AIR BoosterPack 430BOOST-CC110L
 ///
+/// - RH_E32
+/// Works with EBYTE E32-TTL-1W serial radio transceivers (and possibly other transceivers in the same family)
+///
 /// - RH_ASK
 /// Works with a range of inexpensive ASK (amplitude shift keying) RF transceivers such as RX-B1 
 /// (also known as ST-RX04-ASK) receiver; TX-C1 transmitter and DR3100 transceiver; FS1000A/XY-MK-5V transceiver;
@@ -175,7 +178,7 @@
 ///
 /// - Particle Photon https://store.particle.io/collections/photon and ARM3 based CPU with built-in 
 ///   Wi-Fi transceiver and extensive IoT software suport. RadioHead does not support the built-in transceiver
-///   bt can be used to control other SPI based radios, Serial ports etc.
+///   but can be used to control other SPI based radios, Serial ports etc.
 ///   See below for details on how to build RadioHead for Photon
 ///
 /// - ATtiny built using Arduino IDE 1.0.5 with the arduino-tiny support from https://code.google.com/p/arduino-tiny/
@@ -657,7 +660,9 @@
 ///              http://www.rocketscream.com/blog/product/mini-ultra-pro-with-radio/  (915MHz versions). Updated
 ///              documentation with hints to suit. Caution: requires Arduino 1.6.8 and Arduino SAMD Boards 1.6.5.
 ///              See also http://www.rocketscream.com/blog/2016/03/10/radio-range-test-with-rfm69hcw/
-///              for the vendors tests and range with the RFM69HCW version.
+///              for the vendors tests and range with the RFM69HCW version. They also have an RF95 version equipped with
+///              TCXO temperature controllled oscillator for extra frequency stability and support of very slow and
+///              long range protocols.
 ///              These boards are highly recommended. They also include battery charging support.
 /// \version 1.60 2016-06-25
 ///              Tested with the excellent talk2 Whisper Node boards 
@@ -733,7 +738,14 @@
 ///              Improvements to RH_RF69::setTxPower so it now takes an optional ishighpowermodule
 ///              flag to indicate if the connected module is a high power RFM69HW, and so set the power level
 ///              correctly. Based on code contributed by bob.
-///              
+/// \version 1.75 2017-06-22
+///              Fixed broken compiler issues with RH_RF95::frequencyError() reported by Steve Rogerson.<br>
+///              Testing with the very excellent Rocket Scream boards equipped with RF95 TCXO modules. The
+///              temperature controlled oscillator stabilises the chip enough to be able to use even the slowest
+///              protocol Bw125Cr48Sf4096. Caution, the TCXO model radios are not low power when in sleep (consuming
+///              about ~600 uA, reported by Phang Moh Lim).<br>
+///              Added support for EBYTE E32-TTL-1W and family serial radio transceivers. These RF95 LoRa based radios
+///              can deliver reliable messages at up to 7km measured.
 ///
 /// \author  Mike McCauley. DO NOT CONTACT THE AUTHOR DIRECTLY. USE THE MAILING LIST GIVEN ABOVE
 
@@ -742,7 +754,7 @@
 
 // Official version numbers are maintained automatically by Makefile:
 #define RH_VERSION_MAJOR 1
-#define RH_VERSION_MINOR 74
+#define RH_VERSION_MINOR 75
 
 // Symbolic names for currently supported platform types
 #define RH_PLATFORM_ARDUINO          1

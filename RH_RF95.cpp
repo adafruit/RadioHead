@@ -1,7 +1,7 @@
 // RH_RF95.cpp
 //
 // Copyright (C) 2011 Mike McCauley
-// $Id: RH_RF95.cpp,v 1.14 2017/03/04 00:59:41 mikem Exp $
+// $Id: RH_RF95.cpp,v 1.15 2017/06/20 05:21:17 mikem Exp mikem $
 
 #include <RH_RF95.h>
 
@@ -446,8 +446,13 @@ int RH_RF95::frequencyError()
     int32_t freqerror = 0;
 
     // Convert 2.5 bytes (5 nibbles, 20 bits) to 32 bit signed int
-    freqerror = spiRead(RH_RF95_REG_28_FEI_MSB) << 16;
-    freqerror |= spiRead(RH_RF95_REG_29_FEI_MID) << 8;
+    // Caution: some C compilers make errors with eg:
+    // freqerror = spiRead(RH_RF95_REG_28_FEI_MSB) << 16
+    // so we go more carefully.
+    freqerror = spiRead(RH_RF95_REG_28_FEI_MSB);
+    freqerror <<= 8;
+    freqerror |= spiRead(RH_RF95_REG_29_FEI_MID);
+    freqerror <<= 8;
     freqerror |= spiRead(RH_RF95_REG_2A_FEI_LSB);
     // Sign extension into top 3 nibbles
     if (freqerror & 0x80000)

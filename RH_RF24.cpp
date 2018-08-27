@@ -1,7 +1,7 @@
 // RH_RF24.cpp
 //
 // Copyright (C) 2011 Mike McCauley
-// $Id: RH_RF24.cpp,v 1.20 2017/03/08 09:30:47 mikem Exp mikem $
+// $Id: RH_RF24.cpp,v 1.20 2017/03/08 09:30:47 mikem Exp $
 
 #include <RH_RF24.h>
 

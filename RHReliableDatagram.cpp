@@ -9,7 +9,7 @@
 //
 // Author: Mike McCauley (mikem@airspayce.com)
 // Copyright (C) 2011 Mike McCauley
-// $Id: RHReliableDatagram.cpp,v 1.17 2017/03/08 09:30:47 mikem Exp mikem $
+// $Id: RHReliableDatagram.cpp,v 1.17 2017/03/08 09:30:47 mikem Exp $
 
 #include <RHReliableDatagram.h>
 

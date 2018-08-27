@@ -20,6 +20,8 @@ RadioHead/RHReliableDatagram.cpp
 RadioHead/RHReliableDatagram.h
 RadioHead/RH_CC110.cpp
 RadioHead/RH_CC110.h
+RadioHead/RH_E32.cpp
+RadioHead/RH_E32.h
 RadioHead/RH_NRF24.cpp
 RadioHead/RH_NRF24.h
 RadioHead/RH_NRF51.cpp
@@ -62,6 +64,8 @@ RadioHead/examples/ask/ask_transmitter/ask_transmitter.pde
 RadioHead/examples/ask/ask_receiver/ask_receiver.pde
 RadioHead/examples/cc110/cc110_client/cc110_client.pde
 RadioHead/examples/cc110/cc110_server/cc110_server.pde
+RadioHead/examples/e32/e32_client/e32_client.pde
+RadioHead/examples/e32/e32_server/e32_server.pde
 RadioHead/examples/rf95/rf95_client/rf95_client.pde
 RadioHead/examples/rf95/rf95_reliable_datagram_client/rf95_reliable_datagram_client.pde
 RadioHead/examples/rf95/rf95_reliable_datagram_server/rf95_reliable_datagram_server.pde

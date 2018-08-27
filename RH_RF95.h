@@ -6,7 +6,7 @@
 //
 // Author: Mike McCauley (mikem@airspayce.com)
 // Copyright (C) 2014 Mike McCauley
-// $Id: RH_RF95.h,v 1.16 2017/03/04 00:59:41 mikem Exp $
+// $Id: RH_RF95.h,v 1.17 2017/06/20 05:21:17 mikem Exp mikem $
 // 
 
 #ifndef RH_RF95_h
@@ -622,6 +622,8 @@ public:
 
     /// Select one of the predefined modem configurations. If you need a modem configuration not provided 
     /// here, use setModemRegisters() with your own ModemConfig.
+    /// Caution: the slowest protocols may require a radio module with TCXO temperature controlled oscillator
+    /// for reliable operation.
     /// \param[in] index The configuration choice.
     /// \return true if index is a valid choice.
     bool        setModemConfig(ModemConfigChoice index);
@@ -728,11 +730,13 @@ public:
 
     /// Enable TCXO mode
     /// Call this immediately after init(), to force your radio to use an external 
-    /// frequency source, such as a Temperature Compensated Crystal Oscillator (TCXO).
+    /// frequency source, such as a Temperature Compensated Crystal Oscillator (TCXO), if available.
     /// See the comments in the main documentation about the sensitivity of this radio to
     /// clock frequency especially when using narrow bandwidths.
     /// Leaves the module in sleep mode.
     /// Caution, this function has not been tested by us.
+    /// Caution, the TCXO model radios are not low power when in sleep (consuming
+    /// about ~600 uA, reported by Phang Moh Lim.<br>
     void enableTCXO();
 
     /// Returns the last measured frequency error.

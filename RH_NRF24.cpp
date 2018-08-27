@@ -1,7 +1,7 @@
 // NRF24.cpp
 //
 // Copyright (C) 2012 Mike McCauley
-// $Id: RH_NRF24.cpp,v 1.23 2017/01/12 23:58:00 mikem Exp $
+// $Id: RH_NRF24.cpp,v 1.24 2017/06/20 05:21:17 mikem Exp mikem $
 
 #include <RH_NRF24.h>
 
@@ -42,6 +42,8 @@ bool RH_NRF24::init()
         if (spiReadRegister(RH_NRF24_REG_1D_FEATURE) != (RH_NRF24_EN_DPL | RH_NRF24_EN_DYN_ACK))
             return false;
     }
+
+    clearRxBuf();
 
     // Make sure we are powered down
     setModeIdle();

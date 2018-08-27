@@ -151,7 +151,7 @@ uint8_t RHGenericDriver::headerFlags()
     return _rxHeaderFlags;
 }
 
-int8_t RHGenericDriver::lastRssi()
+int16_t RHGenericDriver::lastRssi()
 {
     return _lastRssi;
 }

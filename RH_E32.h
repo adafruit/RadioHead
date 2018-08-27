@@ -392,7 +392,7 @@ protected:
 
     /// Write radio configuration parameters from local memory
     /// to the radio. You can choose whether the parameter will be saved across power down or not
-    /// \param[in] params Reference to a Parameter structure containing the radio configuration paramerters
+    /// \param[in] params Reference to a Parameter structure containing the radio configuration parameters
     /// to be written to the radio.
     /// \param[in] save If true, the parameters will be saved across power down in the radio
     /// \return true if successful

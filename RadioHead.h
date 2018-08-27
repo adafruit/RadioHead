@@ -10,7 +10,7 @@
 /// via a variety of common data radios and other transports on a range of embedded microprocessors.
 ///
 /// The version of the package that this documentation refers to can be downloaded 
-/// from http://www.airspayce.com/mikem/arduino/RadioHead/RadioHead-1.76.zip
+/// from http://www.airspayce.com/mikem/arduino/RadioHead/RadioHead-1.77.zip
 /// You can find the latest version of the documentation at http://www.airspayce.com/mikem/arduino/RadioHead
 ///
 /// You can also find online help and discussion at 
@@ -750,6 +750,8 @@
 ///              Fixed a problem with RH_RF95 hanging on transmit under some mysterious circumstances.
 ///              Reported by several people at  https://forum.pjrc.com/threads/41878-Probable-race-condition-in-Radiohead-library?p=146601#post146601 <br>
 ///              Increased the size of rssi variables to 16 bits to permit RSSI less than -128 as reported by RF95.
+/// \version 1.77 2017-06-25
+///              Fixed a compilation error with lastRssi().<br>
 ///
 /// \author  Mike McCauley. DO NOT CONTACT THE AUTHOR DIRECTLY. USE THE MAILING LIST GIVEN ABOVE
 
@@ -758,7 +760,7 @@
 
 // Official version numbers are maintained automatically by Makefile:
 #define RH_VERSION_MAJOR 1
-#define RH_VERSION_MINOR 76
+#define RH_VERSION_MINOR 77
 
 // Symbolic names for currently supported platform types
 #define RH_PLATFORM_ARDUINO          1

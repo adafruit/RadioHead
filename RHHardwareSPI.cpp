@@ -2,7 +2,7 @@
 // Author: Mike McCauley (mikem@airspayce.com)
 // Copyright (C) 2011 Mike McCauley
 // Contributed by Joanna Rutkowska
-// $Id: RHHardwareSPI.cpp,v 1.17 2017/07/25 05:26:50 mikem Exp mikem $
+// $Id: RHHardwareSPI.cpp,v 1.17 2017/07/25 05:26:50 mikem Exp $
 
 #include <RHHardwareSPI.h>
 
@@ -40,9 +40,7 @@ RHHardwareSPI::RHHardwareSPI(Frequency frequency, BitOrder bitOrder, DataMode da
 
 uint8_t RHHardwareSPI::transfer(uint8_t data) 
 {
-   uint8_t r = SPI.transfer(data);
-   //Serial.print("TX: "); Serial.print(data, HEX); Serial.print(" RX: "); Serial.println(r, HEX);
-   return r;
+    return SPI.transfer(data);
 }
 
 void RHHardwareSPI::attachInterrupt() 
@@ -61,34 +59,28 @@ void RHHardwareSPI::detachInterrupt()
     
 void RHHardwareSPI::begin() 
 {
-    // Sigh: there are no common symbols for some of these SPI options across all platforms
 #if defined(SPI_HAS_TRANSACTION)
-   uint32_t frequency32;
-   if (_frequency == Frequency16MHz) {
-       frequency32 = 16000000;
-   } else if (_frequency == Frequency8MHz) {
-       frequency32 = 8000000;
-   } else if (_frequency == Frequency4MHz) {
-       frequency32 = 4000000;
-   } else if (_frequency == Frequency2MHz) {
-       frequency32 = 2000000;
-   } else {
-       frequency32 = 1000000;
-   }
+    // Perhaps this is a uniform interface for SPI?
+    // Currently Teensy and ESP32 only
+   uint32_t frequency;
+   if (_frequency == Frequency16MHz)
+       frequency = 16000000;
+   else if (_frequency == Frequency8MHz)
+       frequency = 8000000;
+   else if (_frequency == Frequency4MHz)
+       frequency = 4000000;
+   else if (_frequency == Frequency2MHz)
+       frequency = 2000000;
+   else
+       frequency = 1000000;
 
-#if (RH_PLATFORM == RH_PLATFORM_ARDUINO) && defined (__arm__) && (defined(ARDUINO_SAM_DUE) || defined(ARDUINO_ARCH_SAMD)) || (RH_PLATFORM == RH_PLATFORM_NRF52)
-    // Arduino Due in 1.5.5 has its own BitOrder :-(
-    // So too does Arduino Zero and nRF52
-    ::BitOrder bOrder;
-  #else
-    uint8_t bOrder;
-  #endif
+   uint8_t bitOrder;
 
-   if (_bitOrder == BitOrderLSBFirst) {
-       bOrder = LSBFIRST;
-   } else {
-       bOrder = MSBFIRST;
-   }
+   if (_bitOrder == BitOrderLSBFirst)
+       bitOrder = LSBFIRST;
+   else
+       bitOrder = MSBFIRST;
+
     uint8_t dataMode;
     if (_dataMode == DataMode0)
 	dataMode = SPI_MODE0;
@@ -101,16 +93,13 @@ void RHHardwareSPI::begin()
     else
 	dataMode = SPI_MODE0;
 
-   _settings = SPISettings(frequency32, bOrder, dataMode);
-
-   //Serial.println("SPI has transactions");
+    // Save the settings for use in transactions
+   _settings = SPISettings(frequency, bitOrder, dataMode);
    SPI.begin();
+
 #else
-  #error "Only using transactions in this fork!"
-#endif
 
-   /*
-
+    // Sigh: there are no common symbols for some of these SPI options across all platforms
 #if (RH_PLATFORM == RH_PLATFORM_ARDUINO) || (RH_PLATFORM == RH_PLATFORM_UNO32) || (RH_PLATFORM == RH_PLATFORM_CHIPKIT_CORE)
     uint8_t dataMode;
     if (_dataMode == DataMode0)
@@ -420,13 +409,33 @@ void RHHardwareSPI::begin()
  #warning RHHardwareSPI does not support this platform yet. Consider adding it and contributing a patch.
 #endif
 
-   */
-
+#endif // SPI_HAS_TRANSACTION
 }
 
 void RHHardwareSPI::end() 
 {
     return SPI.end();
+}
+
+void RHHardwareSPI::beginTransaction()
+{
+#if defined(SPI_HAS_TRANSACTION)
+    SPI.beginTransaction(_settings);
+#endif
+}
+
+void RHHardwareSPI::endTransaction()
+{
+#if defined(SPI_HAS_TRANSACTION)
+    SPI.endTransaction();
+#endif
+}
+
+void RHHardwareSPI::usingInterrupt(uint8_t interrupt)
+{
+#if defined(SPI_HAS_TRANSACTION)
+
+#endif
 }
 
 #endif

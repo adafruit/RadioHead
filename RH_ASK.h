@@ -1,7 +1,7 @@
 // RH_ASK.h
 //
 // Copyright (C) 2014 Mike McCauley
-// $Id: RH_ASK.h,v 1.18 2017/07/25 05:26:50 mikem Exp mikem $
+// $Id: RH_ASK.h,v 1.18 2017/07/25 05:26:50 mikem Exp $
 
 #ifndef RH_ASK_h
 #define RH_ASK_h

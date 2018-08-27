@@ -1,7 +1,7 @@
 // RH_NRF905.h
 // Author: Mike McCauley (mikem@airspayce.com)
 // Copyright (C) 2014 Mike McCauley
-// $Id: RH_NRF905.h,v 1.11 2017/07/25 05:26:50 mikem Exp mikem $
+// $Id: RH_NRF905.h,v 1.11 2017/07/25 05:26:50 mikem Exp $
 //
 
 #ifndef RH_NRF905_h

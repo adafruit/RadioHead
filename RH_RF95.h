@@ -6,7 +6,7 @@
 //
 // Author: Mike McCauley (mikem@airspayce.com)
 // Copyright (C) 2014 Mike McCauley
-// $Id: RH_RF95.h,v 1.19 2017/07/25 05:26:50 mikem Exp mikem $
+// $Id: RH_RF95.h,v 1.20 2017/10/03 06:04:59 mikem Exp mikem $
 // 
 
 #ifndef RH_RF95_h
@@ -258,6 +258,10 @@
 ///   http://www.rocketscream.com/blog/product/mini-ultra-pro-with-radio/
 /// - Lora1276 module from NiceRF http://www.nicerf.com/product_view.aspx?id=99
 /// - Adafruit Feather M0 with RFM95 
+/// - The very fine Talk2 Whisper Node LoRa boards https://wisen.com.au/store/products/whisper-node-lora
+///   an Arduino compatible board, which include an on-board RFM95/96 LoRa Radio (Semtech SX1276), external antenna, 
+///   run on 2xAAA batteries and support low power operations. RF95 examples work without modification.
+///   Use Arduino Board Manager to install the Talk2 code support. Upload the code with an FTDI adapter set to 5V.
 ///
 /// \par Overview
 ///
@@ -412,6 +416,13 @@
 /// For Adafruit Feather M0 with RFM95, construct the driver like this:
 /// \code
 /// RH_RF95 rf95(8, 3);
+/// \endcode
+///
+/// If you have a talk2 Whisper Node LoRa board with on-board RF95 radio, 
+/// the example rf95_* sketches work without modification. Initialise the radio like
+/// with the default constructor:
+/// \code
+///  RH_RF95 driver;
 /// \endcode
 ///
 /// It is possible to have 2 or more radios connected to one Arduino, provided

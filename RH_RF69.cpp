@@ -110,6 +110,9 @@ bool RH_RF69::init()
     interruptNumber = _interruptPin;
 #endif
 
+    // Tell the low level SPI interface we will use SPI within this interrupt
+    spiUsingInterrupt(interruptNumber);
+
     // Get the device type and check it
     // This also tests whether we are really connected to a device
     // My test devices return 0x24
@@ -228,6 +231,7 @@ void RH_RF69::readFifo()
 {
     ATOMIC_BLOCK_START;
     digitalWrite(_slaveSelectPin, LOW);
+    _spi.beginTransaction();
     _spi.transfer(RH_RF69_REG_00_FIFO); // Send the start address with the write mask off
     uint8_t payloadlen = _spi.transfer(0); // First byte is payload len (counting the headers)
     if (payloadlen <= RH_RF69_MAX_ENCRYPTABLE_PAYLOAD_LEN &&
@@ -251,6 +255,7 @@ void RH_RF69::readFifo()
 	}
     }
     digitalWrite(_slaveSelectPin, HIGH);
+    _spi.endTransaction();
     ATOMIC_BLOCK_END;
     // Any junk remaining in the FIFO will be cleared next time we go to receive mode.
 }

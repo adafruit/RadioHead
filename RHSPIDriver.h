@@ -1,7 +1,7 @@
 // RHSPIDriver.h
 // Author: Mike McCauley (mikem@airspayce.com)
 // Copyright (C) 2014 Mike McCauley
-// $Id: RHSPIDriver.h,v 1.11 2017/07/25 05:26:50 mikem Exp mikem $
+// $Id: RHSPIDriver.h,v 1.11 2017/07/25 05:26:50 mikem Exp $
 
 #ifndef RHSPIDriver_h
 #define RHSPIDriver_h
@@ -83,12 +83,19 @@ public:
     /// \param[in] slaveSelectPin The pin to use
     void setSlaveSelectPin(uint8_t slaveSelectPin);
 
+    /// Set the SPI interrupt number
+    /// If SPI transactions can occur within an interrupt, tell the low level SPI
+    /// interface which interrupt is used
+    /// \param[in] interruptNumber the interrupt number
+    void spiUsingInterrupt(uint8_t interruptNumber);
+
 protected:
     /// Reference to the RHGenericSPI instance to use to transfer data with teh SPI device
     RHGenericSPI&       _spi;
 
     /// The pin number of the Slave Select pin that is used to select the desired device.
     uint8_t             _slaveSelectPin;
+    uint8_t             _interuptPin; // If interrupts are used else NOT_AN_INTERRUPT
 };
 
 #endif

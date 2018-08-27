@@ -45,6 +45,9 @@ bool RH_RF95::init()
     interruptNumber = _interruptPin;
 #endif
 
+    // Tell the low level SPI interface we will use SPI within this interrupt
+    spiUsingInterrupt(interruptNumber);
+
     // No way to check the device type :-(
     
     // Set sleep mode, so we can also set LORA mode:
@@ -53,7 +56,7 @@ bool RH_RF95::init()
     // Check we are in sleep mode, with LORA set
     if (spiRead(RH_RF95_REG_01_OP_MODE) != (RH_RF95_MODE_SLEEP | RH_RF95_LONG_RANGE_MODE))
     {
-	Serial.println(spiRead(RH_RF95_REG_01_OP_MODE), HEX);
+//	Serial.println(spiRead(RH_RF95_REG_01_OP_MODE), HEX);
 	return false; // No device present?
     }
 

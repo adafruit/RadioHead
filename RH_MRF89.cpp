@@ -67,6 +67,9 @@ bool RH_MRF89::init()
     interruptNumber = _interruptPin;
 #endif
 
+    // Tell the low level SPI interface we will use SPI within this interrupt
+    spiUsingInterrupt(interruptNumber);
+
     // Make sure we are not in some unexpected mode from a previous run    
     setOpMode(RH_MRF89_CMOD_STANDBY); 
 
@@ -286,10 +289,12 @@ uint8_t RH_MRF89::spiWriteData(const uint8_t* data, uint8_t len)
 
     uint8_t status = 0;
     ATOMIC_BLOCK_START;
+    _spi.beginTransaction();
     digitalWrite(_slaveSelectPin, LOW);
     while (len--)
 	_spi.transfer(*data++);
     digitalWrite(_slaveSelectPin, HIGH);
+    _spi.endTransaction();
     ATOMIC_BLOCK_END;
     return status;
 

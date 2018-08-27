@@ -1,7 +1,7 @@
 // RadioHead.h
 // Author: Mike McCauley (mikem@airspayce.com) DO NOT CONTACT THE AUTHOR DIRECTLY
 // Copyright (C) 2014 Mike McCauley
-// $Id: RadioHead.h,v 1.66 2017/07/25 05:26:50 mikem Exp mikem $
+// $Id: RadioHead.h,v 1.67 2017/10/03 06:04:59 mikem Exp mikem $
 
 /// \mainpage RadioHead Packet Radio library for embedded microprocessors
 ///
@@ -10,7 +10,7 @@
 /// via a variety of common data radios and other transports on a range of embedded microprocessors.
 ///
 /// The version of the package that this documentation refers to can be downloaded 
-/// from http://www.airspayce.com/mikem/arduino/RadioHead/RadioHead-1.79.zip
+/// from http://www.airspayce.com/mikem/arduino/RadioHead/RadioHead-1.80.zip
 /// You can find the latest version of the documentation at http://www.airspayce.com/mikem/arduino/RadioHead
 ///
 /// You can also find online help and discussion at 
@@ -168,6 +168,8 @@
 ///    Examples serial_reliable_datagram_* and ask_* are shown to work. 
 ///    CAUTION: The GHz radio included in the ESP8266 is
 ///    not yet supported. 
+///  - Various Talk2 Whisper boards eg https://wisen.com.au/store/products/whisper-node-lora.
+///    Use Arduino Board Manager to install the Talk2 code support. 
 ///  - etc.
 ///
 /// - ChipKIT Core with Arduino IDE on any ChipKIT Core supported Digilent processor (tested on Uno32)
@@ -195,6 +197,10 @@
 /// - Adafruit Feather. These are excellent boards that are available with a variety of radios. We tested with the 
 ///   Feather 32u4 with RFM69HCW radio, with Arduino IDE 1.6.8 and the Adafruit AVR Boards board manager version 1.6.10. 
 ///   https://www.adafruit.com/products/3076
+///
+/// - ESP32 built using Arduino IDE 1.8.1 or later using the ESP32 toolchain installed per
+///   https://diyprojects.io/programming-esp32-board-arduino-ide-macos-windows-linux-arm-raspberrypi-orangepi/
+///   The internal 2.4GHz radio is not yet supported. Tested with RFM22 using SPI interfcace
 ///
 /// - Raspberry Pi
 ///   Uses BCM2835 library for GPIO http://www.airspayce.com/mikem/bcm2835/
@@ -299,6 +305,20 @@
 /// - Anarduino and HopeRF USA (http://www.hoperfusa.com and http://www.anarduino.com) who have a wide range
 ///   of HopeRF radios and Arduino integrated modules.
 /// - SparkFun https://www.sparkfun.com/ in USA who design and sell a wide range of Arduinos and radio modules.
+/// - Wisen http://wisen.com.au who design and sell a wide range of integrated radio/processor modules including the
+///   excellent Talk2 range.
+///
+/// \par Coding Style
+///
+/// RadioHead is designed so it can run on small processors with very
+/// limited resources and strict timing contraints.  As a result, we
+/// tend only to use the simplest and least demanding (in terms of memory and CPU) C++
+/// facilities. In particular we avoid as much as possible dynamic
+/// memory allocation, and the use of complex objects like C++
+/// strings, IO and buffers. We are happy with this, but we are aware
+/// that some people may think we are leaving useful tools on the
+/// table. You should not use this code as an example of how to do
+/// generalised C++ programming on well resourced processors.
 ///
 /// \par Donations
 ///
@@ -769,6 +789,14 @@
 ///              Changes to RH_CC110 driver to calculate RSSI in dBm, based on a patch from Jurie Pieterse.<br>
 ///              Added missing passthroughmethoids to RHEncryptedDriver, allowing it to be used with RHDatagram,
 ///              RHReliableDatagram etc. Tested with RH_Serial. Added examples 
+/// \version 1.80 2017-10-04
+///              Testing with the very fine Talk2 Whisper Node LoRa boards https://wisen.com.au/store/products/whisper-node-lora
+///              an Arduino compatible board, which include an on-board RFM95/96 LoRa Radio (Semtech SX1276), external antenna, 
+///              run on 2xAAA batteries and support low power operations. RF95 examples work without modification.
+///              Use Arduino Board Manager to install the Talk2 code support. Upload the code with an FTDI adapter set to 5V.<br>
+///              Added support for SPI transactions in development environments that support it with SPI_HAS_TRANSACTION.
+///              Tested on ESP32 with RFM-22 and Teensy 3.1 with RF69
+///              Added support for ESP32, tested with RFM-22 connected by SPI.<br>
 ///
 /// \author  Mike McCauley. DO NOT CONTACT THE AUTHOR DIRECTLY. USE THE MAILING LIST GIVEN ABOVE
 
@@ -1015,7 +1043,7 @@ these examples and explanations and extend them to suit your needs.
 
 // Official version numbers are maintained automatically by Makefile:
 #define RH_VERSION_MAJOR 1
-#define RH_VERSION_MINOR 79
+#define RH_VERSION_MINOR 80
 
 // Symbolic names for currently supported platform types
 #define RH_PLATFORM_ARDUINO          1
@@ -1097,6 +1125,7 @@ these examples and explanations and extend them to suit your needs.
  #include <SPI.h>
  #define RH_HAVE_HARDWARE_SPI
  #define RH_HAVE_SERIAL
+
 #elif (RH_PLATFORM == RH_PLATFORM_ESP32)   // ESP32 processor on Arduino IDE
  #include <Arduino.h>
  #include <SPI.h>

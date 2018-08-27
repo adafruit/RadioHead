@@ -7,8 +7,6 @@
 #ifndef RHHardwareSPI_h
 #define RHHardwareSPI_h
 
-#include <SPI.h>
-
 #include <RHGenericSPI.h>
 
 /////////////////////////////////////////////////////////////////////
@@ -17,6 +15,8 @@
 ///
 /// This concrete subclass of GenericSPIClass encapsulates the standard Arduino hardware and other
 /// hardware SPI interfaces.
+///
+/// SPI transactions are supported in development environments that support it with SPI_HAS_TRANSACTION.
 class RHHardwareSPI : public RHGenericSPI
 {
 #ifdef RH_HAVE_HARDWARE_SPI
@@ -60,6 +60,30 @@ public:
     void begin(){}
     void end(){}
 
+#endif
+
+    /// Signal the start of an SPI transaction that must not be interrupted by other SPI actions
+    /// In subclasses that support transactions this will ensure that other SPI transactions
+    /// are blocked until this one is completed by endTransaction().
+    /// Uses the underlying SPI transaction support if available as specified by SPI_HAS_TRANSACTION.
+    virtual void beginTransaction();
+
+    /// Signal the end of an SPI transaction
+    /// Uses the underlying SPI transaction support if available as specified by SPI_HAS_TRANSACTION.
+    virtual void endTransaction();
+
+    /// Specify the interrupt number of the interrupt that will use SPI transactions
+    /// Tells the SPI support software that SPI transactions will occur with the interrupt
+    /// handler assocated with interruptNumber
+    /// Uses the underlying SPI transaction support if available as specified by SPI_HAS_TRANSACTION.
+    /// \param[in] interruptNumber The number of the interrupt
+    virtual void usingInterrupt(uint8_t interruptNumber);
+
+protected:
+
+#if defined(SPI_HAS_TRANSACTION)
+    // Storage for SPI settings used in SPI transactions
+    SPISettings  _settings;
 #endif
 };
 

@@ -10,7 +10,7 @@ It provides a complete object-oriented library for sending and receiving packeti
 via a variety of common data radios and other transports on a range of embedded microprocessors.
 
 The version of the package that this documentation refers to can be downloaded 
-from http://www.airspayce.com/mikem/arduino/RadioHead/RadioHead-1.85.zip
+from http://www.airspayce.com/mikem/arduino/RadioHead/RadioHead-1.86.zip
 You can find the latest version of the documentation at http://www.airspayce.com/mikem/arduino/RadioHead
 
 You can also find online help and discussion at 
@@ -224,7 +224,7 @@ https://www.adafruit.com/product/3406
 
 - ESP32 built using Arduino IDE 1.8.1 or later using the ESP32 toolchain installed per
   https://diyprojects.io/programming-esp32-board-arduino-ide-macos-windows-linux-arm-raspberrypi-orangepi/
-  The internal 2.4GHz radio is not yet supported. Tested with RFM22 using SPI interfcace
+  The internal 2.4GHz radio is not yet supported. Tested with RFM22 using SPI interface
 
 - Raspberry Pi
   Uses BCM2835 library for GPIO http://www.airspayce.com/mikem/bcm2835/
@@ -379,7 +379,7 @@ distributed. See https://www.gnu.org/licenses/gpl-2.0.html
 
 This is the appropriate option if you are creating proprietary applications
 and you are not prepared to distribute and share the source code of your
-application. Purchase commercial licenses at http://airspayce.binpress.com
+application. To purchase a commercial license, contact info@airspayce.com
 
 \par Revision History
 \version 1.1 2014-04-14<br>
@@ -856,6 +856,8 @@ application. Purchase commercial licenses at http://airspayce.binpress.com
 	     when STRICT_CONTENT_LEN is defined.<br>
 	     Fixed a bug in RHMesh which causes the creation of a route to the address which is the byte 
 	     behind the end of the route array. Reported by Pascal Gillès de Pélichy.<br>
+\version 1.86 2018-08-28
+             Update commercial licensing, remove binpress.
 
 \author  Mike McCauley. DO NOT CONTACT THE AUTHOR DIRECTLY. USE THE GOOGLE LIST GIVEN ABOVE
 */
@@ -1104,7 +1106,7 @@ these examples and explanations and extend them to suit your needs.
 
 // Official version numbers are maintained automatically by Makefile:
 #define RH_VERSION_MAJOR 1
-#define RH_VERSION_MINOR 85
+#define RH_VERSION_MINOR 86
 
 // Symbolic names for currently supported platform types
 #define RH_PLATFORM_ARDUINO          1

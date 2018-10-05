@@ -3,7 +3,7 @@
 // Driver for Texas Instruments CC110L transceiver.
 //
 // Copyright (C) 2016 Mike McCauley
-// $Id: RH_CC110.cpp,v 1.5 2017/01/12 23:58:00 mikem Exp $
+// $Id: RH_CC110.cpp,v 1.9 2018/01/06 23:50:45 mikem Exp $
 
 #include <RH_CC110.h>
 
@@ -87,6 +87,9 @@ bool RH_CC110::init()
     interruptNumber = _interruptPin;
 #endif
 
+    // Tell the low level SPI interface we will use SPI within this interrupt
+    spiUsingInterrupt(interruptNumber);
+
     // Reset the chip
     // Strobe the reset
     uint8_t val = spiCommand(RH_CC110_STROBE_30_SRES); // Reset
@@ -157,10 +160,16 @@ void RH_CC110::handleInterrupt()
 //    Serial.println("I");
     if (_mode == RHModeRx)
     {
-	// Radio is confgigured to stay in RX until we move it to IDLE after a CRC_OK message for us
+	// Radio is configured to stay in RX until we move it to IDLE after a CRC_OK message for us
 	// We only get interrupts in RX mode, on CRC_OK
-	// CRC OK
-	_lastRssi = spiBurstReadRegister(RH_CC110_REG_34_RSSI); // Was set when sync word was detected
+
+	uint8_t raw_rssi = spiBurstReadRegister(RH_CC110_REG_34_RSSI); // Was set when sync word was detected
+	// Conversion of RSSI value to received power level in dBm per TI section 5.18.2
+	if (raw_rssi >= 128) 
+	    _lastRssi = (((int16_t)raw_rssi - 256) / 2) - 74;
+	else 
+	    _lastRssi = ((int16_t)raw_rssi / 2) - 74;
+
 	_bufLen = spiReadRegister(RH_CC110_REG_3F_FIFO);
 	if (_bufLen < 4)
 	{
@@ -336,6 +345,7 @@ bool RH_CC110::sleep()
 {
     if (_mode != RHModeSleep)
     {
+	spiCommand(RH_CC110_STROBE_36_SIDLE); //preceeding sleep IDLE first
 	spiCommand(RH_CC110_STROBE_39_SPWD);
 	_mode = RHModeSleep;
     }

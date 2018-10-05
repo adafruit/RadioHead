@@ -1,7 +1,7 @@
 // NRF24.cpp
 //
 // Copyright (C) 2012 Mike McCauley
-// $Id: RH_NRF24.cpp,v 1.23 2017/01/12 23:58:00 mikem Exp $
+// $Id: RH_NRF24.cpp,v 1.26 2018/01/06 23:50:45 mikem Exp $
 
 #include <RH_NRF24.h>
 
@@ -42,6 +42,8 @@ bool RH_NRF24::init()
         if (spiReadRegister(RH_NRF24_REG_1D_FEATURE) != (RH_NRF24_EN_DPL | RH_NRF24_EN_DYN_ACK))
             return false;
     }
+
+    clearRxBuf();
 
     // Make sure we are powered down
     setModeIdle();
@@ -214,8 +216,13 @@ bool RH_NRF24::waitPacketSent()
     // end of transmission
     // We dont actually use auto-ack, so prob dont expect to see RH_NRF24_MAX_RT
     uint8_t status;
+    uint32_t start = millis();
     while (!((status = statusRead()) & (RH_NRF24_TX_DS | RH_NRF24_MAX_RT)))
+    {
+	if (((uint32_t)millis() - start) > 100) // Longer than any possible message
+	    break;  // Should never happen: TX never completed. Why?
 	YIELD;
+    }
 
     // Must clear RH_NRF24_MAX_RT if it is set, else no further comm
     if (status & RH_NRF24_MAX_RT)

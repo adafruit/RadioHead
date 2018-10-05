@@ -16,6 +16,8 @@
 /// Caution: this software SPI interface will be much slower than hardware SPI on most
 /// platforms.
 ///
+/// SPI transactions are not supported, and associated functions do nothing.
+///
 /// \par Usage
 ///
 /// Usage varies slightly depending on what driver you are using.

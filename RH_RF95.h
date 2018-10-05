@@ -6,7 +6,7 @@
 //
 // Author: Mike McCauley (mikem@airspayce.com)
 // Copyright (C) 2014 Mike McCauley
-// $Id: RH_RF95.h,v 1.16 2017/03/04 00:59:41 mikem Exp $
+// $Id: RH_RF95.h,v 1.21 2017/11/06 00:04:08 mikem Exp $
 // 
 
 #ifndef RH_RF95_h
@@ -258,6 +258,11 @@
 ///   http://www.rocketscream.com/blog/product/mini-ultra-pro-with-radio/
 /// - Lora1276 module from NiceRF http://www.nicerf.com/product_view.aspx?id=99
 /// - Adafruit Feather M0 with RFM95 
+/// - The very fine Talk2 Whisper Node LoRa boards https://wisen.com.au/store/products/whisper-node-lora
+///   an Arduino compatible board, which include an on-board RFM95/96 LoRa Radio (Semtech SX1276), external antenna, 
+///   run on 2xAAA batteries and support low power operations. RF95 examples work without modification.
+///   Use Arduino Board Manager to install the Talk2 code support. Upload the code with an FTDI adapter set to 5V.
+/// - heltec / TTGO ESP32 LoRa OLED https://www.aliexpress.com/item/Internet-Development-Board-SX1278-ESP32-WIFI-chip-0-96-inch-OLED-Bluetooth-WIFI-Lora-Kit-32/32824535649.html
 ///
 /// \par Overview
 ///
@@ -339,9 +344,9 @@
 /// this (tested).
 /// \code
 ///                 Teensy      inAir4 inAir9
-///                 GND----------GND   (ground in)
+///                 GND----------0V   (ground in)
 ///                 3V3----------3.3V  (3.3V in)
-/// interrupt 0 pin D2-----------D00   (interrupt request out)
+/// interrupt 0 pin D2-----------D0   (interrupt request out)
 ///          SS pin D10----------CS    (CS chip select in)
 ///         SCK pin D13----------CK    (SPI clock in)
 ///        MOSI pin D11----------SI    (SPI Data in)
@@ -412,6 +417,13 @@
 /// For Adafruit Feather M0 with RFM95, construct the driver like this:
 /// \code
 /// RH_RF95 rf95(8, 3);
+/// \endcode
+///
+/// If you have a talk2 Whisper Node LoRa board with on-board RF95 radio, 
+/// the example rf95_* sketches work without modification. Initialise the radio like
+/// with the default constructor:
+/// \code
+///  RH_RF95 driver;
 /// \endcode
 ///
 /// It is possible to have 2 or more radios connected to one Arduino, provided
@@ -622,6 +634,8 @@ public:
 
     /// Select one of the predefined modem configurations. If you need a modem configuration not provided 
     /// here, use setModemRegisters() with your own ModemConfig.
+    /// Caution: the slowest protocols may require a radio module with TCXO temperature controlled oscillator
+    /// for reliable operation.
     /// \param[in] index The configuration choice.
     /// \return true if index is a valid choice.
     bool        setModemConfig(ModemConfigChoice index);
@@ -728,11 +742,13 @@ public:
 
     /// Enable TCXO mode
     /// Call this immediately after init(), to force your radio to use an external 
-    /// frequency source, such as a Temperature Compensated Crystal Oscillator (TCXO).
+    /// frequency source, such as a Temperature Compensated Crystal Oscillator (TCXO), if available.
     /// See the comments in the main documentation about the sensitivity of this radio to
     /// clock frequency especially when using narrow bandwidths.
     /// Leaves the module in sleep mode.
     /// Caution, this function has not been tested by us.
+    /// Caution, the TCXO model radios are not low power when in sleep (consuming
+    /// about ~600 uA, reported by Phang Moh Lim.<br>
     void enableTCXO();
 
     /// Returns the last measured frequency error.
@@ -804,6 +820,8 @@ private:
 
 /// @example rf95_client.pde
 /// @example rf95_server.pde
+/// @example rf95_encrypted_client.pde
+/// @example rf95_encrypted_server.pde
 /// @example rf95_reliable_datagram_client.pde
 /// @example rf95_reliable_datagram_server.pde
 

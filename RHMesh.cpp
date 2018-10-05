@@ -107,8 +107,8 @@ void RHMesh::peekAtMessage(RoutedMessage* message, uint8_t messageLen)
 	    if (d->route[i] == _thisAddress)
 		break;
 	i++;
-	while (i++ < numRoutes)
-	    addRouteTo(d->route[i], headerFrom());
+	while (i < numRoutes)
+	    addRouteTo(d->route[i++], headerFrom());
     }
     else if (   messageLen > 1 
 	     && m->msgType == RH_MESH_MESSAGE_TYPE_ROUTE_FAILURE)

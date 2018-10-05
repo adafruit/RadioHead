@@ -136,9 +136,9 @@ public:
     typedef struct
     {
 	MeshMessageHeader   header;  ///< msgType = RH_MESH_MESSAGE_TYPE_ROUTE_DISCOVERY_*
-	uint8_t             destlen; ///< Reserved. Must be 1.g
+	uint8_t             destlen; ///< Reserved. Must be 1
 	uint8_t             dest;    ///< The address of the destination node whose route is being sought
-	uint8_t             route[RH_MESH_MAX_MESSAGE_LEN - 1]; ///< List of node addresses visited so far. Length is implcit
+	uint8_t             route[RH_MESH_MAX_MESSAGE_LEN - 2]; ///< List of node addresses visited so far. Length is implcit
     } MeshRouteDiscoveryMessage;
 
     /// Signals a route failure

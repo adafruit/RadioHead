@@ -1,7 +1,7 @@
 // RH_NRF905.h
 // Author: Mike McCauley (mikem@airspayce.com)
 // Copyright (C) 2014 Mike McCauley
-// $Id: RH_NRF905.h,v 1.10 2017/01/12 23:58:00 mikem Exp $
+// $Id: RH_NRF905.h,v 1.11 2017/07/25 05:26:50 mikem Exp $
 //
 
 #ifndef RH_NRF905_h
@@ -95,7 +95,7 @@
 
 /////////////////////////////////////////////////////////////////////
 /// \class RH_NRF905 RH_NRF905.h <RH_NRF905.h>
-/// \brief Send and receive addressed, reliable, acknowledged datagrams by nRF905 and compatible transceivers.
+/// \brief Send and receive unaddressed, unreliable datagrams by nRF905 and compatible transceivers.
 ///
 /// This base class provides basic functions for sending and receiving unaddressed, unreliable datagrams
 /// of arbitrary length to 28 octets per packet. Use one of the Manager classes to get addressing and 

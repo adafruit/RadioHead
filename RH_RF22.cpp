@@ -1,7 +1,7 @@
 // RH_RF22.cpp
 //
 // Copyright (C) 2011 Mike McCauley
-// $Id: RH_RF22.cpp,v 1.27 2017/01/12 23:58:00 mikem Exp $
+// $Id: RH_RF22.cpp,v 1.28 2017/11/06 00:04:08 mikem Exp $
 
 #include <RH_RF22.h>
 
@@ -84,6 +84,9 @@ bool RH_RF22::init()
     interruptNumber = _interruptPin;
 #endif
 
+    // Tell the low level SPI interface we will use SPI within this interrupt
+    spiUsingInterrupt(interruptNumber);
+
     // Software reset the device
     reset();
 
@@ -93,6 +96,8 @@ bool RH_RF22::init()
     if (   _deviceType != RH_RF22_DEVICE_TYPE_RX_TRX
         && _deviceType != RH_RF22_DEVICE_TYPE_TX)
     {
+//	Serial.println("unknown device type");
+//	Serial.println(_deviceType);
 	return false;
     }
 

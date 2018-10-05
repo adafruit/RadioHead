@@ -1,7 +1,7 @@
 // RH_RF69.h
 // Author: Mike McCauley (mikem@airspayce.com)
 // Copyright (C) 2014 Mike McCauley
-// $Id: RH_RF69.h,v 1.34 2017/03/08 09:30:47 mikem Exp mikem $
+// $Id: RH_RF69.h,v 1.36 2017/10/03 06:04:59 mikem Exp $
 //
 ///
 
@@ -316,7 +316,7 @@
 ///   an Arduino compatible board, which include an on-board RF69 radio, external antenna, 
 ///   run on 2xAAA batteries and support low power operations. RF69 examples work without modification.
 ///   Use Arduino Board Manager to install the Talk2 code support as described in 
-///   https://bitbucket.org/talk2/whisper-node-avr
+///   https://bitbucket.org/talk2/whisper-node-avr. Upeload the code with an FTDI adapter set to 3.3V.
 /// - The excellent Adafruit Feather. These are excellent boards that are available with a variety of radios. 
 ///   We tested with the 
 ///   Feather 32u4 with RFM69HCW radio, with Arduino IDE 1.6.8 and the Adafruit AVR Boards board manager version 1.6.10.

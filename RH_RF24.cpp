@@ -1,7 +1,7 @@
 // RH_RF24.cpp
 //
 // Copyright (C) 2011 Mike McCauley
-// $Id: RH_RF24.cpp,v 1.20 2017/03/08 09:30:47 mikem Exp mikem $
+// $Id: RH_RF24.cpp,v 1.22 2017/11/06 00:04:08 mikem Exp $
 
 #include <RH_RF24.h>
 
@@ -53,6 +53,9 @@ bool RH_RF24::init()
 #ifdef RH_ATTACHINTERRUPT_TAKES_PIN_NUMBER
     interruptNumber = _interruptPin;
 #endif
+
+    // Tell the low level SPI interface we will use SPI within this interrupt
+    spiUsingInterrupt(interruptNumber);
 
     // Initialise the radio
     power_on_reset();
@@ -345,11 +348,13 @@ bool RH_RF24::writeTxFifo(uint8_t *data, uint8_t len)
     ATOMIC_BLOCK_START;
     // First send the command
     digitalWrite(_slaveSelectPin, LOW);
+    _spi.beginTransaction();
     _spi.transfer(RH_RF24_CMD_TX_FIFO_WRITE);
     // Now write any write data
     while (len--)
 	_spi.transfer(*data++);
     digitalWrite(_slaveSelectPin, HIGH);
+    _spi.endTransaction();
     ATOMIC_BLOCK_END;
     return true;
 }
@@ -411,6 +416,7 @@ uint8_t RH_RF24::maxMessageLength()
 void RH_RF24::setModemRegisters(const ModemConfig* config)
 {
   Serial.println("Programming Error: setModemRegisters is obsolete. Generate custom radio config file with WDS instead");
+  (void)config; // Prevent warnings
 }
 
 // Set one of the canned Modem configs
@@ -418,6 +424,7 @@ void RH_RF24::setModemRegisters(const ModemConfig* config)
 bool RH_RF24::setModemConfig(ModemConfigChoice index)
 {
   Serial.println("Programming Error: setModemRegisters is obsolete. Generate custom radio config file with WDS instead");
+  (void)index; // Prevent warnings
   return false;
 }
 
@@ -452,6 +459,7 @@ void RH_RF24::setSyncWords(const uint8_t* syncWords, uint8_t len)
 
 bool RH_RF24::setFrequency(float centre, float afcPullInRange)
 {
+  (void)afcPullInRange; // Not used
     // See Si446x Data Sheet section 5.3.1
     // Also the Si446x PLL Synthesizer / VCO_CNT Calculator Rev 0.4
     uint8_t outdiv;

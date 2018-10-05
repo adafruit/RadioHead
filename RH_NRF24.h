@@ -1,7 +1,7 @@
 // RH_NRF24.h
 // Author: Mike McCauley
 // Copyright (C) 2012 Mike McCauley
-// $Id: RH_NRF24.h,v 1.19 2016/07/07 00:02:53 mikem Exp $
+// $Id: RH_NRF24.h,v 1.20 2017/07/25 05:26:50 mikem Exp $
 //
 
 #ifndef RH_NRF24_h
@@ -154,7 +154,7 @@
 
 /////////////////////////////////////////////////////////////////////
 /// \class RH_NRF24 RH_NRF24.h <RH_NRF24.h>
-/// \brief Send and receive addressed, reliable, acknowledged datagrams by nRF24L01 and compatible transceivers.
+/// \brief Send and receive unaddressed, unreliable datagrams by nRF24L01 and compatible transceivers.
 ///
 /// Supported transceivers include:
 /// - Nordic nRF24 based 2.4GHz radio modules, such as nRF24L01 http://www.nordicsemi.com/eng/Products/2.4GHz-RF/nRF24L01
@@ -632,6 +632,8 @@ private:
 
 /// @example nrf24_client.pde
 /// @example nrf24_server.pde
+/// @example nrf24_encrypted_client.pde
+/// @example nrf24_encrypted_server.pde
 /// @example nrf24_reliable_datagram_client.pde
 /// @example nrf24_reliable_datagram_server.pde
 /// @example RasPiRH.cpp

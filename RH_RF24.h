@@ -1,7 +1,7 @@
 // RH_RF24.h
 // Author: Mike McCauley (mikem@airspayce.com)
 // Copyright (C) 2014 Mike McCauley
-// $Id: RH_RF24.h,v 1.17 2017/03/08 09:30:47 mikem Exp mikem $
+// $Id: RH_RF24.h,v 1.18 2017/07/25 05:26:50 mikem Exp $
 //
 // Supports RF24/RF26 and RFM24/RFM26 modules in FIFO mode
 // also Si4464/63/62/61/60-A1
@@ -596,7 +596,7 @@
 ///
 /// The RH_RF24 module uses a radio configuration header file to configure the basic radio operation
 /// frequency and modulation scheme. The radio configuration header file must be generated with the
-/// Silicon Labs Wireless Development Suite (WDS) program and #included by RH_RF24.cpp
+/// Silicon Labs Wireless Development Suite (WDS) program and \#included by RH_RF24.cpp
 /// 
 /// The library will work out of the box and without further configuring with these parameters:
 /// - Si4464 or equvalent

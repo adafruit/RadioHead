@@ -1,7 +1,7 @@
 // RHGenericDriver.cpp
 //
 // Copyright (C) 2014 Mike McCauley
-// $Id: RHGenericDriver.cpp,v 1.21 2017/03/04 00:59:41 mikem Exp $
+// $Id: RHGenericDriver.cpp,v 1.23 2018/02/11 23:57:18 mikem Exp $
 
 #include <RHGenericDriver.h>
 
@@ -151,7 +151,7 @@ uint8_t RHGenericDriver::headerFlags()
     return _rxHeaderFlags;
 }
 
-int8_t RHGenericDriver::lastRssi()
+int16_t RHGenericDriver::lastRssi()
 {
     return _lastRssi;
 }
@@ -174,10 +174,9 @@ bool  RHGenericDriver::sleep()
 // Diagnostic help
 void RHGenericDriver::printBuffer(const char* prompt, const uint8_t* buf, uint8_t len)
 {
-    uint8_t i;
-
 #ifdef RH_HAVE_SERIAL
     Serial.println(prompt);
+    uint8_t i;
     for (i = 0; i < len; i++)
     {
 	if (i % 16 == 15)

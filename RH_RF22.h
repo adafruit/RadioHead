@@ -1,7 +1,7 @@
 // RH_RF22.h
 // Author: Mike McCauley (mikem@airspayce.com)
 // Copyright (C) 2011 Mike McCauley
-// $Id: RH_RF22.h,v 1.32 2017/03/04 00:59:41 mikem Exp $
+// $Id: RH_RF22.h,v 1.34 2017/11/06 00:04:08 mikem Exp $
 //
 
 #ifndef RH_RF22_h
@@ -606,6 +606,13 @@
 /// or the interrupt request to other than pin D2 (Caution, different processors have different constraints as to the 
 /// pins available for interrupts).
 ///
+/// Caution: some people have had problems with some batches of
+/// RFM23BP chips burning out their nIRQ outputs for unknown
+/// reasons when run at 5V. Some users assert that running RFM23BP with voltage
+/// dividers at 3.3V is to be preferred. We have not tested or verified
+/// either the cause or the supposed cure.
+//
+///
 /// If you have an Arduino Zero, you should note that you cannot use Pin 2 for the interrupt line 
 /// (Pin 2 is for the NMI only), instead you can use any other pin (we use Pin 3) and initialise RH_RF69 like this:
 /// \code
@@ -613,7 +620,52 @@
 /// RH_RF22 driver(10, 3);
 /// \endcode
 ///
-/// It is possible to have 2 radios connected to one Arduino, provided each radio has its own 
+/// If you have an ESP32 (we tested with the Geekworm EASY-KIT ESP32-B1 which has a ESP-WROOM-32 chip)
+/// \code
+///                 ESP32      RFM-22B
+///                 GND----------GND-\ (ground in)
+///                              SDN-/ (shutdown in)
+///                 3V3----------VCC   (3.3V in)
+/// interrupt   pin GPIO15-------NIRQ  (interrupt request out)
+///          SS pin GPIO13-------NSEL  (chip select in)
+///         SCK pin GPIO18-------SCK   (SPI clock in)
+///        MOSI pin GPIO23-------SDI   (SPI Data in)
+///        MISO pin GPIO19-------SDO   (SPI data out)
+///                           /--GPIO0 (GPIO0 out to control transmitter antenna TX_ANT)
+///                           \--TX_ANT (TX antenna control in) RFM22B only
+///                           /--GPIO1 (GPIO1 out to control receiver antenna RX_ANT)
+///                           \--RX_ANT (RX antenna control in) RFM22B only
+/// \endcode
+/// and initialise like this:
+/// \code
+/// RH_RF22 driver(13, 15);
+/// \endcode
+/// You can of course use other pins for NSEL and NIRQ if you prefer.
+///
+/// To connect an STM32 F4 Discovery board to RF22 using Arduino and Arduino_STM32
+/// connect the pins like this:
+/// \code
+///                 STM32      RFM-22B
+///                 GND----------GND-\ (ground in)
+///                              SDN-/ (shutdown in)
+///                 VDD----------VCC   (3.3V in)
+/// interrupt   pin PB1----------NIRQ  (interrupt request out)
+///          SS pin PB0----------NSEL  (chip select in)
+///         SCK pin PB3----------SCK   (SPI clock in)
+///        MOSI pin PB5----------SDI   (SPI Data in)
+///        MISO pin PB4----------SDO   (SPI data out)
+///                           /--GPIO0 (GPIO0 out to control transmitter antenna TX_ANT)
+///                           \--TX_ANT (TX antenna control in) RFM22B only
+///                           /--GPIO1 (GPIO1 out to control receiver antenna RX_ANT)
+///                           \--RX_ANT (RX antenna control in) RFM22B only
+/// \endcode
+/// and initialise like this:
+/// \code
+/// RH_RF22 driver(PB0, PB1);
+/// \endcode
+/// You can of use other pins for NSEL and NIRQ if you prefer.
+///
+/// Note: It is possible to have 2 radios connected to one Arduino, provided each radio has its own 
 /// SS and interrupt line (SCK, SDI and SDO are common to both radios)
 ///
 /// Caution: on some Arduinos such as the Mega 2560, if you set the slave select pin to be other than the usual SS 
@@ -747,7 +799,7 @@
 ///
 /// - RH_RF22_RF23BP_TXPOW_28DBM
 /// - RH_RF22_RF23BP_TXPOW_29DBM
-/// - RH_RF22_RF23BP_TXPOW_38DBM
+/// - RH_RF22_RF23BP_TXPOW_30DBM
 ///
 /// CAUTION: the high power settings available on the RFM23BP require
 /// significant power supply current.  For example at +30dBm, the typical chip

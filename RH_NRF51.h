@@ -1,7 +1,7 @@
 // RH_NRF51.h
 // Author: Mike McCauley
 // Copyright (C) 2015 Mike McCauley
-// $Id: RH_NRF51.h,v 1.4 2017/01/12 23:58:00 mikem Exp $
+// $Id: RH_NRF51.h,v 1.5 2017/07/25 05:26:50 mikem Exp $
 //
 
 #ifndef RH_NRF51_h
@@ -45,7 +45,7 @@
 
 /////////////////////////////////////////////////////////////////////
 /// \class RH_NRF51 RH_NRF51.h <RH_NRF51.h>
-/// \brief Send and receive addressed datagrams by nRF51 and nRF52 compatible transceivers.
+/// \brief Send and receive unaddressed, unreliable datagrams by nRF51 and nRF52 compatible transceivers.
 ///
 /// Supported transceivers include:
 /// - Nordic nRF51 based 2.4GHz radio modules, such as nRF51822 

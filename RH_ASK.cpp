@@ -1,14 +1,17 @@
 // RH_ASK.cpp
 //
 // Copyright (C) 2014 Mike McCauley
-// $Id: RH_ASK.cpp,v 1.20 2017/01/12 23:58:00 mikem Exp $
+// $Id: RH_ASK.cpp,v 1.22 2018/02/11 23:57:18 mikem Exp $
 
 #include <RH_ASK.h>
 #include <RHCRC.h>
 
-#if (RH_PLATFORM == RH_PLATFORM_STM32) // Maple etc
+#if (RH_PLATFORM == RH_PLATFORM_STM32)
+    // Maple etc
 HardwareTimer timer(MAPLE_TIMER);
-
+#elif  defined(ARDUINO_ARCH_STM32F1) || defined(ARDUINO_ARCH_STM32F4)
+    // rogerclarkmelbourne/Arduino_STM32
+HardwareTimer timer(1);
 #endif
 
 #if (RH_PLATFORM == RH_PLATFORM_ESP8266)
@@ -47,8 +50,8 @@ RH_ASK::RH_ASK(uint16_t speed, uint8_t rxPin, uint8_t txPin, uint8_t pttPin, boo
     _rxPin(rxPin),
     _txPin(txPin),
     _pttPin(pttPin),
-    _pttInverted(pttInverted),
-    _rxInverted(false)
+    _rxInverted(false),
+    _pttInverted(pttInverted)
 {
     // Initialise the first 8 nibbles of the tx buffer to be the standard
     // preamble. We will append messages after that. 0x38, 0x2c is the start symbol before
@@ -174,6 +177,24 @@ void RH_ASK::timerSetup()
     TA0CCR0 = ocr1a;				// Ticks for 62,5 us
     TA0CTL = TASSEL_2 + MC_1;       // SMCLK, up mode
     TA0CCTL0 |= CCIE;               // CCR0 interrupt enabled
+
+#elif (RH_PLATFORM == RH_PLATFORM_STM32) || defined(ARDUINO_ARCH_STM32F1) || defined(ARDUINO_ARCH_STM32F4)
+    // Maple etc
+    // or rogerclarkmelbourne/Arduino_STM32
+    // Pause the timer while we're configuring it
+    timer.pause();
+    timer.setPeriod((1000000/8)/_speed);
+    // Set up an interrupt on channel 1
+    timer.setChannel1Mode(TIMER_OUTPUT_COMPARE);
+    timer.setCompare(TIMER_CH1, 1);  // Interrupt 1 count after each update
+    void interrupt(); // defined below
+    timer.attachCompare1Interrupt(interrupt);
+    
+    // Refresh the timer's count, prescale, and overflow
+    timer.refresh();
+    
+    // Start the timer counting
+    timer.resume();
 
 #elif (RH_PLATFORM == RH_PLATFORM_ARDUINO) // Arduino specific
     uint16_t nticks; // number of prescaled ticks needed
@@ -328,22 +349,6 @@ void RH_ASK::timerSetup()
   #endif
  #endif
 
-#elif (RH_PLATFORM == RH_PLATFORM_STM32) // Maple etc
-    // Pause the timer while we're configuring it
-    timer.pause();
-    timer.setPeriod((1000000/8)/_speed);
-    // Set up an interrupt on channel 1
-    timer.setChannel1Mode(TIMER_OUTPUT_COMPARE);
-    timer.setCompare(TIMER_CH1, 1);  // Interrupt 1 count after each update
-    void interrupt(); // defined below
-    timer.attachCompare1Interrupt(interrupt);
-    
-    // Refresh the timer's count, prescale, and overflow
-    timer.refresh();
-    
-    // Start the timer counting
-    timer.resume();
-
 #elif (RH_PLATFORM == RH_PLATFORM_STM32F2) // Photon
     // Inspired by SparkIntervalTimer
     // We use Timer 6
@@ -385,13 +390,19 @@ void RH_ASK::timerSetup()
     ConfigIntTimer1(T1_INT_ON | T1_INT_PRIOR_1);
 
 #elif (RH_PLATFORM == RH_PLATFORM_ESP8266)
-    void INTERRUPT_ATTR esp8266_timer_interrupt_handler(); // Forward declarat
+    void INTERRUPT_ATTR esp8266_timer_interrupt_handler(); // Forward declaration
     // The - 120 is a heuristic to correct for interrupt handling overheads
     _timerIncrement = (clockCyclesPerMicrosecond() * 1000000 / 8 / _speed) - 120;
     timer0_isr_init();
     timer0_attachInterrupt(esp8266_timer_interrupt_handler);
     timer0_write(ESP.getCycleCount() + _timerIncrement);
 //    timer0_write(ESP.getCycleCount() + 41660000);
+#elif (RH_PLATFORM == RH_PLATFORM_ESP32)
+    void IRAM_ATTR esp32_timer_interrupt_handler(); // Forward declaration
+    hw_timer_t * timer = timerBegin(0, 80, true); // Alarm value will be in in us
+    timerAttachInterrupt(timer, &esp32_timer_interrupt_handler, true);
+    timerAlarmWrite(timer, 1000000 / _speed / 8, true);
+    timerAlarmEnable(timer);
 #endif
 
 }
@@ -611,7 +622,12 @@ void TC1_Handler()
     TC_GetStatus(RH_ASK_DUE_TIMER, 1);
     thisASKDriver->handleTimerInterrupt();
 }
-
+#elif (RH_PLATFORM == RH_PLATFORM_ARDUINO) && defined(ARDUINO_ARCH_STM32F1) || defined(ARDUINO_ARCH_STM32F4)
+//rogerclarkmelbourne/Arduino_STM32
+void interrupt()
+{
+    thisASKDriver->handleTimerInterrupt();
+}
 #elif (RH_PLATFORM == RH_PLATFORM_ARDUINO) || (RH_PLATFORM == RH_PLATFORM_GENERIC_AVR8)
 // This is the interrupt service routine called when timer1 overflows
 // Its job is to output the next bit from the transmitter (every 8 calls)
@@ -670,7 +686,11 @@ void INTERRUPT_ATTR esp8266_timer_interrupt_handler()
 //  digitalWrite(4, toggle);
     thisASKDriver->handleTimerInterrupt();
 }
-
+#elif (RH_PLATFORM == RH_PLATFORM_ESP32)
+void IRAM_ATTR esp32_timer_interrupt_handler()
+{
+    thisASKDriver->handleTimerInterrupt();
+}
 #endif
 
 // Convert a 6 bit encoded symbol into its 4 bit decoded equivalent

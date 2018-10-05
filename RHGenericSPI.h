@@ -2,12 +2,11 @@
 // Author: Mike McCauley (mikem@airspayce.com)
 // Copyright (C) 2011 Mike McCauley
 // Contributed by Joanna Rutkowska
-// $Id: RHGenericSPI.h,v 1.7 2014/04/14 08:37:11 mikem Exp $
+// $Id: RHGenericSPI.h,v 1.8 2017/11/06 00:04:08 mikem Exp $
 
 #ifndef RHGenericSPI_h
 #define RHGenericSPI_h
 
-#include <SPI.h> // for SPI_HAS_TRANSACTION and SPISettings
 #include <RadioHead.h>
 
 /////////////////////////////////////////////////////////////////////
@@ -125,7 +124,28 @@ public:
     /// \param[in] frequency The data rate to use: one of RHGenericSPI::Frequency
     virtual void setFrequency(Frequency frequency);
 
+    /// Signal the start of an SPI transaction that must not be interrupted by other SPI actions
+    /// In subclasses that support transactions this will ensure that other SPI transactions
+    /// are blocked until this one is completed by endTransaction().
+    /// Base does nothing
+    /// Might be overridden in subclass
+    virtual void beginTransaction(){}
+
+    /// Signal the end of an SPI transaction
+    /// Base does nothing
+    /// Might be overridden in subclass
+    virtual void endTransaction(){}
+
+    /// Specify the interrupt number of the interrupt that will use SPI transactions
+    /// Tells the SPI support software that SPI transactions will occur with the interrupt
+    /// handler assocated with interruptNumber
+    /// Base does nothing
+    /// Might be overridden in subclass
+    /// \param[in] interruptNumber The number of the interrupt
+    virtual void usingInterrupt(uint8_t interruptNumber){}
+    
 protected:
+    
     /// The configure SPI Bus frequency, one of RHGenericSPI::Frequency
     Frequency    _frequency; // Bus frequency, one of RHGenericSPI::Frequency
 
@@ -134,15 +154,5 @@ protected:
 
     /// SPI bus mode, one of RHGenericSPI::DataMode
     DataMode     _dataMode;  
-
-
-public:
-#if defined(SPI_HAS_TRANSACTION)
-    // An ugly hack... this probably belongs in RHHardwareSPI.cpp, but
-    // beginTransaction() needs to be called at a higher level which does
-    // not know if the underlying SPI is hardware or software.  This hack
-    // is merely for testing.
-    SPISettings  _settings;
-#endif
 };
 #endif

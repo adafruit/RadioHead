@@ -1,7 +1,7 @@
 // RH_ASK.h
 //
 // Copyright (C) 2014 Mike McCauley
-// $Id: RH_ASK.h,v 1.17 2017/03/04 00:59:41 mikem Exp $
+// $Id: RH_ASK.h,v 1.18 2017/07/25 05:26:50 mikem Exp $
 
 #ifndef RH_ASK_h
 #define RH_ASK_h
@@ -191,8 +191,10 @@
 /// If you run the chip at 1MHz, you will get RK_ASK speeds 1/8th of the expected.
 ///
 /// Initialise RH_ASK for ATTiny85 like this:
+/// \code
 /// // #include <SPI.h> // comment this out, not needed
 /// RH_ASK driver(2000, 4, 3); // 200bps, TX on D3 (pin 2), RX on D4 (pin 3)
+/// \endcode
 /// then:
 /// Connect D3 (pin 2) as the output to the transmitter
 /// Connect D4 (pin 3) as the input from the receiver.
@@ -239,6 +241,13 @@
 /// library, when built for ATTiny85, takes over timer 0, which prevents use
 /// of millis() etc but does permit analog outputs. This will affect the accuracy of millis() and time
 /// measurement.
+///
+/// \par  STM32 F4 Discovery with Arduino and Arduino_STM32
+/// You can initialise the driver like this:
+/// \code
+/// RH_ASK driver(2000, PA3, PA4);
+/// \endcode
+/// and connect the serail to pins PA3 and PA4
 class RH_ASK : public RHGenericDriver
 {
 public:

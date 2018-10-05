@@ -9,10 +9,15 @@
 
 #include <RHDatagram.h>
 
-// The acknowledgement bit in the FLAGS
 // The top 4 bits of the flags are reserved for RadioHead. The lower 4 bits are reserved
 // for application layer use.
+
+/// The acknowledgement bit in the header FLAGS. This indicates if the payload is for an
+/// ack for a successfully received message.
 #define RH_FLAGS_ACK 0x80
+/// The retry bit in the header FLAGS. This indicates that the payload is a retry for a
+/// previously sent message.
+#define RH_FLAGS_RETRY 0x40
 
 /// the default retry timeout in milliseconds
 #define RH_DEFAULT_TIMEOUT 200

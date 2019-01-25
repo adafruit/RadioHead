@@ -5,7 +5,7 @@
 
 #include <RH_ASK.h>
 #include <RHCRC.h>
-
+#ifndef __SAMD51__
 #if (RH_PLATFORM == RH_PLATFORM_STM32)
     // Maple etc
 HardwareTimer timer(MAPLE_TIMER);
@@ -866,3 +866,4 @@ void INTERRUPT_ATTR RH_ASK::handleTimerInterrupt()
         transmitTimer(); // Transmitting
 }
 
+#endif

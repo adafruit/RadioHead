@@ -5,6 +5,8 @@
 
 #include <RH_RF95.h>
 
+// #define SERIAL_DEBUG // Uncomment to recieve debug information over serial
+
 // Interrupt vectors for the 3 Arduino interrupt pins
 // Each interrupt can be handled by a different instance of RH_RF95, allowing you to have
 // 2 or more LORAs per Arduino
@@ -35,7 +37,9 @@ RH_RF95::RH_RF95(uint8_t slaveSelectPin, uint8_t interruptPin, RHGenericSPI& spi
 bool RH_RF95::init()
 {
     if (!RHSPIDriver::init()){
-      Serial.println("ERROR: Failed to initialize SPI Driver.");
+      #ifdef SERIAL_DEBUG
+        Serial.println(F("ERROR: Failed to initialize SPI Driver."));
+      #endif
       return false;
     }
 
@@ -43,7 +47,9 @@ bool RH_RF95::init()
     // Determine the interrupt number that corresponds to the interruptPin
     int interruptNumber = digitalPinToInterrupt(_interruptPin);
     if (interruptNumber == NOT_AN_INTERRUPT){
-      Serial.println("ERROR: Provided pin does not support interrupts.");
+      #ifdef SERIAL_DEBUG
+        Serial.println(F("ERROR: Provided pin does not support interrupts."));
+      #endif
       return false;
     }
 
@@ -62,10 +68,12 @@ bool RH_RF95::init()
     // Check we are in sleep mode, with LORA set
     if (spiRead(RH_RF95_REG_01_OP_MODE) != (RH_RF95_MODE_SLEEP | RH_RF95_LONG_RANGE_MODE))
     {
-      Serial.println("ERROR: Failed to put device in LoRa mode.");
-      Serial.print("RH_RF95_REG_01_OP_MODE: ");
-      Serial.println(spiRead(RH_RF95_REG_01_OP_MODE), HEX);
-	     return false; // No device present?
+      #ifdef SERIAL_DEBUG
+        Serial.println(F("ERROR: Failed to put device in LoRa mode."));
+        Serial.print(F("RH_RF95_REG_01_OP_MODE: "));
+        Serial.println(spiRead(RH_RF95_REG_01_OP_MODE), HEX);
+      #endif
+	    return false; // No device present?
     }
 
     // Add by Adrien van den Bossche <vandenbo@univ-tlse2.fr> for Teensy
@@ -85,7 +93,9 @@ bool RH_RF95::init()
 	     if (_interruptCount <= RH_RF95_NUM_INTERRUPTS)
 	      _myInterruptIndex = _interruptCount++;
 	     else{
-         Serial.println("ERROR: Insufficient interrupt vectors.");
+         #ifdef SERIAL_DEBUG
+          Serial.println(F("ERROR: Insufficient interrupt vectors."));
+         #endif
          return false; // Too many devices, not enough interrupt vectors
        }
     }
@@ -97,7 +107,9 @@ bool RH_RF95::init()
     else if (_myInterruptIndex == 2)
 	attachInterrupt(interruptNumber, isr2, RISING);
     else{
-      Serial.println("ERROR: Failed to attach interrupt pin. Insufficient interrupt vectors.");
+      #ifdef SERIAL_DEBUG
+        Serial.println(F("ERROR: Failed to attach interrupt pin. Insufficient interrupt vectors."));
+      #endif
       return false; // Too many devices, not enough interrupt vectors
     }
 

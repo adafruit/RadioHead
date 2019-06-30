@@ -64,7 +64,6 @@
   #define RFM95_INT     4    // "C"
 #endif
 
-
 // Change to 434.0 or other frequency, must match RX's freq!
 #define RF95_FREQ 915.0
 
@@ -93,6 +92,7 @@ void setup()
 
   while (!rf95.init()) {
     Serial.println("LoRa radio init failed");
+    Serial.println("Uncomment '#define SERIAL_DEBUG' in RH_RF95.cpp for detailed debug info");
     while (1);
   }
   Serial.println("LoRa radio init OK!");

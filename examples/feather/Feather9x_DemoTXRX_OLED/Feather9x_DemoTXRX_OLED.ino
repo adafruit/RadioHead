@@ -102,6 +102,7 @@ void setup() {
 
   if (!rf95.init()) {
     Serial.println("LoRa radio init failed");
+    Serial.println("Uncomment '#define SERIAL_DEBUG' in RH_RF95.cpp for detailed debug info");
     while (1);
   }
   Serial.println("LoRa radio init OK!");

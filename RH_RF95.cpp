@@ -214,17 +214,17 @@ void RH_RF95::handleInterrupt()
 // These are low level functions that call the interrupt handler for the correct
 // instance of RH_RF95.
 // 3 interrupts allows us to have 3 different devices
-void RH_RF95::isr0()
+ICACHE_RAM_ATTR void RH_RF95::isr0()
 {
     if (_deviceForInterrupt[0])
 	_deviceForInterrupt[0]->handleInterrupt();
 }
-void RH_RF95::isr1()
+ICACHE_RAM_ATTR void RH_RF95::isr1()
 {
     if (_deviceForInterrupt[1])
 	_deviceForInterrupt[1]->handleInterrupt();
 }
-void RH_RF95::isr2()
+ICACHE_RAM_ATTR void RH_RF95::isr2()
 {
     if (_deviceForInterrupt[2])
 	_deviceForInterrupt[2]->handleInterrupt();

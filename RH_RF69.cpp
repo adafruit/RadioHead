@@ -32,7 +32,7 @@ PROGMEM static const RH_RF69::ModemConfig MODEM_CONFIG_TABLE[] =
     // FSK, No Manchester, no shaping, whitening, CRC, no address filtering
     // AFC BW == RX BW == 2 x bit rate
     // Low modulation indexes of ~ 1 at slow speeds do not seem to work very well. Choose MI of 2.
-    { CONFIG_FSK,  0x3e, 0x80, 0x00, 0x52, 0xf4, 0xf4, CONFIG_WHITE}, // FSK_Rb2Fd5      
+    { CONFIG_FSK,  0x3e, 0x80, 0x00, 0x52, 0xf4, 0xf4, CONFIG_WHITE}, // FSK_Rb2Fd5
     { CONFIG_FSK,  0x34, 0x15, 0x00, 0x4f, 0xf4, 0xf4, CONFIG_WHITE}, // FSK_Rb2_4Fd4_8
     { CONFIG_FSK,  0x1a, 0x0b, 0x00, 0x9d, 0xf4, 0xf4, CONFIG_WHITE}, // FSK_Rb4_8Fd9_6
 
@@ -43,7 +43,7 @@ PROGMEM static const RH_RF69::ModemConfig MODEM_CONFIG_TABLE[] =
     { CONFIG_FSK,  0x02, 0x2c, 0x07, 0xae, 0xe2, 0xe2, CONFIG_WHITE}, // FSK_Rb57_6Fd120
     { CONFIG_FSK,  0x01, 0x00, 0x08, 0x00, 0xe1, 0xe1, CONFIG_WHITE}, // FSK_Rb125Fd125
     { CONFIG_FSK,  0x00, 0x80, 0x10, 0x00, 0xe0, 0xe0, CONFIG_WHITE}, // FSK_Rb250Fd250
-    { CONFIG_FSK,  0x02, 0x40, 0x03, 0x33, 0x42, 0x42, CONFIG_WHITE}, // FSK_Rb55555Fd50 
+    { CONFIG_FSK,  0x02, 0x40, 0x03, 0x33, 0x42, 0x42, CONFIG_WHITE}, // FSK_Rb55555Fd50
 
     //  02,        03,   04,   05,   06,   19,   1a,  37
     // GFSK (BT=1.0), No Manchester, whitening, CRC, no address filtering
@@ -59,7 +59,7 @@ PROGMEM static const RH_RF69::ModemConfig MODEM_CONFIG_TABLE[] =
     { CONFIG_GFSK, 0x02, 0x2c, 0x07, 0xae, 0xe2, 0xe2, CONFIG_WHITE}, // GFSK_Rb57_6Fd120
     { CONFIG_GFSK, 0x01, 0x00, 0x08, 0x00, 0xe1, 0xe1, CONFIG_WHITE}, // GFSK_Rb125Fd125
     { CONFIG_GFSK, 0x00, 0x80, 0x10, 0x00, 0xe0, 0xe0, CONFIG_WHITE}, // GFSK_Rb250Fd250
-    { CONFIG_GFSK, 0x02, 0x40, 0x03, 0x33, 0x42, 0x42, CONFIG_WHITE}, // GFSK_Rb55555Fd50 
+    { CONFIG_GFSK, 0x02, 0x40, 0x03, 0x33, 0x42, 0x42, CONFIG_WHITE}, // GFSK_Rb55555Fd50
 
     //  02,        03,   04,   05,   06,   19,   1a,  37
     // OOK, No Manchester, no shaping, whitening, CRC, no address filtering
@@ -124,12 +124,12 @@ bool RH_RF69::init()
     // Add by Adrien van den Bossche <vandenbo@univ-tlse2.fr> for Teensy
     // ARM M4 requires the below. else pin interrupt doesn't work properly.
     // On all other platforms, its innocuous, belt and braces
-    pinMode(_interruptPin, INPUT); 
+    pinMode(_interruptPin, INPUT);
 
     // Set up interrupt handler
     // Since there are a limited number of interrupt glue functions isr*() available,
     // we can only support a limited number of devices simultaneously
-    // ON some devices, notably most Arduinos, the interrupt pin passed in is actuallt the 
+    // ON some devices, notably most Arduinos, the interrupt pin passed in is actuallt the
     // interrupt number. You have to figure out the interruptnumber-to-interruptpin mapping
     // yourself based on knwledge of what Arduino board you are running on.
     if (_myInterruptIndex == 0xff)
@@ -168,7 +168,7 @@ bool RH_RF69::init()
 //    spiWrite(RH_RF69_REG_2E_SYNCCONFIG, RH_RF69_SYNCCONFIG_SYNCON); // auto, tolerance 0
     // PAYLOADLENGTH is default
 //    spiWrite(RH_RF69_REG_38_PAYLOADLENGTH, RH_RF69_FIFO_SIZE); // max size only for RX
-    // PACKETCONFIG 2 is default 
+    // PACKETCONFIG 2 is default
     spiWrite(RH_RF69_REG_6F_TESTDAGC, RH_RF69_TESTDAGC_CONTINUOUSDAGC_IMPROVED_LOWBETAOFF);
     // If high power boost set previously, disable it
     spiWrite(RH_RF69_REG_5A_TESTPA1, RH_RF69_TESTPA1_NORMAL);
@@ -188,7 +188,7 @@ bool RH_RF69::init()
     // No encryption
     setEncryptionKey(NULL);
     // +13dBm, same as power-on default
-    setTxPower(13); 
+    setTxPower(13);
 
     return true;
 }
@@ -225,7 +225,7 @@ void RH_RF69::handleInterrupt()
 
 // Low level function reads the FIFO and checks the address
 // Caution: since we put our headers in what the RH_RF69 considers to be the payload, if encryption is enabled
-// we have to suffer the cost of decryption before we can determine whether the address is acceptable. 
+// we have to suffer the cost of decryption before we can determine whether the address is acceptable.
 // Performance issue?
 void RH_RF69::readFifo()
 {
@@ -263,17 +263,17 @@ void RH_RF69::readFifo()
 // These are low level functions that call the interrupt handler for the correct
 // instance of RH_RF69.
 // 3 interrupts allows us to have 3 different devices
-void RH_RF69::isr0()
+ICACHE_RAM_ATTR void RH_RF69::isr0()
 {
     if (_deviceForInterrupt[0])
 	_deviceForInterrupt[0]->handleInterrupt();
 }
-void RH_RF69::isr1()
+ICACHE_RAM_ATTR void RH_RF69::isr1()
 {
     if (_deviceForInterrupt[1])
 	_deviceForInterrupt[1]->handleInterrupt();
 }
-void RH_RF69::isr2()
+ICACHE_RAM_ATTR void RH_RF69::isr2()
 {
     if (_deviceForInterrupt[2])
 	_deviceForInterrupt[2]->handleInterrupt();
@@ -388,16 +388,16 @@ void RH_RF69::setTxPower(int8_t power, bool ishighpowermodule)
 {
   _power = power;
   uint8_t palevel;
-  
+
   if (ishighpowermodule)
   {
     if (_power < -2)
-      _power = -2; //RFM69HW only works down to -2. 
+      _power = -2; //RFM69HW only works down to -2.
     if (_power <= 13)
     {
       // -2dBm to +13dBm
       //Need PA1 exclusivelly on RFM69HW
-      palevel = RH_RF69_PALEVEL_PA1ON | ((_power + 18) & 
+      palevel = RH_RF69_PALEVEL_PA1ON | ((_power + 18) &
       RH_RF69_PALEVEL_OUTPUTPOWER);
     }
     else if (_power >= 18)
@@ -518,7 +518,7 @@ bool RH_RF69::send(const uint8_t* data, uint8_t len)
     waitPacketSent(); // Make sure we dont interrupt an outgoing message
     setModeIdle(); // Prevent RX while filling the fifo
 
-    if (!waitCAD()) 
+    if (!waitCAD())
 	return false;  // Check channel activity
 
     ATOMIC_BLOCK_START;
@@ -546,7 +546,7 @@ uint8_t RH_RF69::maxMessageLength()
 }
 
 bool RH_RF69::printRegister(uint8_t reg)
-{  
+{
 #ifdef RH_HAVE_SERIAL
     Serial.print(reg, HEX);
     Serial.print(" ");
@@ -556,7 +556,7 @@ bool RH_RF69::printRegister(uint8_t reg)
 }
 
 bool RH_RF69::printRegisters()
-{  
+{
     uint8_t i;
     for (i = 0; i < 0x50; i++)
 	printRegister(i);
@@ -564,6 +564,6 @@ bool RH_RF69::printRegisters()
     printRegister(RH_RF69_REG_58_TESTLNA);
     printRegister(RH_RF69_REG_6F_TESTDAGC);
     printRegister(RH_RF69_REG_71_TESTAFC);
-    
+
     return true;
 }

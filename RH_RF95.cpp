@@ -214,17 +214,30 @@ void RH_RF95::handleInterrupt()
 // These are low level functions that call the interrupt handler for the correct
 // instance of RH_RF95.
 // 3 interrupts allows us to have 3 different devices
+#if defined(ESP8266)
 ICACHE_RAM_ATTR void RH_RF95::isr0()
+#else
+void RH_RF95::isr0()
+#endif
 {
     if (_deviceForInterrupt[0])
 	_deviceForInterrupt[0]->handleInterrupt();
 }
+
+#if defined(ESP8266)
 ICACHE_RAM_ATTR void RH_RF95::isr1()
+#else
+void RH_RF95::isr1()
+#endif
 {
     if (_deviceForInterrupt[1])
 	_deviceForInterrupt[1]->handleInterrupt();
 }
+#if defined(ESP8266)
 ICACHE_RAM_ATTR void RH_RF95::isr2()
+#else
+void RH_RF95::isr2()
+#endif
 {
     if (_deviceForInterrupt[2])
 	_deviceForInterrupt[2]->handleInterrupt();

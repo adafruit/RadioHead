@@ -7,6 +7,15 @@
 
 #include <RH_CC110.h>
 
+// interrupt handler and related code must be in RAM on ESP8266,
+// according to issue #46.
+#if defined(ESP8266)
+    #define INTERRUPT_ATTR ICACHE_RAM_ATTR
+#else
+    #define INTERRUPT_ATTR
+#endif
+
+
 // Interrupt vectors for the 3 Arduino interrupt pins
 // Each interrupt can be handled by a different instance of RH_CC110, allowing you to have
 // 2 or more LORAs per Arduino
@@ -189,29 +198,17 @@ void RH_CC110::handleInterrupt()
 // These are low level functions that call the interrupt handler for the correct
 // instance of RH_CC110.
 // 3 interrupts allows us to have 3 different devices
-#if defined(ESP8266)
-ICACHE_RAM_ATTR void RH_CC110::isr0()
-#else
-void RH_CC110::isr0()
-#endif
+void INTERRUPT_ATTR RH_CC110::isr0()
 {
     if (_deviceForInterrupt[0])
 	_deviceForInterrupt[0]->handleInterrupt();
 }
-#if defined(ESP8266)
-ICACHE_RAM_ATTR void RH_CC110::isr1()
-#else
-void RH_CC110::isr1()
-#endif
+void INTERRUPT_ATTR RH_CC110::isr1()
 {
     if (_deviceForInterrupt[1])
 	_deviceForInterrupt[1]->handleInterrupt();
 }
-#if defined(ESP8266)
-ICACHE_RAM_ATTR void RH_CC110::isr2()
-#else
-void RH_CC110::isr2()
-#endif
+void INTERRUPT_ATTR RH_CC110::isr2()
 {
     if (_deviceForInterrupt[2])
 	_deviceForInterrupt[2]->handleInterrupt();

@@ -31,10 +31,12 @@ uint8_t RHSPIDriver::spiRead(uint8_t reg)
 {
     uint8_t val;
     ATOMIC_BLOCK_START;
+    _spi.beginTransaction();
     digitalWrite(_slaveSelectPin, LOW);
     _spi.transfer(reg & ~RH_SPI_WRITE_MASK); // Send the address with the write mask off
     val = _spi.transfer(0); // The written value is ignored, reg value is read
     digitalWrite(_slaveSelectPin, HIGH);
+    _spi.endTransaction();
     ATOMIC_BLOCK_END;
     return val;
 }

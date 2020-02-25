@@ -81,11 +81,11 @@
 #define RH_CC110_REG_24_FSCAL2                 0x24
 #define RH_CC110_REG_25_FSCAL1                 0x25
 #define RH_CC110_REG_26_FSCAL0                 0x26
-#define RH_CC110_REG_27_RCCTRL1                0x28
-#define RH_CC110_REG_28_RCCTRL0                0x29
-#define RH_CC110_REG_29_FSTEST                 0x2a
-#define RH_CC110_REG_2A_PTEST                  0x2b
-#define RH_CC110_REG_2B_AGCTEST                0x2c
+#define RH_CC110_REG_27_RCCTRL1                0x27
+#define RH_CC110_REG_28_RCCTRL0                0x28
+#define RH_CC110_REG_29_FSTEST                 0x29
+#define RH_CC110_REG_2A_PTEST                  0x2a
+#define RH_CC110_REG_2B_AGCTEST                0x2b
 #define RH_CC110_REG_2C_TEST2                  0x2c
 #define RH_CC110_REG_2D_TEST1                  0x2d
 #define RH_CC110_REG_2E_TEST0                  0x2e

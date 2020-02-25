@@ -631,7 +631,7 @@ public:
     /// These are indexes into MODEM_CONFIG_TABLE. We strongly recommend you use these symbolic
     /// definitions and not their integer equivalents: its possible that new values will be
     /// introduced in later versions (though we will try to avoid it).
-    /// All configs use SYNC_MODE = RH_CC110_SYNC_MODE_16_16 (2 byte sync)
+    /// All configs use SYNC_MODE = RH_CC110_SYNC_MODE_30_32 (4 byte sync)
     typedef enum
     {
 	GFSK_Rb1_2Fd5_2 = 0,   ///< GFSK, Data Rate: 1.2kBaud, Dev: 5.2kHz, RX BW 58kHz, optimised for sensitivity

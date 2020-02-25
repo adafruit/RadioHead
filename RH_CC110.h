@@ -115,11 +115,14 @@
 #define RH_CC110_REG_33_CRC_REG                0x33
 #define RH_CC110_REG_34_RSSI                   0x34
 #define RH_CC110_REG_35_MARCSTATE              0x35
-
+#define RH_CC110_REG_36_WORTIME1               0x36
+#define RH_CC110_REG_36_WORTIME0               0x37
 #define RH_CC110_REG_38_PKTSTATUS              0x38
-
+#define RH_CC110_REG_39_VCO_VC_DAC             0x39
 #define RH_CC110_REG_3A_TXBYTES                0x3a
 #define RH_CC110_REG_3B_RXBYTES                0x3b
+#define RH_CC110_REG_3C_RCCCTRL1_STATUS        0x3c
+#define RH_CC110_REG_3D_RCCCTRL0_STATUS        0x3d
 
 // PATABLE, TXFIFO, RXFIFO also support burst
 #define RH_CC110_REG_3E_PATABLE                0x3e

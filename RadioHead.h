@@ -1431,6 +1431,6 @@ these examples and explanations and extend them to suit your needs.
 // Uncomment this is to enable Encryption (see RHEncryptedDriver):
 // But ensure you have installed the Crypto directory from arduinolibs first:
 // http://rweather.github.io/arduinolibs/index.html
-//#define RH_ENABLE_ENCRYPTION_MODULE
+#define RH_ENABLE_ENCRYPTION_MODULE
 
 #endif

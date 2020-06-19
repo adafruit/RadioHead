@@ -7,10 +7,12 @@
 
 // interrupt handler and related code must be in RAM on ESP8266,
 // according to issue #46.
-#if defined(ESP8266)
-    #define INTERRUPT_ATTR ICACHE_RAM_ATTR
-#else
-    #define INTERRUPT_ATTR
+#if (RH_PLATFORM == RH_PLATFORM_ESP8266)
+    #define  INTERRUPT_ATTR ICACHE_RAM_ATTR
+#elif (RH_PLATFORM == RH_PLATFORM_ESP32)
+    #define  INTERRUPT_ATTR IRAM_ATTR
+#else 
+    #define  INTERRUPT_ATTR 
 #endif
 
 // #define SERIAL_DEBUG // Uncomment to recieve debug information over serial

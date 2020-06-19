@@ -15,6 +15,21 @@
     #define  INTERRUPT_ATTR 
 #endif
 
+// :PP: added DRAM_ATTR
+#if (RH_PLATFORM == RH_PLATFORM_ESP8266)
+    #define D_A DRAM_ATTR
+#elif (RH_PLATFORM == RH_PLATFORM_ESP32)
+    #define D_A DRAM_ATTR  
+#else
+    #define D_A 
+#endif
+
+D_A static uint8_t symbols[] =
+{
+    0xd,  0xe,  0x13, 0x15, 0x16, 0x19, 0x1a, 0x1c, 
+    0x23, 0x25, 0x26, 0x29, 0x2a, 0x2c, 0x32, 0x34
+};
+
 // #define SERIAL_DEBUG // Uncomment to recieve debug information over serial
 
 // Interrupt vectors for the 3 Arduino interrupt pins

@@ -10,10 +10,10 @@
 #include <RHReliableDatagram.h>
 
 // Default max number of hops we will route
-#define RH_DEFAULT_MAX_HOPS 30
+#define RH_DEFAULT_MAX_HOPS 50
 
 // The default size of the routing table we keep
-#define RH_ROUTING_TABLE_SIZE 10
+#define RH_ROUTING_TABLE_SIZE 30
 
 // Error codes
 #define RH_ROUTER_ERROR_NONE              0

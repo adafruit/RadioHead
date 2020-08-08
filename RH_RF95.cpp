@@ -168,7 +168,7 @@ bool RH_RF95::init()
 // On MiniWirelessLoRa, only one of the several interrupt lines (DI0) from the RFM95 is usefuly
 // connnected to the processor.
 // We use this to get RxDone and TxDone interrupts
-void RH_RF95::handleInterrupt()
+void INTERRUPT_ATTR RH_RF95::handleInterrupt()
 {
     // Read the interrupt register
     uint8_t irq_flags = spiRead(RH_RF95_REG_12_IRQ_FLAGS);

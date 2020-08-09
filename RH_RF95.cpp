@@ -7,11 +7,14 @@
 
 // interrupt handler and related code must be in RAM on ESP8266,
 // according to issue #46.
-#if defined(ESP8266)
-    #define INTERRUPT_ATTR ICACHE_RAM_ATTR
-#else
-    #define INTERRUPT_ATTR
+#if (RH_PLATFORM == RH_PLATFORM_ESP8266)
+    #define  INTERRUPT_ATTR ICACHE_RAM_ATTR
+#elif (RH_PLATFORM == RH_PLATFORM_ESP32)
+    #define  INTERRUPT_ATTR IRAM_ATTR
+#else 
+    #define  INTERRUPT_ATTR 
 #endif
+
 
 // #define SERIAL_DEBUG // Uncomment to recieve debug information over serial
 
@@ -33,17 +36,28 @@ PROGMEM static const RH_RF95::ModemConfig MODEM_CONFIG_TABLE[] =
 
 };
 
-RH_RF95::RH_RF95(uint8_t slaveSelectPin, uint8_t interruptPin, RHGenericSPI& spi)
+RH_RF95::RH_RF95(uint8_t slaveSelectPin, uint8_t interruptPin, uint8_t resetPin, RHGenericSPI& spi)
     :
     RHSPIDriver(slaveSelectPin, spi),
     _rxBufValid(0)
 {
     _interruptPin = interruptPin;
+	_resetPin = resetPin;
     _myInterruptIndex = 0xff; // Not allocated yet
+}
+
+void RH_RF95::powerOnReset()
+{
+	pinMode(_resetPin, OUTPUT);
+    digitalWrite(_resetPin, LOW);
+    delay(10);
+    digitalWrite(_resetPin, HIGH);
+    delay(20);
 }
 
 bool RH_RF95::init()
 {
+    powerOnReset();
     if (!RHSPIDriver::init()){
       #ifdef SERIAL_DEBUG
         Serial.println(F("ERROR: Failed to initialize SPI Driver."));
@@ -154,7 +168,7 @@ bool RH_RF95::init()
 // On MiniWirelessLoRa, only one of the several interrupt lines (DI0) from the RFM95 is usefuly
 // connnected to the processor.
 // We use this to get RxDone and TxDone interrupts
-void RH_RF95::handleInterrupt()
+void INTERRUPT_ATTR RH_RF95::handleInterrupt()
 {
     // Read the interrupt register
     uint8_t irq_flags = spiRead(RH_RF95_REG_12_IRQ_FLAGS);

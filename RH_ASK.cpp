@@ -14,13 +14,25 @@ HardwareTimer timer(MAPLE_TIMER);
 HardwareTimer timer(1);
 #endif
 
+// interrupt handler and related code must be in RAM on ESP8266,
+// according to issue #46.
 #if (RH_PLATFORM == RH_PLATFORM_ESP8266)
-    // interrupt handler and related code must be in RAM on ESP8266,
-    // according to issue #46.
-    #define INTERRUPT_ATTR ICACHE_RAM_ATTR
-#else
-    #define INTERRUPT_ATTR
+    #define  INTERRUPT_ATTR ICACHE_RAM_ATTR
+#elif (RH_PLATFORM == RH_PLATFORM_ESP32)
+    #define  INTERRUPT_ATTR IRAM_ATTR
+#else 
+    #define  INTERRUPT_ATTR 
 #endif
+
+// :PP: added DRAM_ATTR
+#if (RH_PLATFORM == RH_PLATFORM_ESP8266)
+    #define D_A DRAM_ATTR
+#elif (RH_PLATFORM == RH_PLATFORM_ESP32)
+    #define D_A DRAM_ATTR  
+#else
+    #define D_A 
+#endif
+
 
 // RH_ASK on Arduino uses Timer 1 to generate interrupts 8 times per bit interval
 // Define RH_ASK_ARDUINO_USE_TIMER2 if you want to use Timer 2 instead of Timer 1 on Arduino
@@ -35,7 +47,7 @@ static RH_ASK* thisASKDriver;
 // Used to convert the high and low nybbles of the transmitted data
 // into 6 bit symbols for transmission. Each 6-bit symbol has 3 1s and 3 0s 
 // with at most 3 consecutive identical bits
-static uint8_t symbols[] =
+D_A static uint8_t symbols[] =
 {
     0xd,  0xe,  0x13, 0x15, 0x16, 0x19, 0x1a, 0x1c, 
     0x23, 0x25, 0x26, 0x29, 0x2a, 0x2c, 0x32, 0x34

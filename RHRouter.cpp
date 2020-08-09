@@ -31,6 +31,7 @@ bool RHRouter::init()
     bool ret = RHReliableDatagram::init();
     if (ret)
 	_max_hops = RH_DEFAULT_MAX_HOPS;
+	_max_routing = RH_ROUTING_TABLE_SIZE;
     return ret;
 }
 
@@ -41,12 +42,18 @@ void RHRouter::setMaxHops(uint8_t max_hops)
 }
 
 ////////////////////////////////////////////////////////////////////
+void RHRouter::setMaxRouting(uint8_t max_routing)
+{
+    _max_routing = max_routing;
+}
+
+////////////////////////////////////////////////////////////////////
 void RHRouter::addRouteTo(uint8_t dest, uint8_t next_hop, uint8_t state)
 {
     uint8_t i;
 
     // First look for an existing entry we can update
-    for (i = 0; i < RH_ROUTING_TABLE_SIZE; i++)
+    for (i = 0; i < _max_routing; i++)
     {
 	if (_routes[i].dest == dest)
 	{
@@ -58,7 +65,7 @@ void RHRouter::addRouteTo(uint8_t dest, uint8_t next_hop, uint8_t state)
     }
 
     // Look for an invalid entry we can use
-    for (i = 0; i < RH_ROUTING_TABLE_SIZE; i++)
+    for (i = 0; i < _max_routing; i++)
     {
 	if (_routes[i].state == Invalid)
 	{
@@ -72,7 +79,7 @@ void RHRouter::addRouteTo(uint8_t dest, uint8_t next_hop, uint8_t state)
     // Need to make room for a new one
     retireOldestRoute();
     // Should be an invalid slot now
-    for (i = 0; i < RH_ROUTING_TABLE_SIZE; i++)
+    for (i = 0; i < _max_routing; i++)
     {
 	if (_routes[i].state == Invalid)
 	{
@@ -87,7 +94,7 @@ void RHRouter::addRouteTo(uint8_t dest, uint8_t next_hop, uint8_t state)
 RHRouter::RoutingTableEntry* RHRouter::getRouteTo(uint8_t dest)
 {
     uint8_t i;
-    for (i = 0; i < RH_ROUTING_TABLE_SIZE; i++)
+    for (i = 0; i < _max_routing; i++)
 	if (_routes[i].dest == dest && _routes[i].state != Invalid)
 	    return &_routes[i];
     return NULL;
@@ -98,8 +105,8 @@ void RHRouter::deleteRoute(uint8_t index)
 {
     // Delete a route by copying following routes on top of it
     memcpy(&_routes[index], &_routes[index+1], 
-	   sizeof(RoutingTableEntry) * (RH_ROUTING_TABLE_SIZE - index - 1));
-    _routes[RH_ROUTING_TABLE_SIZE - 1].state = Invalid;
+	   sizeof(RoutingTableEntry) * (_max_routing - index - 1));
+    _routes[_max_routing - 1].state = Invalid;
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -107,7 +114,7 @@ void RHRouter::printRoutingTable()
 {
 #ifdef RH_HAVE_SERIAL
     uint8_t i;
-    for (i = 0; i < RH_ROUTING_TABLE_SIZE; i++)
+    for (i = 0; i < _max_routing; i++)
     {
 	Serial.print(i, DEC);
 	Serial.print(" Dest: ");
@@ -124,7 +131,7 @@ void RHRouter::printRoutingTable()
 bool RHRouter::deleteRouteTo(uint8_t dest)
 {
     uint8_t i;
-    for (i = 0; i < RH_ROUTING_TABLE_SIZE; i++)
+    for (i = 0; i < _max_routing; i++)
     {
 	if (_routes[i].dest == dest)
 	{
@@ -146,7 +153,7 @@ void RHRouter::retireOldestRoute()
 void RHRouter::clearRoutingTable()
 {
     uint8_t i;
-    for (i = 0; i < RH_ROUTING_TABLE_SIZE; i++)
+    for (i = 0; i < _max_routing; i++)
 	_routes[i].state = Invalid;
 }
 

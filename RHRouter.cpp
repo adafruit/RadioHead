@@ -312,4 +312,3 @@ bool RHRouter::recvfromAckTimeout(uint8_t* buf, uint8_t* len, uint16_t timeout, 
     }
     return false;
 }
-

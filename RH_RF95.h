@@ -623,6 +623,13 @@ public:
     /// \return true if initialisation succeeded.
     virtual bool    init();
 
+    /// for in some cases that external atomic cannot be used to block the interruption,
+    /// the best way out is to remove the isr and then add again
+    virtual bool detachISR();
+
+    /// reattachISR
+    virtual bool reattachISR();
+
     /// Prints the value of all chip registers
     /// to the Serial device if RH_HAVE_SERIAL is defined for the current platform
     /// For debugging purposes only.

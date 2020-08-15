@@ -163,6 +163,92 @@ bool RH_RF95::init()
     return true;
 }
 
+bool RH_RF95::detachISR()
+{
+    int interruptNumber = digitalPinToInterrupt(_interruptPin);
+    if (interruptNumber == NOT_AN_INTERRUPT){
+      #ifdef SERIAL_DEBUG
+        Serial.println(F("ERROR: Provided pin does not support interrupts."));
+      #endif
+      return false;
+    }
+
+#ifdef RH_ATTACHINTERRUPT_TAKES_PIN_NUMBER
+    interruptNumber = _interruptPin;
+#endif
+
+    if (_myInterruptIndex == 0xff)
+    {
+	     // First run, no interrupt allocated yet
+	     if (_interruptCount <= RH_RF95_NUM_INTERRUPTS)
+	      _myInterruptIndex = _interruptCount++;
+	     else{
+         #ifdef SERIAL_DEBUG
+          Serial.println(F("ERROR: Insufficient interrupt vectors."));
+         #endif
+         return false; // Too many devices, not enough interrupt vectors
+       }
+    }
+    _deviceForInterrupt[_myInterruptIndex] = this;
+    if (_myInterruptIndex == 0)
+	detachInterrupt(interruptNumber);
+    else if (_myInterruptIndex == 1)
+	detachInterrupt(interruptNumber);
+    else if (_myInterruptIndex == 2)
+	detachInterrupt(interruptNumber);
+    else{
+      #ifdef SERIAL_DEBUG
+        Serial.println(F("ERROR: Failed to detachISR interrupt pin. Insufficient interrupt vectors."));
+      #endif
+      return false; // Too many devices, not enough interrupt vectors
+    }
+    return true;
+}
+
+bool RH_RF95::reattachISR()
+{
+    int interruptNumber = digitalPinToInterrupt(_interruptPin);
+    if (interruptNumber == NOT_AN_INTERRUPT){
+      #ifdef SERIAL_DEBUG
+        Serial.println(F("ERROR: Provided pin does not support interrupts."));
+      #endif
+      return false;
+    }
+
+#ifdef RH_ATTACHINTERRUPT_TAKES_PIN_NUMBER
+    interruptNumber = _interruptPin;
+#endif
+
+    pinMode(_interruptPin, INPUT);
+
+    if (_myInterruptIndex == 0xff)
+    {
+	     // First run, no interrupt allocated yet
+	     if (_interruptCount <= RH_RF95_NUM_INTERRUPTS)
+	      _myInterruptIndex = _interruptCount++;
+	     else{
+         #ifdef SERIAL_DEBUG
+          Serial.println(F("ERROR: Insufficient interrupt vectors."));
+         #endif
+         return false; // Too many devices, not enough interrupt vectors
+       }
+    }
+    _deviceForInterrupt[_myInterruptIndex] = this;
+    if (_myInterruptIndex == 0)
+	attachInterrupt(interruptNumber, isr0, RISING);
+    else if (_myInterruptIndex == 1)
+	attachInterrupt(interruptNumber, isr1, RISING);
+    else if (_myInterruptIndex == 2)
+	attachInterrupt(interruptNumber, isr2, RISING);
+    else{
+      #ifdef SERIAL_DEBUG
+        Serial.println(F("ERROR: Failed to reattachISR interrupt pin. Insufficient interrupt vectors."));
+      #endif
+      return false; // Too many devices, not enough interrupt vectors
+    }
+    return true;
+}
+
 // C++ level interrupt handler for this instance
 // LORA is unusual in that it has several interrupt lines, and not a single, combined one.
 // On MiniWirelessLoRa, only one of the several interrupt lines (DI0) from the RFM95 is usefuly

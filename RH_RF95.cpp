@@ -156,9 +156,9 @@ bool RH_RF95::init()
 //    setModemConfig(Bw125Cr48Sf4096); // slow and reliable?
     setPreambleLength(8); // Default is 8
     // An innocuous ISM frequency, same as RF22's
-    setFrequency(434.0);
+    setFrequency(915.0);
     // Lowish power
-    setTxPower(13);
+    setTxPower(23, false);
 
     return true;
 }

@@ -13,7 +13,7 @@
 #define RH_DEFAULT_MAX_HOPS 30
 
 // The default size of the routing table we keep
-#define RH_ROUTING_TABLE_SIZE 10
+#define RH_ROUTING_TABLE_SIZE 50
 
 // Error codes
 #define RH_ROUTER_ERROR_NONE              0

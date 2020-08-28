@@ -616,6 +616,7 @@ public:
 	RH_RF95(uint8_t slaveSelectPin, uint8_t interruptPin, uint8_t resetPin, RHGenericSPI& spi = hardware_spi);
 	
 	/// this is from reset module, but need initialization in init from start power on
+    /// see 5.2. Reset of the Chip in https://semtech.my.salesforce.com/sfc/p/#E0000000JelG/a/2R0000001Rbr/6EfVZUorrpoKFfvaF_Fkpgp5kzjiNyiAbqcpqh9qSjE
     void powerOnReset();
   
     /// Initialise the Driver transport hardware and software.

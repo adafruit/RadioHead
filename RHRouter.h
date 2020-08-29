@@ -13,7 +13,7 @@
 #define RH_DEFAULT_MAX_HOPS 30
 
 // The default size of the routing table we keep
-#define RH_ROUTING_TABLE_SIZE 50
+#define RH_ROUTING_TABLE_SIZE 10
 
 // Error codes
 #define RH_ROUTER_ERROR_NONE              0
@@ -185,7 +185,7 @@ public:
     void setMaxHops(uint8_t max_hops);
 
     /// set the max_routing to the given value
-    /// This controls the maximum number of routing
+    /// This controls the maximum number of routing, so you can expand the number of nodes
     void setMaxRouting(uint8_t max_routing);
 
     /// Adds a route to the local routing table, or updates it if already present.
@@ -324,7 +324,7 @@ private:
     static RoutedMessage _tmpMessage;
 
     /// Local routing table
-    RoutingTableEntry    _routes[RH_ROUTING_TABLE_SIZE];
+    RoutingTableEntry    *_routes;
 };
 
 /// @example rf22_router_client.pde

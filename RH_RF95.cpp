@@ -37,13 +37,22 @@ PROGMEM static const RH_RF95::ModemConfig MODEM_CONFIG_TABLE[] =
 
 };
 
-RH_RF95::RH_RF95(uint8_t slaveSelectPin, uint8_t interruptPin, uint8_t resetPin, RHGenericSPI& spi)
+RH_RF95::RH_RF95(uint8_t slaveSelectPin, uint8_t interruptPin, uint8_t resetPin, void *RH_Mutex, RHGenericSPI& spi)
     :
     RHSPIDriver(slaveSelectPin, spi),
     _rxBufValid(0)
 {
     _interruptPin = interruptPin;
 	_resetPin = resetPin;
+    _RH_Mutex = RH_Mutex;
+    // Maybe a mutex for Multithreading and multicores/multitask support
+    // create an internal mutex only if an external one does not come
+#ifdef RH_USE_MUTEX
+    if(!_RH_Mutex)
+    {
+        RH_DECLARE_MUTEX(_RH_Mutex);
+    }
+#endif
     _myInterruptIndex = 0xff; // Not allocated yet
 }
 
@@ -66,6 +75,15 @@ bool RH_RF95::init()
       return false;
     }
 
+#ifdef RH_USE_MUTEX
+    if (!RH_MUTEX_INIT(_RH_Mutex))
+    { 
+#ifdef SERIAL_DEBUG
+    	Serial.println("\n mutex init has failed\n");
+#endif
+    	return false;
+    }
+#endif
 
     // Determine the interrupt number that corresponds to the interruptPin
     int interruptNumber = digitalPinToInterrupt(_interruptPin);
@@ -257,6 +275,8 @@ bool RH_RF95::reattachISR()
 // We use this to get RxDone and TxDone interrupts
 void INTERRUPT_ATTR RH_RF95::handleInterrupt()
 {
+    RH_MUTEX_LOCK(_RH_Mutex); // Multithreading and multicores/multitask support
+
     // Read the interrupt register
     uint8_t irq_flags = spiRead(RH_RF95_REG_12_IRQ_FLAGS);
     // Read the RegHopChannel register to check if CRC presence is signalled
@@ -318,6 +338,8 @@ void INTERRUPT_ATTR RH_RF95::handleInterrupt()
     // clear the radio's interrupt flag. So we do it twice. Why?
     spiWrite(RH_RF95_REG_12_IRQ_FLAGS, 0xff); // Clear all IRQ flags
     spiWrite(RH_RF95_REG_12_IRQ_FLAGS, 0xff); // Clear all IRQ flags
+
+    RH_MUTEX_UNLOCK(_RH_Mutex); 
 }
 
 // These are low level functions that call the interrupt handler for the correct
@@ -360,9 +382,14 @@ void RH_RF95::validateRxBuf()
 
 bool RH_RF95::available()
 {
+    RH_MUTEX_LOCK(_RH_Mutex); // Multithreading and multicores/multitask support
     if (_mode == RHModeTx)
-	return false;
+	{
+        RH_MUTEX_UNLOCK(_RH_Mutex);
+    return false;
+    }
     setModeRx();
+    RH_MUTEX_UNLOCK(_RH_Mutex);
     return _rxBufValid; // Will be set by the interrupt handler when a good message is received
 }
 
@@ -378,6 +405,7 @@ bool RH_RF95::recv(uint8_t* buf, uint8_t* len)
 {
     if (!available())
 	return false;
+    RH_MUTEX_LOCK(_RH_Mutex); // Multithreading and multicores/multitask support
     if (buf && len)
     {
 	ATOMIC_BLOCK_START;
@@ -388,6 +416,7 @@ bool RH_RF95::recv(uint8_t* buf, uint8_t* len)
 	ATOMIC_BLOCK_END;
     }
     clearRxBuf(); // This message accepted and cleared
+    RH_MUTEX_UNLOCK(_RH_Mutex);
     return true;
 }
 
@@ -413,7 +442,10 @@ bool RH_RF95::send(const uint8_t* data, uint8_t len)
     spiBurstWrite(RH_RF95_REG_00_FIFO, data, len);
     spiWrite(RH_RF95_REG_22_PAYLOAD_LENGTH, len + RH_RF95_HEADER_LEN);
 
+    RH_MUTEX_LOCK(_RH_Mutex); // Multithreading and multicores/multitask support
     setModeTx(); // Start the transmitter
+    RH_MUTEX_UNLOCK(_RH_Mutex);
+
     // when Tx is done, interruptHandler will fire and radio mode will return to STANDBY
     return true;
 }

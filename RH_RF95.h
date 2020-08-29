@@ -613,7 +613,7 @@ public:
     /// On other boards, any digital pin may be used.
     /// \param[in] spi Pointer to the SPI interface object to use. 
     ///                Defaults to the standard Arduino hardware SPI interface
-	RH_RF95(uint8_t slaveSelectPin, uint8_t interruptPin, uint8_t resetPin, RHGenericSPI& spi = hardware_spi);
+	RH_RF95(uint8_t slaveSelectPin, uint8_t interruptPin, uint8_t resetPin, void *RH_Mutex = NULL, RHGenericSPI& spi = hardware_spi);
 	
 	/// this is from reset module, but need initialization in init from start power on
     /// see 5.2. Reset of the Chip in https://semtech.my.salesforce.com/sfc/p/#E0000000JelG/a/2R0000001Rbr/6EfVZUorrpoKFfvaF_Fkpgp5kzjiNyiAbqcpqh9qSjE
@@ -791,6 +791,9 @@ protected:
     void clearRxBuf();
 
 private:
+    /// mutex from control semaphr
+    void                *_RH_Mutex;
+
     /// Low level interrupt service routine for device connected to interrupt 0
     static void         isr0();
 

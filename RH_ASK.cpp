@@ -26,11 +26,11 @@ HardwareTimer timer(1);
 
 // :PP: added DRAM_ATTR
 #if (RH_PLATFORM == RH_PLATFORM_ESP8266)
-    #define D_A DRAM_ATTR
+    #define RH_DRAM_ATTR DRAM_ATTR
 #elif (RH_PLATFORM == RH_PLATFORM_ESP32)
-    #define D_A DRAM_ATTR  
+    #define RH_DRAM_ATTR DRAM_ATTR  
 #else
-    #define D_A 
+    #define RH_DRAM_ATTR 
 #endif
 
 
@@ -47,7 +47,7 @@ static RH_ASK* thisASKDriver;
 // Used to convert the high and low nybbles of the transmitted data
 // into 6 bit symbols for transmission. Each 6-bit symbol has 3 1s and 3 0s 
 // with at most 3 consecutive identical bits
-D_A static uint8_t symbols[] =
+RH_DRAM_ATTR static uint8_t symbols[] =
 {
     0xd,  0xe,  0x13, 0x15, 0x16, 0x19, 0x1a, 0x1c, 
     0x23, 0x25, 0x26, 0x29, 0x2a, 0x2c, 0x32, 0x34

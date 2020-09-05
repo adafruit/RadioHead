@@ -405,7 +405,7 @@ bool RH_RF95::recv(uint8_t* buf, uint8_t* len)
 {
     if (!available())
 	return false;
-    // RH_MUTEX_LOCK(_RH_Mutex); // Multithreading and multicores/multitask support
+    RH_MUTEX_LOCK(_RH_Mutex); // Multithreading and multicores/multitask support
     if (buf && len)
     {
 	ATOMIC_BLOCK_START;
@@ -416,12 +416,13 @@ bool RH_RF95::recv(uint8_t* buf, uint8_t* len)
 	ATOMIC_BLOCK_END;
     }
     clearRxBuf(); // This message accepted and cleared
-    // RH_MUTEX_UNLOCK(_RH_Mutex);
+    RH_MUTEX_UNLOCK(_RH_Mutex);
     return true;
 }
 
 bool RH_RF95::send(const uint8_t* data, uint8_t len)
 {
+    RH_MUTEX_LOCK(_RH_Mutex); // Multithreading and multicores/multitask support
     if (len > RH_RF95_MAX_MESSAGE_LEN)
 	return false;
 
@@ -442,9 +443,8 @@ bool RH_RF95::send(const uint8_t* data, uint8_t len)
     spiBurstWrite(RH_RF95_REG_00_FIFO, data, len);
     spiWrite(RH_RF95_REG_22_PAYLOAD_LENGTH, len + RH_RF95_HEADER_LEN);
 
-    // RH_MUTEX_LOCK(_RH_Mutex); // Multithreading and multicores/multitask support
     setModeTx(); // Start the transmitter
-    // RH_MUTEX_UNLOCK(_RH_Mutex);
+    RH_MUTEX_UNLOCK(_RH_Mutex);
 
     // when Tx is done, interruptHandler will fire and radio mode will return to STANDBY
     return true;

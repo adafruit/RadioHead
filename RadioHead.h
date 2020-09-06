@@ -1447,23 +1447,31 @@ these examples and explanations and extend them to suit your needs.
 #define RH_MUTEX_INIT(lock) pthread_mutex_init(&lock, NULL)
 #define RH_MUTEX_LOCK(lock) pthread_mutex_lock(&lock)
 #define RH_MUTEX_UNLOCK(lock) pthread_mutex_unlock(&lock)
+#define RH_MUTEX_LOCK_ISR(RH_Mutex, PTW) RH_MUTEX_LOCK(lock)
+#define RH_MUTEX_UNLOCK_ISR(RH_Mutex, PTW) RH_MUTEX_UNLOCK(lock)
 #elif (RH_PLATFORM == RH_PLATFORM_ESP32)
 #define RH_DECLARE_MUTEX(RH_Mutex) RH_Mutex = new SemaphoreHandle_t; RH_Mutex = xSemaphoreCreateMutex()
 #define RH_MUTEX_INIT(RH_Mutex) RH_Mutex
 #define RH_MUTEX_LOCK(RH_Mutex) xSemaphoreTake(RH_Mutex, portMAX_DELAY)
 #define RH_MUTEX_UNLOCK(RH_Mutex) xSemaphoreGive(RH_Mutex)
+#define RH_MUTEX_LOCK_ISR(RH_Mutex, PTW) xSemaphoreTakeFromISR(RH_Mutex, PTW)
+#define RH_MUTEX_UNLOCK_ISR(RH_Mutex, PTW) xSemaphoreGiveFromISR(RH_Mutex, PTW)
 #else
 #include <tools/freertos/semphr.h>
 #define RH_DECLARE_MUTEX(RH_Mutex) RH_Mutex = new SemaphoreHandle_t; RH_Mutex = xSemaphoreCreateMutex()
 #define RH_MUTEX_INIT(RH_Mutex) RH_Mutex
 #define RH_MUTEX_LOCK(RH_Mutex) xSemaphoreTake(RH_Mutex, portMAX_DELAY)
 #define RH_MUTEX_UNLOCK(RH_Mutex) xSemaphoreGive(RH_Mutex)
+#define RH_MUTEX_LOCK_ISR(RH_Mutex, PTW) xSemaphoreTakeFromISR(RH_Mutex, PTW)
+#define RH_MUTEX_UNLOCK_ISR(RH_Mutex, PTW) xSemaphoreGiveFromISR(RH_Mutex, PTW)
 #endif
 #else
 #define RH_DECLARE_MUTEX(RH_Mutex)
 #define RH_MUTEX_INIT(RH_Mutex)
 #define RH_MUTEX_LOCK(RH_Mutex)
 #define RH_MUTEX_UNLOCK(RH_Mutex)
+#define RH_MUTEX_LOCK_ISR(RH_Mutex, PTW)
+#define RH_MUTEX_UNLOCK_ISR(RH_Mutex, PTW)
 #endif
 
 

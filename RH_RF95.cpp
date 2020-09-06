@@ -275,7 +275,7 @@ bool RH_RF95::reattachISR()
 // We use this to get RxDone and TxDone interrupts
 void INTERRUPT_ATTR RH_RF95::handleInterrupt()
 {
-    RH_MUTEX_LOCK(_RH_Mutex); // Multithreading and multicores/multitask support
+    RH_MUTEX_LOCK_ISR(_RH_Mutex, pdFALSE); // Multithreading and multicores/multitask support
 
     // Read the interrupt register
     uint8_t irq_flags = spiRead(RH_RF95_REG_12_IRQ_FLAGS);
@@ -339,7 +339,7 @@ void INTERRUPT_ATTR RH_RF95::handleInterrupt()
     spiWrite(RH_RF95_REG_12_IRQ_FLAGS, 0xff); // Clear all IRQ flags
     spiWrite(RH_RF95_REG_12_IRQ_FLAGS, 0xff); // Clear all IRQ flags
 
-    RH_MUTEX_UNLOCK(_RH_Mutex); 
+    RH_MUTEX_UNLOCK_ISR(_RH_Mutex, pdFALSE); 
 }
 
 // These are low level functions that call the interrupt handler for the correct

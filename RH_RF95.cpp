@@ -382,14 +382,14 @@ void RH_RF95::validateRxBuf()
 
 bool RH_RF95::available()
 {
-    // RH_MUTEX_LOCK(_RH_Mutex); // Multithreading and multicores/multitask support
+    RH_MUTEX_LOCK(_RH_Mutex); // Multithreading and multicores/multitask support
     if (_mode == RHModeTx)
 	{
         // RH_MUTEX_UNLOCK(_RH_Mutex);
     return false;
     }
     setModeRx();
-    // RH_MUTEX_UNLOCK(_RH_Mutex);
+    RH_MUTEX_UNLOCK(_RH_Mutex);
     return _rxBufValid; // Will be set by the interrupt handler when a good message is received
 }
 

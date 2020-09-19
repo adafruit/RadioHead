@@ -385,7 +385,7 @@ bool RH_RF95::available()
     RH_MUTEX_LOCK(_RH_Mutex); // Multithreading and multicores/multitask support
     if (_mode == RHModeTx)
 	{
-        // RH_MUTEX_UNLOCK(_RH_Mutex);
+        RH_MUTEX_UNLOCK(_RH_Mutex);
     return false;
     }
     setModeRx();

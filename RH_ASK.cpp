@@ -904,4 +904,3 @@ void INTERRUPT_ATTR RH_ASK::handleTimerInterrupt()
     else if (_mode == RHModeTx)
         transmitTimer(); // Transmitting
 }
-

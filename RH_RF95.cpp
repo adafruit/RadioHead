@@ -5,6 +5,16 @@
 
 #include <RH_RF95.h>
 
+// interrupt handler and related code must be in RAM on ESP8266,
+// according to issue #46.
+#if defined(ESP8266)
+    #define INTERRUPT_ATTR ICACHE_RAM_ATTR
+#else
+    #define INTERRUPT_ATTR
+#endif
+
+// #define SERIAL_DEBUG // Uncomment to recieve debug information over serial
+
 // Interrupt vectors for the 3 Arduino interrupt pins
 // Each interrupt can be handled by a different instance of RH_RF95, allowing you to have
 // 2 or more LORAs per Arduino
@@ -20,7 +30,7 @@ PROGMEM static const RH_RF95::ModemConfig MODEM_CONFIG_TABLE[] =
     { 0x92,   0x74,    0x04}, // Bw500Cr45Sf128, AGC enabled
     { 0x48,   0x94,    0x04}, // Bw31_25Cr48Sf512, AGC enabled
     { 0x78,   0xc4,    0x0c}, // Bw125Cr48Sf4096, AGC enabled
-    
+
 };
 
 RH_RF95::RH_RF95(uint8_t slaveSelectPin, uint8_t interruptPin, RHGenericSPI& spi)
@@ -34,13 +44,23 @@ RH_RF95::RH_RF95(uint8_t slaveSelectPin, uint8_t interruptPin, RHGenericSPI& spi
 
 bool RH_RF95::init()
 {
-    if (!RHSPIDriver::init())
-	return false;
+    if (!RHSPIDriver::init()){
+      #ifdef SERIAL_DEBUG
+        Serial.println(F("ERROR: Failed to initialize SPI Driver."));
+      #endif
+      return false;
+    }
+
 
     // Determine the interrupt number that corresponds to the interruptPin
     int interruptNumber = digitalPinToInterrupt(_interruptPin);
-    if (interruptNumber == NOT_AN_INTERRUPT)
-	return false;
+    if (interruptNumber == NOT_AN_INTERRUPT){
+      #ifdef SERIAL_DEBUG
+        Serial.println(F("ERROR: Provided pin does not support interrupts."));
+      #endif
+      return false;
+    }
+
 #ifdef RH_ATTACHINTERRUPT_TAKES_PIN_NUMBER
     interruptNumber = _interruptPin;
 #endif
@@ -49,35 +69,43 @@ bool RH_RF95::init()
     spiUsingInterrupt(interruptNumber);
 
     // No way to check the device type :-(
-    
+
     // Set sleep mode, so we can also set LORA mode:
     spiWrite(RH_RF95_REG_01_OP_MODE, RH_RF95_MODE_SLEEP | RH_RF95_LONG_RANGE_MODE);
     delay(10); // Wait for sleep mode to take over from say, CAD
     // Check we are in sleep mode, with LORA set
     if (spiRead(RH_RF95_REG_01_OP_MODE) != (RH_RF95_MODE_SLEEP | RH_RF95_LONG_RANGE_MODE))
     {
-//	Serial.println(spiRead(RH_RF95_REG_01_OP_MODE), HEX);
-	return false; // No device present?
+      #ifdef SERIAL_DEBUG
+        Serial.println(F("ERROR: Failed to put device in LoRa mode."));
+        Serial.print(F("RH_RF95_REG_01_OP_MODE: "));
+        Serial.println(spiRead(RH_RF95_REG_01_OP_MODE), HEX);
+      #endif
+	    return false; // No device present?
     }
 
     // Add by Adrien van den Bossche <vandenbo@univ-tlse2.fr> for Teensy
     // ARM M4 requires the below. else pin interrupt doesn't work properly.
     // On all other platforms, its innocuous, belt and braces
-    pinMode(_interruptPin, INPUT); 
+    pinMode(_interruptPin, INPUT);
 
     // Set up interrupt handler
     // Since there are a limited number of interrupt glue functions isr*() available,
     // we can only support a limited number of devices simultaneously
-    // ON some devices, notably most Arduinos, the interrupt pin passed in is actuallt the 
+    // ON some devices, notably most Arduinos, the interrupt pin passed in is actuallt the
     // interrupt number. You have to figure out the interruptnumber-to-interruptpin mapping
     // yourself based on knwledge of what Arduino board you are running on.
     if (_myInterruptIndex == 0xff)
     {
-	// First run, no interrupt allocated yet
-	if (_interruptCount <= RH_RF95_NUM_INTERRUPTS)
-	    _myInterruptIndex = _interruptCount++;
-	else
-	    return false; // Too many devices, not enough interrupt vectors
+	     // First run, no interrupt allocated yet
+	     if (_interruptCount <= RH_RF95_NUM_INTERRUPTS)
+	      _myInterruptIndex = _interruptCount++;
+	     else{
+         #ifdef SERIAL_DEBUG
+          Serial.println(F("ERROR: Insufficient interrupt vectors."));
+         #endif
+         return false; // Too many devices, not enough interrupt vectors
+       }
     }
     _deviceForInterrupt[_myInterruptIndex] = this;
     if (_myInterruptIndex == 0)
@@ -86,8 +114,13 @@ bool RH_RF95::init()
 	attachInterrupt(interruptNumber, isr1, RISING);
     else if (_myInterruptIndex == 2)
 	attachInterrupt(interruptNumber, isr2, RISING);
-    else
-	return false; // Too many devices, not enough interrupt vectors
+    else{
+      #ifdef SERIAL_DEBUG
+        Serial.println(F("ERROR: Failed to attach interrupt pin. Insufficient interrupt vectors."));
+      #endif
+      return false; // Too many devices, not enough interrupt vectors
+    }
+
 
     // Set up FIFO
     // We configure so that we can use the entire 256 byte FIFO for either receive
@@ -118,7 +151,7 @@ bool RH_RF95::init()
 
 // C++ level interrupt handler for this instance
 // LORA is unusual in that it has several interrupt lines, and not a single, combined one.
-// On MiniWirelessLoRa, only one of the several interrupt lines (DI0) from the RFM95 is usefuly 
+// On MiniWirelessLoRa, only one of the several interrupt lines (DI0) from the RFM95 is usefuly
 // connnected to the processor.
 // We use this to get RxDone and TxDone interrupts
 void RH_RF95::handleInterrupt()
@@ -164,11 +197,11 @@ void RH_RF95::handleInterrupt()
 	    _lastRssi -= 157;
 	else
 	    _lastRssi -= 164;
-	    
+
 	// We have received a message.
-	validateRxBuf(); 
+	validateRxBuf();
 	if (_rxBufValid)
-	    setModeIdle(); // Got one 
+	    setModeIdle(); // Got one
     }
     else if (_mode == RHModeTx && irq_flags & RH_RF95_TX_DONE)
     {
@@ -189,17 +222,17 @@ void RH_RF95::handleInterrupt()
 // These are low level functions that call the interrupt handler for the correct
 // instance of RH_RF95.
 // 3 interrupts allows us to have 3 different devices
-void RH_RF95::isr0()
+void INTERRUPT_ATTR RH_RF95::isr0()
 {
     if (_deviceForInterrupt[0])
 	_deviceForInterrupt[0]->handleInterrupt();
 }
-void RH_RF95::isr1()
+void INTERRUPT_ATTR RH_RF95::isr1()
 {
     if (_deviceForInterrupt[1])
 	_deviceForInterrupt[1]->handleInterrupt();
 }
-void RH_RF95::isr2()
+void INTERRUPT_ATTR RH_RF95::isr2()
 {
     if (_deviceForInterrupt[2])
 	_deviceForInterrupt[2]->handleInterrupt();
@@ -265,7 +298,7 @@ bool RH_RF95::send(const uint8_t* data, uint8_t len)
     waitPacketSent(); // Make sure we dont interrupt an outgoing message
     setModeIdle();
 
-    if (!waitCAD()) 
+    if (!waitCAD())
 	return false;  // Check channel activity
 
     // Position at the beginning of the FIFO
@@ -448,7 +481,7 @@ void RH_RF95::enableTCXO()
     {
 	sleep();
 	spiWrite(RH_RF95_REG_4B_TCXO, (spiRead(RH_RF95_REG_4B_TCXO) | RH_RF95_TCXO_TCXO_INPUT_ON));
-    } 
+    }
 }
 
 // From section 4.1.5 of SX1276/77/78/79

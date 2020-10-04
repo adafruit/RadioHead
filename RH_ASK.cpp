@@ -5,7 +5,6 @@
 
 #include <RH_ASK.h>
 #include <RHCRC.h>
-
 #if (RH_PLATFORM == RH_PLATFORM_STM32)
     // Maple etc
 HardwareTimer timer(MAPLE_TIMER);
@@ -234,6 +233,38 @@ void RH_ASK::timerSetup()
     IntervalTimer *t = new IntervalTimer();
     void TIMER1_COMPA_vect(void);
     t->begin(TIMER1_COMPA_vect, 125000 / _speed);
+ #elif defined (__arm__) && defined(__SAMD51__)
+    // Arduino SAMD51
+    #define RH_ASK_M4_TIMER TC3
+    // Clock speed is 120MHz, prescaler of 256 is close to the 64 example below for samd21
+    #define RH_ASK_M4_PRESCALER 256
+    #define RH_ASK_M4_TIMER_IRQ TC3_IRQn
+
+    GCLK->PCHCTRL[TC3_GCLK_ID].reg = GCLK_PCHCTRL_GEN_GCLK1_Val |
+                                   (1 << GCLK_PCHCTRL_CHEN_Pos);
+
+    while (GCLK->SYNCBUSY.reg > 0);
+
+    TC3->COUNT16.CTRLA.bit.ENABLE = 0;
+    TC3->COUNT16.WAVE.bit.WAVEGEN = TC_WAVE_WAVEGEN_MFRQ;
+    while (TC3->COUNT16.SYNCBUSY.reg != 0) {}
+
+    TC3->COUNT16.INTENSET.reg = 0;
+    TC3->COUNT16.INTENSET.bit.MC0 = 1;
+
+    // Enable IRQ
+    NVIC_EnableIRQ(TC3_IRQn);
+
+    TC3->COUNT16.CTRLA.reg &= ~0b011100000000;
+    while (TC3->COUNT16.SYNCBUSY.reg != 0) {}
+    
+    TC3->COUNT16.CTRLA.reg |= (uint32_t)TC_CTRLA_PRESCALER_DIV256;
+    while (TC3->COUNT16.SYNCBUSY.reg != 0) {}
+    uint32_t rc = (VARIANT_MCK / _speed) / RH_ASK_M4_PRESCALER / 8;
+    TC3->COUNT16.CC[0].reg = rc;
+    while (TC3->COUNT16.SYNCBUSY.reg != 0) {}
+    TC3->COUNT16.CTRLA.bit.ENABLE = 1;
+    while (TC3->COUNT16.SYNCBUSY.reg != 0) {}
 
  #elif defined (__arm__) && defined(ARDUINO_ARCH_SAMD)
     // Arduino Zero
@@ -603,6 +634,14 @@ uint8_t RH_ASK::maxMessageLength()
 void TIMER1_COMPA_vect(void)
 {
     thisASKDriver->handleTimerInterrupt();
+}
+#elif (RH_PLATFORM == RH_PLATFORM_ARDUINO) && defined (__arm__) && defined(__SAMD51__)
+
+void TC3_Handler() {
+  if (TC3->COUNT16.INTFLAG.bit.MC0 == 1) {
+    TC3->COUNT16.INTFLAG.bit.MC0 = 1;
+    thisASKDriver->handleTimerInterrupt();
+  }
 }
 
 #elif (RH_PLATFORM == RH_PLATFORM_ARDUINO) && defined (__arm__) && defined(ARDUINO_ARCH_SAMD)

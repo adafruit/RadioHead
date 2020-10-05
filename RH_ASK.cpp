@@ -237,7 +237,7 @@ void RH_ASK::timerSetup()
     // Arduino SAMD51
     #define RH_ASK_M4_TIMER TC3
     // Clock speed is 120MHz, prescaler of 256 is close to the 64 example below for samd21
-    #define RH_ASK_M4_PRESCALER 256
+    #define RH_ASK_M4_PRESCALER 64
     #define RH_ASK_M4_TIMER_IRQ TC3_IRQn
 
     GCLK->PCHCTRL[TC3_GCLK_ID].reg = GCLK_PCHCTRL_GEN_GCLK1_Val |
@@ -258,7 +258,7 @@ void RH_ASK::timerSetup()
     TC3->COUNT16.CTRLA.reg &= ~0b011100000000;
     while (TC3->COUNT16.SYNCBUSY.reg != 0) {}
     
-    TC3->COUNT16.CTRLA.reg |= (uint32_t)TC_CTRLA_PRESCALER_DIV256;
+    TC3->COUNT16.CTRLA.reg |= (uint32_t)TC_CTRLA_PRESCALER_DIV64;
     while (TC3->COUNT16.SYNCBUSY.reg != 0) {}
     uint32_t rc = (VARIANT_MCK / _speed) / RH_ASK_M4_PRESCALER / 8;
     TC3->COUNT16.CC[0].reg = rc;

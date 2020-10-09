@@ -260,7 +260,7 @@ void RH_ASK::timerSetup()
     
     TC3->COUNT16.CTRLA.reg |= (uint32_t)TC_CTRLA_PRESCALER_DIV16;
     while (TC3->COUNT16.SYNCBUSY.reg != 0) {}
-    uint32_t rc = (VARIANT_MCK / _speed) / RH_ASK_M4_PRESCALER;
+    uint32_t rc = (VARIANT_MCK / _speed) / RH_ASK_M4_PRESCALER / 8;
     TC3->COUNT16.CC[0].reg = rc;
     while (TC3->COUNT16.SYNCBUSY.reg != 0) {}
     TC3->COUNT16.CTRLA.bit.ENABLE = 1;

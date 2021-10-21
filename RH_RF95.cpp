@@ -427,7 +427,7 @@ void RH_RF95::setTxPower(int8_t power, bool useRFO)
 	// The documentation is pretty confusing on this topic: PaSelect says the max power is 20dBm,
 	// but OutputPower claims it would be 17dBm.
 	// My measurements show 20dBm is correct
-	spiWrite(RH_RF95_REG_09_PA_CONFIG, RH_RF95_PA_SELECT | (power-5));
+	spiWrite(RH_RF95_REG_09_PA_CONFIG, RH_RF95_PA_SELECT | RH_RF95_MAX_POWER | (power-2));
     }
 }
 

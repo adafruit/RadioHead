@@ -45,6 +45,12 @@
   #define RFM95_RST 16   // "D"
   #define RFM95_INT 15   // "B"
 
+#elif defined(ARDUINO_ADAFRUIT_FEATHER_ESP32S2)
+  #define RFM95_INT     9  // "A"
+  #define RFM95_CS      10  // "B"
+  #define RFM95_RST     11  // "C"
+  #define LED           13
+  
 #elif defined(ESP32)  
   /* ESP32 feather w/wing */
   #define RFM95_RST     27   // "A"

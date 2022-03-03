@@ -57,7 +57,7 @@
   #define RFM95_CS      33   // "B"
   #define RFM95_INT     12   //  next to A
 
-#elif defined(NRF52)  
+#elif defined(NRF52_SERIES)
   /* nRF52832 feather w/wing */
   #define RFM95_RST     7   // "A"
   #define RFM95_CS      11   // "B"

@@ -1136,7 +1136,7 @@ these examples and explanations and extend them to suit your needs.
   #define RH_PLATFORM RH_PLATFORM_UNO32
  #elif defined(NRF51)
   #define RH_PLATFORM RH_PLATFORM_NRF51
- #elif defined(NRF52)
+ #elif defined(NRF52_SERIES)
   #define RH_PLATFORM RH_PLATFORM_NRF52
  #elif defined(ESP8266)
   #define RH_PLATFORM RH_PLATFORM_ESP8266

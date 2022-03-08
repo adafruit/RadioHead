@@ -40,7 +40,7 @@
   #define RFM69_RST     16   // "D"
   #define LED           0
 
-#elif defined(ARDUINO_ADAFRUIT_FEATHER_ESP32S2)
+#elif defined(ARDUINO_ADAFRUIT_FEATHER_ESP32S2) || defined(ARDUINO_NRF52840_FEATHER) || defined(ARDUINO_NRF52840_FEATHER_SENSE)
   #define RFM69_INT     9  // "A"
   #define RFM69_CS      10  // "B"
   #define RFM69_RST     11  // "C"
@@ -51,6 +51,14 @@
   #define RFM69_CS      33   // "B"
   #define RFM69_INT     27   // "A"
   #define LED           13
+
+#elif defined(ARDUINO_NRF52832_FEATHER)
+  /* nRF52832 feather w/wing */
+  #define RFM69_RST     7   // "A"
+  #define RFM69_CS      11   // "B"
+  #define RFM69_INT     31   // "C"
+  #define LED           17
+
 #endif
 
 

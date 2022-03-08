@@ -26,7 +26,7 @@ Adafruit_SSD1306 oled = Adafruit_SSD1306();
   #define BUTTON_B 3
   #define BUTTON_C 8
   #define LED 13
-#elif defined(ARDUINO_FEATHER52)
+#elif defined(ARDUINO_NRF52832_FEATHER)
   #define BUTTON_A 31
   #define BUTTON_B 30
   #define BUTTON_C 27
@@ -61,6 +61,19 @@ Adafruit_SSD1306 oled = Adafruit_SSD1306();
   #define RFM95_RST     13   // same as LED
   #define RFM95_CS      33   // "B"
   #define RFM95_INT     27   // "A"
+#endif
+
+#if defined(ARDUINO_ADAFRUIT_FEATHER_ESP32S2) || defined(ARDUINO_NRF52840_FEATHER) || defined(ARDUINO_NRF52840_FEATHER_SENSE)
+  #define RFM95_INT     9  // "A"
+  #define RFM95_CS      10  // "B"
+  #define RFM95_RST     11  // "C"
+#endif
+
+#if defined(ARDUINO_NRF52832_FEATHER)
+  /* nRF52832 feather w/wing */
+  #define RFM95_RST     7   // "A"
+  #define RFM95_CS      11   // "B"
+  #define RFM95_INT     31   // "C"
 #endif
 
 // Change to 434.0 or other frequency, must match RX's freq!

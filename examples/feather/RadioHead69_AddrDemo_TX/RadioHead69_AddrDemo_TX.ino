@@ -50,11 +50,25 @@
   #define LED           0
 #endif
 
-#if defined(ESP32)    // ESP32 feather w/wing
+#if defined(ARDUINO_ADAFRUIT_FEATHER_ESP32S2) || defined(ARDUINO_NRF52840_FEATHER) || defined(ARDUINO_NRF52840_FEATHER_SENSE)
+  #define RFM69_INT     9  // "A"
+  #define RFM69_CS      10  // "B"
+  #define RFM69_RST     11  // "C"
+  #define LED           13
+
+#elif defined(ESP32)    // ESP32 feather w/wing
   #define RFM69_RST     13   // same as LED
   #define RFM69_CS      33   // "B"
   #define RFM69_INT     27   // "A"
   #define LED           13
+#endif
+
+#if defined(ARDUINO_NRF52832_FEATHER)
+  /* nRF52832 feather w/wing */
+  #define RFM69_RST     7   // "A"
+  #define RFM69_CS      11   // "B"
+  #define RFM69_INT     31   // "C"
+  #define LED           17
 #endif
 
 /* Teensy 3.x w/wing

@@ -44,7 +44,7 @@ Adafruit_SSD1306 oled = Adafruit_SSD1306();
   #define BUTTON_B 3
   #define BUTTON_C 8
   #define LED 13
-#elif defined(ARDUINO_FEATHER52)
+#elif defined(ARDUINO_NRF52832_FEATHER)
   #define BUTTON_A 31
   #define BUTTON_B 30
   #define BUTTON_C 27
@@ -80,12 +80,23 @@ Adafruit_SSD1306 oled = Adafruit_SSD1306();
   #define RFM69_RST     2  // "A"
 #endif
 
-#if defined(ESP32)    // ESP32 feather w/wing
+#if defined(ARDUINO_ADAFRUIT_FEATHER_ESP32S2) || defined(ARDUINO_NRF52840_FEATHER) || defined(ARDUINO_NRF52840_FEATHER_SENSE)
+  #define RFM69_INT     9  // "A"
+  #define RFM69_CS      10  // "B"
+  #define RFM69_RST     11  // "C"
+
+#elif defined(ESP32)    // ESP32 feather w/wing
   #define RFM69_RST     13   // same as LED
   #define RFM69_CS      33   // "B"
   #define RFM69_INT     27   // "A"
 #endif
 
+#if defined(ARDUINO_NRF52832_FEATHER)
+  /* nRF52832 feather w/wing */
+  #define RFM69_RST     7   // "A"
+  #define RFM69_CS      11   // "B"
+  #define RFM69_INT     31   // "C"
+#endif
 
 // Singleton instance of the radio driver
 RH_RF69 rf69(RFM69_CS, RFM69_INT);

@@ -22,7 +22,8 @@
   #define RFM69_RST     4
   #define LED           13
   
-#elif defined(ADAFRUIT_FEATHER_M0) // Feather M0 w/Radio
+#elif defined(ADAFRUIT_FEATHER_M0) || defined(ADAFRUIT_FEATHER_M0_EXPRESS) || defined(ARDUINO_SAMD_FEATHER_M0)
+  // Feather M0 w/Radio
   #define RFM69_CS      8
   #define RFM69_INT     3
   #define RFM69_RST     4

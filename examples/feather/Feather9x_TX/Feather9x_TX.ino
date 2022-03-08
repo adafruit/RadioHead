@@ -45,6 +45,12 @@
   #define RFM95_RST 16   // "D"
   #define RFM95_INT 15   // "B"
 
+#elif defined(ADAFRUIT_FEATHER_M0) || defined(ADAFRUIT_FEATHER_M0_EXPRESS) || defined(ARDUINO_SAMD_FEATHER_M0)
+  // Feather M0 w/Radio
+  #define RFM95_CS      8
+  #define RFM95_INT     3
+  #define RFM95_RST     4
+
 #elif defined(ARDUINO_ADAFRUIT_FEATHER_ESP32S2) || defined(ARDUINO_NRF52840_FEATHER) || defined(ARDUINO_NRF52840_FEATHER_SENSE)
   #define RFM95_INT     9  // "A"
   #define RFM95_CS      10  // "B"

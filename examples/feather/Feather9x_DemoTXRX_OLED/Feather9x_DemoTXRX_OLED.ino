@@ -45,7 +45,8 @@ Adafruit_SSD1306 oled = Adafruit_SSD1306();
   #define RFM95_RST     4
 #endif
 
-#if defined(ARDUINO_SAMD_FEATHER_M0) // Feather M0 w/Radio
+#if defined(ARDUINO_SAMD_FEATHER_M0)
+  // Feather M0 w/Radio
   #define RFM95_CS      8
   #define RFM95_INT     3
   #define RFM95_RST     4

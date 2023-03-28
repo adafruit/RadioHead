@@ -89,7 +89,7 @@
 #define RH_MRF89_CMOD_SLEEP                 0x00
 
 #define RH_MRF89_FBS                        0x18
-#define RH_MRF89_FBS_950_960                0x10
+#define RH_MRF89_FBS_950_960_or_863_870     0x10
 #define RH_MRF89_FBS_915_928                0x08
 #define RH_MRF89_FBS_902_915                0x00
 
@@ -370,6 +370,25 @@
 /// \endcode
 /// You can use other pins for /CSDAT, /CSCON, IRQ1 by passing appropriate arguments to the constructor.
 ///
+/// \par Low Power Mode
+///
+/// Fernando Faria reports that:
+///
+/// In order for low power mode to work to achieve 1μA power consumption in this chip, you will need to do a few extra things:
+/// 
+/// 1. the datasheet states that IRQ0 and IRQ1 must have a valid logic state at
+/// all times, so you will need to apply pull-down resistors to those pins (if not already present).
+/// See the data sheet Table 2-4 Note 3
+///
+/// 2. You must also ensure the SPI pins are in a certain state after calling mrf89.sleep();
+/// This may be suitable for your electrical connections:
+/// \code 
+/// digitalWrite(9, HIGH); // CSDAT
+/// digitalWrite(10, LOW); // SS
+/// digitalWrite(11, LOW); //MOSI
+/// digitalWrite(13, LOW); // MISO
+/// \endcode
+///
 /// \par Example programs
 ///
 /// Several example programs are provided.
@@ -490,7 +509,7 @@ public:
     /// You should be sure to call this function frequently enough to not miss any messages
     /// It is recommended that you call it in your main loop.
     /// \param[in] buf Location to copy the received message
-    /// \param[in,out] len Pointer to available space in buf. Set to the actual number of octets copied.
+    /// \param[in,out] len Pointer to the number of octets available in buf. The number be reset to the actual number of octets copied.
     /// \return true if a valid message was copied to buf
     virtual bool    recv(uint8_t* buf, uint8_t* len);
 

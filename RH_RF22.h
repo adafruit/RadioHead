@@ -1,7 +1,7 @@
 // RH_RF22.h
 // Author: Mike McCauley (mikem@airspayce.com)
 // Copyright (C) 2011 Mike McCauley
-// $Id: RH_RF22.h,v 1.34 2017/11/06 00:04:08 mikem Exp $
+// $Id: RH_RF22.h,v 1.39 2020/08/04 09:02:14 mikem Exp $
 //
 
 #ifndef RH_RF22_h
@@ -521,7 +521,7 @@
 ///                              SDN-/ (shutdown in)
 ///                 3V3----------VCC   (3.3V in)
 /// interrupt 0 pin D2-----------NIRQ  (interrupt request out)
-///          SS pin D53----------NSEL  (chip select in)
+///          SS pin D10----------NSEL  (chip select in)
 ///         SCK pin D52----------SCK   (SPI clock in)
 ///        MOSI pin D51----------SDI   (SPI Data in)
 ///        MISO pin D50----------SDO   (SPI data out)
@@ -664,6 +664,53 @@
 /// RH_RF22 driver(PB0, PB1);
 /// \endcode
 /// You can of use other pins for NSEL and NIRQ if you prefer.
+///
+/// To connect an ATTiny Mega x16 such as AtTiny 3216 etc
+/// (running at 5V) etc RF22 using Arduino using Spencer Kondes 
+/// megaTinyCore https://github.com/SpenceKonde/megaTinyCore connect the pins like this:
+/// (pin numbering based on https://github.com/SpenceKonde/megaTinyCore/blob/master/megaavr/extras/ATtiny_x16.md)
+/// \code
+///              AtTiny x16      RFM-22B
+///                 GND----------GND-\ (ground in)
+///                              SDN-/ (shutdown in)
+///                 VDD----------VCC   (5V in)
+/// interrupt   pin PA6----------NIRQ  (interrupt request out)
+///          SS pin PC0----------NSEL  (chip select in)
+///         SCK pin PA3----------SCK   (SPI clock in)
+///        MOSI pin PA1----------SDI   (SPI Data in)
+///        MISO pin PA2----------SDO   (SPI data out)
+///                           /--GPIO0 (GPIO0 out to control transmitter antenna TX_ANT)
+///                           \--TX_ANT (TX antenna control in) RFM22B only
+///                           /--GPIO1 (GPIO1 out to control receiver antenna RX_ANT)
+///                           \--RX_ANT (RX antenna control in) RFM22B only
+/// \endcode
+/// and initialise like this:
+/// \code
+/// RH_RF22 driver(10, 2);
+/// \endcode
+/// You can of use other pins for NSEL and NIRQ if you prefer.
+///
+/// For ESP8266-based ESP-12 modules. Caution: on some breakout boards we have seen
+/// labels for D4 and D5 reversed.
+/// \code
+///                 ESP-12      RFM-22B
+///                 GND----------GND-\ (ground in)
+///                              SDN-/ (shutdown in)
+///                 3V3----------VCC   (3.3V in)
+/// interrupt 0 pin D4-----------NIRQ  (interrupt request out)
+///          SS pin D5-----------NSEL  (chip select in)
+///         SCK pin D14----------SCK   (SPI clock in)
+///        MOSI pin D13----------SDI   (SPI Data in)
+///        MISO pin D12----------SDO   (SPI data out)
+///                           /--GPIO0 (GPIO0 out to control transmitter antenna TX_ANT)
+///                           \--TX_ANT (TX antenna control in) RFM22B only
+///                           /--GPIO1 (GPIO1 out to control receiver antenna RX_ANT)
+///                           \--RX_ANT (RX antenna control in) RFM22B only
+/// \endcode
+/// and initialise like this:
+/// \code
+/// RH_RF22 driver(5, 4);
+/// \endcode
 ///
 /// Note: It is possible to have 2 radios connected to one Arduino, provided each radio has its own 
 /// SS and interrupt line (SCK, SDI and SDO are common to both radios)
@@ -832,6 +879,12 @@
 /// module.
 ///
 /// Note: with RFM23BP, the reported maximum possible power when operating on 3.3V is 27dBm.
+/// The BP version is an RFM23 with a PA 
+/// external to the Silicon Labs radio chip.  
+/// The RFM23BP only supports the top three power settings because those three 
+/// output levels from the RFM23 provide enough drive to the PA to make it 
+/// saturate.  Less drive and the PA will dissipate more heat.  However, those 
+/// three levels don't change the output power from the PA.
 ///
 /// We have made some actual power measurements against
 /// programmed power for Sparkfun RFM22 wireless module under the following conditions:
@@ -900,7 +953,6 @@
 class RH_RF22 : public RHSPIDriver
 {
 public:
-
     /// \brief Defines register values for a set of modem configuration registers
     ///
     /// Defines register values for a set of modem configuration registers
@@ -1137,6 +1189,13 @@ public:
     /// recv()
     bool        available();
 
+#if RH_PLATFORM == RH_PLATFORM_ESP8266
+    /// Reimplementation of virtual waitPacketSent method only for ESP8266. This method calls
+    /// the loopIsr method to check when a new interrupt is asserted and handles the interrupt
+    /// service routine.
+    bool waitPacketSent();
+#endif
+
     /// Turns the receiver on if it not already on.
     /// If there is a valid message available, copy it to buf and return true
     /// else return false.
@@ -1144,7 +1203,7 @@ public:
     /// You should be sure to call this function frequently enough to not miss any messages
     /// It is recommended that you call it in your main loop.
     /// \param[in] buf Location to copy the received message
-    /// \param[in,out] len Pointer to available space in buf. Set to the actual number of octets copied.
+    /// \param[in,out] len Pointer to the number of octets available in buf. The number be reset to the actual number of octets copied.
     /// \return true if a valid message was copied to buf
     bool        recv(uint8_t* buf, uint8_t* len);
 
@@ -1289,6 +1348,16 @@ protected:
     /// \param[in] idleMode The chip operating mode to use when the driver is idle. One of the valid definitions for RH_RF22_REG_07_OPERATING_MODE
     void setIdleMode(uint8_t idleMode);
 
+#if RH_PLATFORM == RH_PLATFORM_ESP8266
+	/// \brief Method only for ESP8266 to avoid SPI calls from the ISRs
+	///
+	/// This method is used only with ESP8266 platform and must be called from
+	/// the main loop. It checks if the Isr flags have been asserted and calls,
+	/// from the main loop, the interrupt handler methods (where SPI calls are
+	/// needed to process the communication).
+	void loopIsr();
+#endif
+
 protected:
     /// Low level interrupt service routine for RF22 connected to interrupt 0
     static void         isr0();
@@ -1340,5 +1409,6 @@ protected:
 
 /// @example rf22_client.pde
 /// @example rf22_server.pde
+/// @example rf22_cw.ino
 
 #endif 

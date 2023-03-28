@@ -241,7 +241,7 @@ public:
     /// You should be sure to call this function frequently enough to not miss any messages
     /// It is recommended that you call it in your main loop.
     /// \param[in] buf Location to copy the received message
-    /// \param[in,out] len Pointer to available space in buf. Set to the actual number of octets copied.
+    /// \param[in,out] len Pointer to the number of octets available in buf. The number be reset to the actual number of octets copied.
     /// \return true if a valid message was copied to buf
     bool        recv(uint8_t* buf, uint8_t* len);
 

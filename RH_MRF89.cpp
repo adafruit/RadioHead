@@ -1,21 +1,13 @@
 // RH_MRF89.cpp
 //
 // Copyright (C) 2015 Mike McCauley
-// $Id: RH_MRF89.cpp,v 1.9 2017/11/06 00:04:08 mikem Exp $
+// $Id: RH_MRF89.cpp,v 1.10 2019/09/02 05:21:52 mikem Exp $
 
 #include <RH_MRF89.h>
 #define BAND_915
 #define DATA_RATE_200
 #define LNA_GAIN LNA_GAIN_0_DB
 #define TX_POWER TX_POWER_13_DB
-
-// interrupt handler and related code must be in RAM on ESP8266,
-// according to issue #46.
-#if defined(ESP8266)
-    #define INTERRUPT_ATTR ICACHE_RAM_ATTR
-#else
-    #define INTERRUPT_ATTR
-#endif
 
 // Interrupt vectors for the 3 Arduino interrupt pins
 // Each interrupt can be handled by a different instance of RH_MRF89, allowing you to have
@@ -55,7 +47,7 @@ RH_MRF89::RH_MRF89(uint8_t csconPin, uint8_t csdatPin, uint8_t interruptPin, RHG
 
 bool RH_MRF89::init()
 {
-    // MRF89 data cant handle SPI greater than 1MHz.
+    // MRF89 data cant handle SPI greater than 1MHz.  
     // Sigh on teensy at 1MHz, need special delay after writes, see RHNRFSPIDriver::spiWrite
     _spi.setFrequency(RHGenericSPI::Frequency1MHz);
     if (!RHNRFSPIDriver::init())
@@ -78,8 +70,8 @@ bool RH_MRF89::init()
     // Tell the low level SPI interface we will use SPI within this interrupt
     spiUsingInterrupt(interruptNumber);
 
-    // Make sure we are not in some unexpected mode from a previous run
-    setOpMode(RH_MRF89_CMOD_STANDBY);
+    // Make sure we are not in some unexpected mode from a previous run    
+    setOpMode(RH_MRF89_CMOD_STANDBY); 
 
     // No way to check the device type but lets trivially check there is something there
     // by trying to change a register:
@@ -93,12 +85,12 @@ bool RH_MRF89::init()
     // Add by Adrien van den Bossche <vandenbo@univ-tlse2.fr> for Teensy
     // ARM M4 requires the below. else pin interrupt doesn't work properly.
     // On all other platforms, its innocuous, belt and braces
-    pinMode(_interruptPin, INPUT);
+    pinMode(_interruptPin, INPUT); 
 
     // Set up interrupt handler
     // Since there are a limited number of interrupt glue functions isr*() available,
     // we can only support a limited number of devices simultaneously
-    // On some devices, notably most Arduinos, the interrupt pin passed in is actually the
+    // On some devices, notably most Arduinos, the interrupt pin passed in is actually the 
     // interrupt number. You have to figure out the interruptnumber-to-interruptpin mapping
     // yourself based on knowledge of what Arduino board you are running on.
     if (_myInterruptIndex == 0xff)
@@ -126,7 +118,8 @@ bool RH_MRF89::init()
     // VCOT 60mV
     // OOK max 28kbps
     // Based on 70622C.pdf, section 3.12:
-    spiWriteRegister(RH_MRF89_REG_00_GCONREG, RH_MRF89_CMOD_STANDBY | RH_MRF89_FBS_950_960 | RH_MRF89_VCOT_60MV);
+
+    spiWriteRegister(RH_MRF89_REG_00_GCONREG, RH_MRF89_CMOD_STANDBY | RH_MRF89_FBS_902_915 | RH_MRF89_VCOT_60MV);
     spiWriteRegister(RH_MRF89_REG_01_DMODREG, RH_MRF89_MODSEL_FSK | RH_MRF89_OPMODE_PACKET); // FSK, Packet mode, LNA 0dB
     spiWriteRegister(RH_MRF89_REG_02_FDEVREG, 0); // Set by setModemConfig
     spiWriteRegister(RH_MRF89_REG_03_BRSREG,  0); // Set by setModemConfig
@@ -170,7 +163,8 @@ bool RH_MRF89::init()
     uint8_t syncwords[] = { 0x69, 0x81, 0x7e, 0x96 }; // Same as RH_MRF89XA
     setSyncWords(syncwords, sizeof(syncwords));
     setTxPower(RH_MRF89_TXOPVAL_1DBM);
-    if (!setFrequency(915.4))
+    // try first MRF89XAM9A then MRF89XAM8A
+    if (!setFrequency(915.4) && !setFrequency(865.0))
 	return false;
     // Some slow, reliable default speed and modulation
     if (!setModemConfig(FSK_Rb20Fd40))
@@ -230,33 +224,33 @@ void RH_MRF89::handleInterrupt()
 	    clearRxBuf();
 	    return;
 	}
-
+	
 	// Now drain all the data from the FIFO into _buf
 	uint8_t i;
 	for (i = 0; spiReadRegister(RH_MRF89_REG_0D_FTXRXIREG) & RH_MRF89_FIFOEMPTY; i++)
 	    _buf[i] = spiReadData();
 
 	// All good. See if its for us
-	validateRxBuf();
+	validateRxBuf(); 
 	if (_rxBufValid)
-	    setModeIdle(); // Got one
+	    setModeIdle(); // Got one 
     }
 }
 
 // These are low level functions that call the interrupt handler for the correct
 // instance of RH_MRF89.
 // 3 interrupts allows us to have 3 different devices
-void INTERRUPT_ATTR RH_MRF89::isr0()
+void RH_INTERRUPT_ATTR RH_MRF89::isr0()
 {
     if (_deviceForInterrupt[0])
 	_deviceForInterrupt[0]->handleInterrupt();
 }
-void INTERRUPT_ATTR RH_MRF89::isr1()
+void RH_INTERRUPT_ATTR RH_MRF89::isr1()
 {
     if (_deviceForInterrupt[1])
 	_deviceForInterrupt[1]->handleInterrupt();
 }
-void INTERRUPT_ATTR RH_MRF89::isr2()
+void RH_INTERRUPT_ATTR RH_MRF89::isr2()
 {
     if (_deviceForInterrupt[2])
 	_deviceForInterrupt[2]->handleInterrupt();
@@ -400,11 +394,11 @@ bool RH_MRF89::send(const uint8_t* data, uint8_t len)
 {
     if (len > RH_MRF89_MAX_MESSAGE_LEN)
 	return false;
-
+    
     waitPacketSent(); // Make sure we dont interrupt an outgoing message
     setModeIdle();
-
-    if (!waitCAD())
+    
+    if (!waitCAD()) 
 	return false;  // Check channel activity
 
     // First octet is the length of the chip payload
@@ -477,24 +471,28 @@ bool RH_MRF89::setFrequency(float centre)
     uint8_t FBS;
     if (centre >= 902.0 && centre < 915.0)
     {
+	// The MRF89XAM9A does support this frequency band
 	FBS = RH_MRF89_FBS_902_915;
     }
     else if (centre >= 915.0 && centre <= 928.0)
     {
+	// The MRF89XAM9A does support this frequency band
 	FBS = RH_MRF89_FBS_915_928;
     }
     else if (centre >= 950.0 && centre <= 960.0)
     {
 	// Not all modules support this frequency band:
 	// The MRF98XAM9A does not
-	FBS = RH_MRF89_FBS_950_960;
+        // The MRF89XA does support this frequency band
+        FBS = RH_MRF89_FBS_950_960_or_863_870;
     }
-//    else if (centre >= 863.0 && centre <= 870.0)
-//    {
-//	// Not all modules support this frequency band:
-//	// The MRF98XAM9A does not
-//	FBS = RH_MRF89_FBS_950_960; // Yes same as above
-//    }
+    else if (centre >= 863.0 && centre <= 870.0)
+    {
+	// Not all modules support this frequency band:
+	// The MRF98XAM9A does not
+        // The MRF89XAM8A does support this frequency band
+        FBS = RH_MRF89_FBS_950_960_or_863_870;
+    }
     else
     {
 	// Cant do this freq
@@ -515,9 +513,9 @@ bool RH_MRF89::setFrequency(float centre)
     val = (val & ~RH_MRF89_FBS) | (FBS & RH_MRF89_FBS);
     spiWriteRegister(RH_MRF89_REG_00_GCONREG, val);
 
-    spiWriteRegister(RH_MRF89_REG_06_R1CREG, R);
-    spiWriteRegister(RH_MRF89_REG_07_P1CREG, P);
-    spiWriteRegister(RH_MRF89_REG_08_S1CREG, S);
+    spiWriteRegister(RH_MRF89_REG_06_R1CREG, R); 
+    spiWriteRegister(RH_MRF89_REG_07_P1CREG, P); 
+    spiWriteRegister(RH_MRF89_REG_08_S1CREG, S); 
 
     return verifyPLLLock();
 }
@@ -575,3 +573,4 @@ void RH_MRF89::setSyncWords(const uint8_t* syncWords, uint8_t len)
 	}
     }
 }
+

@@ -1,7 +1,7 @@
 // RHGenericDriver.h
 // Author: Mike McCauley (mikem@airspayce.com)
 // Copyright (C) 2014 Mike McCauley
-// $Id: RHGenericDriver.h,v 1.22 2017/10/03 06:04:59 mikem Exp $
+// $Id: RHGenericDriver.h,v 1.24 2020/04/09 23:40:34 mikem Exp $
 
 #ifndef RHGenericDriver_h
 #define RHGenericDriver_h
@@ -58,6 +58,9 @@ public:
     /// Constructor
     RHGenericDriver();
 
+    /// Generic destructor to prevent warnings when objects are dynamically allocated
+    virtual ~RHGenericDriver() {};
+    
     /// Initialise the Driver transport hardware and software.
     /// Make sure the Driver is properly configured before calling init().
     /// \return true if initialisation succeeded.
@@ -103,7 +106,11 @@ public:
 
     /// Starts the receiver and blocks until a valid received 
     /// message is available.
-    virtual void            waitAvailable();
+  /// Default implementation calls available() repeatedly until it returns true;
+  /// \param[in] polldelay Time between polling available() in milliseconds. This can be useful
+  /// in multitaking environment like Linux to prevent waitAvailableTimeout
+  /// using all the CPU while polling for receiver activity
+    virtual void            waitAvailable(uint16_t polldelay = 0);
 
     /// Blocks until the transmitter 
     /// is no longer transmitting.
@@ -115,10 +122,14 @@ public:
     /// \return true if the radio completed transmission within the timeout period. False if it timed out.
     virtual bool            waitPacketSent(uint16_t timeout);
 
-    /// Starts the receiver and blocks until a received message is available or a timeout
-    /// \param[in] timeout Maximum time to wait in milliseconds.
+    /// Starts the receiver and blocks until a received message is available or a timeout.
+  /// Default implementation calls available() repeatedly until it returns true;
+  /// \param[in] timeout Maximum time to wait in milliseconds.
+  /// \param[in] polldelay Time between polling available() in milliseconds. This can be useful
+  /// in multitaking environment like Linux to prevent waitAvailableTimeout
+  /// using all the CPU while polling for receiver activity
     /// \return true if a message is available
-    virtual bool            waitAvailableTimeout(uint16_t timeout);
+  virtual bool            waitAvailableTimeout(uint16_t timeout, uint16_t polldelay = 0);
 
     // Bent G Christensen (bentor@gmail.com), 08/15/2016
     /// Channel Activity Detection (CAD).

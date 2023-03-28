@@ -6,7 +6,7 @@
 //
 // Author: Mike McCauley (mikem@airspayce.com)
 // Copyright (C) 2014 Mike McCauley
-// $Id: RH_RF95.h,v 1.21 2017/11/06 00:04:08 mikem Exp $
+// $Id: RH_RF95.h,v 1.26 2020/06/15 23:39:39 mikem Exp $
 // 
 
 #ifndef RH_RF95_h
@@ -89,7 +89,7 @@
 #define RH_RF95_REG_29_FEI_MID                             0x29
 #define RH_RF95_REG_2A_FEI_LSB                             0x2a
 #define RH_RF95_REG_2C_RSSI_WIDEBAND                       0x2c
-#define RH_RF95_REG_31_DETECT_OPTIMIZ                      0x31
+#define RH_RF95_REG_31_DETECT_OPTIMIZE                     0x31
 #define RH_RF95_REG_33_INVERT_IQ                           0x33
 #define RH_RF95_REG_37_DETECTION_THRESHOLD                 0x37
 #define RH_RF95_REG_39_SYNC_WORD                           0x39
@@ -132,7 +132,7 @@
 #define RH_RF95_PA_RAMP_2MS                           0x01
 #define RH_RF95_PA_RAMP_1MS                           0x02
 #define RH_RF95_PA_RAMP_500US                         0x03
-#define RH_RF95_PA_RAMP_250US                         0x0
+#define RH_RF95_PA_RAMP_250US                         0x04
 #define RH_RF95_PA_RAMP_125US                         0x05
 #define RH_RF95_PA_RAMP_100US                         0x06
 #define RH_RF95_PA_RAMP_62US                          0x07
@@ -161,7 +161,7 @@
 #define RH_RF95_LNA_BOOST_LF_DEFAULT                  0x00
 #define RH_RF95_LNA_BOOST_HF                          0x03
 #define RH_RF95_LNA_BOOST_HF_DEFAULT                  0x00
-#define RH_RF95_LNA_BOOST_HF_150PC                    0x11
+#define RH_RF95_LNA_BOOST_HF_150PC                    0x03
 
 // RH_RF95_REG_11_IRQ_FLAGS_MASK                      0x11
 #define RH_RF95_RX_TIMEOUT_MASK                       0x80
@@ -225,10 +225,15 @@
 #define RH_RF95_SPREADING_FACTOR_1024CPS              0xa0
 #define RH_RF95_SPREADING_FACTOR_2048CPS              0xb0
 #define RH_RF95_SPREADING_FACTOR_4096CPS              0xc0
-#define RH_RF95_TX_CONTINUOUS_MOE                     0x08
+#define RH_RF95_TX_CONTINUOUS_MODE                    0x08
 
 #define RH_RF95_PAYLOAD_CRC_ON                        0x04
 #define RH_RF95_SYM_TIMEOUT_MSB                       0x03
+
+// RH_RF95_REG_26_MODEM_CONFIG3
+#define RH_RF95_MOBILE_NODE                           0x08 // HopeRF term
+#define RH_RF95_LOW_DATA_RATE_OPTIMIZE                0x08 // Semtechs term
+#define RH_RF95_AGC_AUTO_ON                           0x04
 
 // RH_RF95_REG_4B_TCXO                                0x4b
 #define RH_RF95_TCXO_TCXO_INPUT_ON                    0x10
@@ -237,10 +242,14 @@
 #define RH_RF95_PA_DAC_DISABLE                        0x04
 #define RH_RF95_PA_DAC_ENABLE                         0x07
 
+
 /////////////////////////////////////////////////////////////////////
 /// \class RH_RF95 RH_RF95.h <RH_RF95.h>
 /// \brief Driver to send and receive unaddressed, unreliable datagrams via a LoRa 
 /// capable radio transceiver.
+///
+/// For an excellent discussion of LoRa range and modulations, see
+/// https://medium.com/home-wireless/testing-lora-radios-with-the-limesdr-mini-part-2-37fa481217ff
 ///
 /// For Semtech SX1276/77/78/79 and HopeRF RF95/96/97/98 and other similar LoRa capable radios.
 /// Based on http://www.hoperf.com/upload/rf/RFM95_96_97_98W.pdf
@@ -257,7 +266,7 @@
 /// - the excellent Rocket Scream Mini Ultra Pro with the RFM95W 
 ///   http://www.rocketscream.com/blog/product/mini-ultra-pro-with-radio/
 /// - Lora1276 module from NiceRF http://www.nicerf.com/product_view.aspx?id=99
-/// - Adafruit Feather M0 with RFM95 
+/// - Adafruit Feather M0 with RFM95
 /// - The very fine Talk2 Whisper Node LoRa boards https://wisen.com.au/store/products/whisper-node-lora
 ///   an Arduino compatible board, which include an on-board RFM95/96 LoRa Radio (Semtech SX1276), external antenna, 
 ///   run on 2xAAA batteries and support low power operations. RF95 examples work without modification.
@@ -305,10 +314,10 @@
 ///
 /// - LoRa mode:
 /// - 8 symbol PREAMBLE
-/// - Explicit header with header CRC (handled internally by the radio)
+/// - Explicit header with header CRC (default CCITT, handled internally by the radio)
 /// - 4 octets HEADER: (TO, FROM, ID, FLAGS)
 /// - 0 to 251 octets DATA 
-/// - CRC (handled internally by the radio)
+/// - CRC (default CCITT, handled internally by the radio)
 ///
 /// \par Connecting RFM95/96/97/98 and Semtech SX1276/77/78/79 to Arduino
 ///
@@ -369,6 +378,8 @@
 /// // Slave Select is pin 10, interrupt is Pin 3
 /// RH_RF95 driver(10, 3);
 /// \endcode
+/// You can use the same constructor for Arduino Due, and this pinout diagram may be useful:
+/// http://www.robgray.com/temp/Due-pinout-WEB.png
 ///
 /// If you have a Rocket Scream Mini Ultra Pro with the RFM95W:
 /// - Ensure you have Arduino SAMD board support 1.6.5 or later in Arduino IDE 1.6.8 or later.
@@ -449,7 +460,8 @@
 ///
 /// The RH_RF95 driver uses interrupts to react to events in the RFM module,
 /// such as the reception of a new packet, or the completion of transmission
-/// of a packet.  The RH_RF95 driver interrupt service routine reads status from
+/// of a packet. The driver configures the radio so the required interrupt is generated by the radio's DIO0 pin.
+/// The RH_RF95 driver interrupt service routine reads status from
 /// and writes data to the the RFM module via the SPI interface. It is very
 /// important therefore, that if you are using the RH_RF95 driver with another
 /// SPI based deviced, that you disable interrupts while you transfer data to
@@ -500,16 +512,17 @@
 ///
 /// You can control the transmitter power on the RF transceiver
 /// with the RH_RF95::setTxPower() function. The argument can be any of
-/// +5 to +23 (for modules that use PA_BOOST)
-/// -1 to +14 (for modules that use RFO transmitter pin)
+/// +2 to +20 (for modules that use PA_BOOST)
+/// 0 to +15 (for modules that use RFO transmitter pin)
 /// The default is 13. Eg:
 /// \code
 /// driver.setTxPower(10); // use PA_BOOST transmitter pin
-/// driver.setTxPower(10, true); // use PA_RFO pin transmitter pin
+/// driver.setTxPower(10, true); // use PA_RFO pin transmitter pin instead of PA_BOOST
 /// \endcode
 ///
 /// We have made some actual power measurements against
-/// programmed power for Anarduino MiniWirelessLoRa (which has RFM96W-433Mhz installed)
+/// programmed power for Anarduino MiniWirelessLoRa (which has RFM96W-433Mhz installed, and which includes an RF power
+/// amp for addition 3dBm of power
 /// - MiniWirelessLoRa RFM96W-433Mhz, USB power
 /// - 30cm RG316 soldered direct to RFM96W module ANT and GND
 /// - SMA connector
@@ -520,18 +533,18 @@
 /// \code
 /// Program power           Measured Power
 ///    dBm                         dBm
-///      5                           5
-///      7                           7
-///      9                           8
-///     11                          11
-///     13                          13
-///     15                          15
-///     17                          16
-///     19                          18
-///     20                          20 
-///     21                          21 
-///     22                          22 
-///     23                          23 
+///      2                           5
+///      4                           7
+///      6                           8
+///      8                          11
+///     10                          13
+///     12                          15
+///     14                          16
+///     16                          18
+///     17                          20 
+///     18                          21 
+///     19                          22 
+///     20                          23 
 /// \endcode
 ///
 /// We have also measured the actual power output from a Modtronix inAir4 http://modtronix.com/inair4.html
@@ -544,15 +557,15 @@
 /// \code
 /// Program power           Measured Power
 ///    dBm                         dBm
-///      -1                         0
-///      1                          2
-///      3                          4
-///      5                          7
-///      7                         10
-///      9                         13
-///     11                         14.2
-///     13                         15
-///     14                         16
+///      0                         0
+///      2                         2
+///      3                         4
+///      6                         7
+///      8                         10
+///      10                        13
+///     12                         14.2
+///     14                         15
+///     15                         16
 /// \endcode
 /// (Caution: we dont claim laboratory accuracy for these power measurements)
 /// You would not expect to get anywhere near these powers to air with a simple 1/4 wavelength wire antenna.
@@ -583,15 +596,18 @@ public:
     /// introduced in later versions (though we will try to avoid it).
     /// Caution: if you are using slow packet rates and long packets with RHReliableDatagram or subclasses
     /// you may need to change the RHReliableDatagram timeout for reliable operations.
-    /// Caution: for some slow rates nad with ReliableDatagrams youi may need to increase the reply timeout 
+    /// Caution: for some slow rates nad with ReliableDatagrams you may need to increase the reply timeout 
     /// with manager.setTimeout() to
     /// deal with the long transmission times.
+    /// Caution: SX1276 family errata suggests alternate settings for some LoRa registers when 500kHz bandwidth
+    /// is in use. See the Semtech SX1276/77/78 Errata Note. These are not implemented by RH_RF95.
     typedef enum
     {
 	Bw125Cr45Sf128 = 0,	   ///< Bw = 125 kHz, Cr = 4/5, Sf = 128chips/symbol, CRC on. Default medium range
 	Bw500Cr45Sf128,	           ///< Bw = 500 kHz, Cr = 4/5, Sf = 128chips/symbol, CRC on. Fast+short range
 	Bw31_25Cr48Sf512,	   ///< Bw = 31.25 kHz, Cr = 4/8, Sf = 512chips/symbol, CRC on. Slow+long range
-	Bw125Cr48Sf4096,           ///< Bw = 125 kHz, Cr = 4/8, Sf = 4096chips/symbol, CRC on. Slow+long range
+	Bw125Cr48Sf4096,           ///< Bw = 125 kHz, Cr = 4/8, Sf = 4096chips/symbol, low data rate, CRC on. Slow+long range
+	Bw125Cr45Sf2048,           ///< Bw = 125 kHz, Cr = 4/5, Sf = 2048chips/symbol, CRC on. Slow+long range
     } ModemConfigChoice;
 
     /// Constructor. You can have multiple instances, but each instance must have its own
@@ -614,9 +630,10 @@ public:
     /// \param[in] spi Pointer to the SPI interface object to use. 
     ///                Defaults to the standard Arduino hardware SPI interface
     RH_RF95(uint8_t slaveSelectPin = SS, uint8_t interruptPin = 2, RHGenericSPI& spi = hardware_spi);
-  
+    
     /// Initialise the Driver transport hardware and software.
-    /// Make sure the Driver is properly configured before calling init().
+    /// Leaves the radio in idle mode,
+    /// with default configuration of: 434.0MHz, 13dBm, Bw = 125 kHz, Cr = 4/5, Sf = 128chips/symbol, CRC on
     /// \return true if initialisation succeeded.
     virtual bool    init();
 
@@ -626,7 +643,7 @@ public:
     /// \return true on success
     bool printRegisters();
 
-    /// Sets all the registered required to configure the data modem in the RF95/96/97/98, including the bandwidth, 
+    /// Sets all the registers required to configure the data modem in the radio, including the bandwidth, 
     /// spreading factor etc. You can use this to configure the modem with custom configurations if none of the 
     /// canned configurations in ModemConfigChoice suit you.
     /// \param[in] config A ModemConfig structure containing values for the modem configuration registers.
@@ -640,10 +657,9 @@ public:
     /// \return true if index is a valid choice.
     bool        setModemConfig(ModemConfigChoice index);
 
-    /// Tests whether a new message is available
-    /// from the Driver. 
+    /// Tests whether a new message is available from the Driver. 
     /// On most drivers, this will also put the Driver into RHModeRx mode until
-    /// a message is actually received by the transport, when it wil be returned to RHModeIdle.
+    /// a message is actually received by the transport, when it will be returned to RHModeIdle.
     /// This can be called multiple times in a timeout loop
     /// \return true if a new, complete, error-free uncollected message is available to be retreived by recv()
     virtual bool    available();
@@ -655,7 +671,7 @@ public:
     /// You should be sure to call this function frequently enough to not miss any messages
     /// It is recommended that you call it in your main loop.
     /// \param[in] buf Location to copy the received message
-    /// \param[in,out] len Pointer to available space in buf. Set to the actual number of octets copied.
+    /// \param[in,out] len Pointer to the number of octets available in buf. The number be reset to the actual number of octets copied.
     /// \return true if a valid message was copied to buf
     virtual bool    recv(uint8_t* buf, uint8_t* len);
 
@@ -717,9 +733,9 @@ public:
     /// Caution: legal power limits may apply in certain countries.
     /// After init(), the power will be set to 13dBm, with useRFO false (ie PA_BOOST enabled).
     /// \param[in] power Transmitter power level in dBm. For RFM95/96/97/98 LORA with useRFO false, 
-    /// valid values are from +5 to +23.
+    /// valid values are from +2 to +20. For 18, 19 and 20, PA_DAC is enabled, 
     /// For Modtronix inAir4 and inAir9 with useRFO true (ie RFO pins in use), 
-    /// valid values are from -1 to 14.
+    /// valid values are from 0 to 15.
     /// \param[in] useRFO If true, enables the use of the RFO transmitter pins instead of
     /// the PA_BOOST pin (false). Choose the correct setting for your module.
     void           setTxPower(int8_t power, bool useRFO = false);
@@ -741,15 +757,18 @@ public:
     virtual bool    isChannelActive();
 
     /// Enable TCXO mode
-    /// Call this immediately after init(), to force your radio to use an external 
+    /// Call this immediately after init(), to force your radio to use an external
     /// frequency source, such as a Temperature Compensated Crystal Oscillator (TCXO), if available.
     /// See the comments in the main documentation about the sensitivity of this radio to
     /// clock frequency especially when using narrow bandwidths.
     /// Leaves the module in sleep mode.
-    /// Caution, this function has not been tested by us.
-    /// Caution, the TCXO model radios are not low power when in sleep (consuming
+    /// Caution: the TCXO model radios are not low power when in sleep (consuming
     /// about ~600 uA, reported by Phang Moh Lim.<br>
-    void enableTCXO();
+    /// Caution: if you enable TCXO and there is no exernal TCXO signal connected to the radio
+    /// or if the exerrnal TCXO is not
+    /// powered up, the radio <b>will not work<\b>
+    /// \param[in] on If true (the default) enables the radio to use the external TCXO.
+    void enableTCXO(bool on = true);
 
     /// Returns the last measured frequency error.
     /// The LoRa receiver estimates the frequency offset between the receiver centre frequency
@@ -767,6 +786,69 @@ public:
     /// \return SNR of the last received message in dB
     int lastSNR();
 
+    /// brian.n.norman@gmail.com 9th Nov 2018
+    /// Sets the radio spreading factor.
+    /// valid values are 6 through 12.
+    /// Out of range values below 6 are clamped to 6
+    /// Out of range values above 12 are clamped to 12
+    /// See Semtech DS SX1276/77/78/79 page 27 regarding SF6 configuration.
+    ///
+    /// \param[in] uint8_t sf (spreading factor 6..12)
+    /// \return nothing
+    void     setSpreadingFactor(uint8_t sf);
+ 	
+    /// brian.n.norman@gmail.com 9th Nov 2018
+    /// Sets the radio signal bandwidth
+    /// sbw ranges and resultant settings are as follows:-
+    /// sbw range    actual bw (kHz)
+    /// 0-7800       7.8
+    /// 7801-10400   10.4
+    /// 10401-15600  15.6
+    /// 15601-20800  20.8
+    /// 20801-31250  31.25
+    /// 31251-41700	 41.7
+    /// 41701-62500	 62.5
+    /// 62501-12500  125.0
+    /// 12501-250000 250.0
+    /// >250000      500.0
+    /// NOTE caution Earlier - Semtech do not recommend BW below 62.5 although, in testing
+    /// I managed 31.25 with two devices in close proximity.
+    /// \param[in] sbw long, signal bandwidth e.g. 125000
+    void     setSignalBandwidth(long sbw);
+ 	
+    /// brian.n.norman@gmail.com 9th Nov 2018
+    /// Sets the coding rate to 4/5, 4/6, 4/7 or 4/8.
+    /// Valid denominator values are 5, 6, 7 or 8. A value of 5 sets the coding rate to 4/5 etc.
+    /// Values below 5 are clamped at 5
+    /// values above 8 are clamped at 8.
+    /// Default for all standard modem config options is 4/5.
+    /// \param[in] denominator uint8_t range 5..8
+    void     setCodingRate4(uint8_t denominator);
+ 	
+    /// brian.n.norman@gmail.com 9th Nov 2018
+    /// sets the low data rate flag if symbol time exceeds 16ms
+    /// ref: https://www.thethingsnetwork.org/forum/t/a-point-to-note-lora-low-data-rate-optimisation-flag/12007
+    /// called by setBandwidth() and setSpreadingfactor() since these affect the symbol time.
+    void 	 setLowDatarate();
+ 	
+    /// brian.n.norman@gmail.com 9th Nov 2018
+    /// Allows the CRC to be turned on/off. Default is true (enabled)
+    /// When true, RH_RF95 sends a CRC in outgoing packets and requires a valid CRC to be
+    /// present and correct on incoming packets.
+    /// When false, does not send CRC in outgoing packets and does not require a CRC to be
+    /// present on incoming packets. However if a CRC is present, it must be correct.
+    /// Normally this should be left on (the default)
+    /// so that packets with a bad CRC are rejected. If turned off you wil be much more likely to receive
+    /// false noise packets.
+    /// \param[in] on bool, true enables CRCs in incoming and outgoing packets, false disables them
+    void setPayloadCRC(bool on);
+
+    /// tilman_1@gloetzner.net
+    /// Returns device version from register 42
+    /// \param none
+    /// \return uint8_t deviceID
+    uint8_t getDeviceVersion();
+    
 protected:
     /// This is a low level function to handle the interrupts for one instance of RH_RF95.
     /// Called automatically by isr*()
@@ -779,6 +861,16 @@ protected:
     /// Clear our local receive buffer
     void clearRxBuf();
 
+    /// Called by RH_RF95 when the radio mode is about to change to a new setting.
+    /// Can be used by subclasses to implement antenna switching etc.
+    /// \param[in] mode RHMode the new mode about to take effect
+    /// \return true if the subclasses changes successful
+    virtual bool modeWillChange(RHMode) {return true;}
+    
+    /// False if the PA_BOOST transmitter output pin is to be used.
+    /// True if the RFO transmitter output pin is to be used.
+    bool                _useRFO;
+    
 private:
     /// Low level interrupt service routine for device connected to interrupt 0
     static void         isr0();
@@ -811,13 +903,21 @@ private:
     /// True when there is a valid message in the buffer
     volatile bool       _rxBufValid;
 
-    // True if we are using the HF port (779.0 MHz and above)
+    /// True if we are using the HF port (779.0 MHz and above)
     bool                _usingHFport;
 
-    // Last measured SNR, dB
+    /// Last measured SNR, dB
     int8_t              _lastSNR;
+
+    /// If true, sends CRCs in every packet and requires a valid CRC in every received packet
+    bool                _enableCRC;
+
+    /// device ID
+    uint8_t		_deviceVersion = 0x00;
+    
 };
 
+/// @example rf95_client.pde
 /// @example rf95_client.pde
 /// @example rf95_server.pde
 /// @example rf95_encrypted_client.pde

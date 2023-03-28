@@ -7,7 +7,7 @@
 // 
 // Author: Mike McCauley (mikem@airspayce.com)
 // Copyright (C) 2016 Mike McCauley
-// $Id: RH_CC110.h,v 1.8 2017/11/06 00:04:08 mikem Exp $
+// $Id: RH_CC110.h,v 1.9 2020/01/05 07:02:23 mikem Exp $
 // 
 
 #ifndef RH_CC110_h
@@ -715,7 +715,7 @@ public:
     /// You should be sure to call this function frequently enough to not miss any messages
     /// It is recommended that you call it in your main loop.
     /// \param[in] buf Location to copy the received message
-    /// \param[in,out] len Pointer to available space in buf. Set to the actual number of octets copied.
+    /// \param[in,out] len Pointer to the number of octets available in buf. The number be reset to the actual number of octets copied.
     /// \return true if a valid message was copied to buf. The message cannot be retreived again.
     virtual bool    recv(uint8_t* buf, uint8_t* len);
 
@@ -847,7 +847,12 @@ protected:
     /// \return The value of the status byte per Table 5-2
     uint8_t statusRead();
 
-    
+    /// Handle the TX or RX overflow state of the given status
+    /// \param status The status byte read from the last SPI command
+    /// \return void
+    void handleOverFlows(uint8_t status);
+
+
 private:
     /// Low level interrupt service routine for device connected to interrupt 0
     static void         isr0();
@@ -875,7 +880,8 @@ private:
     volatile uint8_t    _bufLen;
     
     /// The receiver/transmitter buffer
-    uint8_t             _buf[RH_CC110_MAX_PAYLOAD_LEN];
+    /// Allow for 2 status bytes so we can read packet RSSI
+    uint8_t             _buf[RH_CC110_MAX_PAYLOAD_LEN + 2];
 
     /// True when there is a valid message in the buffer
     volatile bool       _rxBufValid;

@@ -204,13 +204,13 @@ bool RH_TCP::available()
 }
 
 // Block until something is available
-void RH_TCP::waitAvailable()
+void RH_TCP::waitAvailable(uint16_t polldelay)
 {
-    waitAvailableTimeout(0); // 0 = Wait forever
+    waitAvailableTimeout(0); // 0 = Wait forever, no polldelay
 }
 
 // Block until something is available or timeout expires
-bool RH_TCP::waitAvailableTimeout(uint16_t timeout)
+bool RH_TCP::waitAvailableTimeout(uint16_t timeout, uint16_t polldelay)
 {
     int            max_fd;
     fd_set         input;

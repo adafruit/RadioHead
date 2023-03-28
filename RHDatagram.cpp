@@ -54,9 +54,9 @@ bool RHDatagram::available()
     return _driver.available();
 }
 
-void RHDatagram::waitAvailable()
+void RHDatagram::waitAvailable(uint16_t polldelay)
 {
-    _driver.waitAvailable();
+    _driver.waitAvailable(polldelay);
 }
 
 bool RHDatagram::waitPacketSent()
@@ -69,9 +69,9 @@ bool RHDatagram::waitPacketSent(uint16_t timeout)
     return _driver.waitPacketSent(timeout);
 }
 
-bool RHDatagram::waitAvailableTimeout(uint16_t timeout)
+bool RHDatagram::waitAvailableTimeout(uint16_t timeout, uint16_t polldelay)
 {
-    return _driver.waitAvailableTimeout(timeout);
+    return _driver.waitAvailableTimeout(timeout, polldelay);
 }
 
 uint8_t RHDatagram::thisAddress()

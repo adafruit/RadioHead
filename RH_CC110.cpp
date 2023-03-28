@@ -3,18 +3,9 @@
 // Driver for Texas Instruments CC110L transceiver.
 //
 // Copyright (C) 2016 Mike McCauley
-// $Id: RH_CC110.cpp,v 1.9 2018/01/06 23:50:45 mikem Exp $
+// $Id: RH_CC110.cpp,v 1.11 2020/01/05 07:02:23 mikem Exp $
 
 #include <RH_CC110.h>
-
-// interrupt handler and related code must be in RAM on ESP8266,
-// according to issue #46.
-#if defined(ESP8266)
-    #define INTERRUPT_ATTR ICACHE_RAM_ATTR
-#else
-    #define INTERRUPT_ATTR
-#endif
-
 
 // Interrupt vectors for the 3 Arduino interrupt pins
 // Each interrupt can be handled by a different instance of RH_CC110, allowing you to have
@@ -55,13 +46,13 @@ PROGMEM static const RH_CC110::ModemConfig MODEM_CONFIG_TABLE_27MHZ[] =
     {0x0c, 0x00, 0x2d, 0x2f, 0x13, 0x62, 0x1d, 0x1c, 0xc7, 0x00, 0xb0, 0xb6, 0x10, 0xea, 0x2a, 0x00, 0x1f, 0x88, 0x31, 0x09}, // GFSK_Rb250Fd127
 };
 
-// These power outputs are based on the suggested optimum values for
+// These power outputs are based on the suggested optimum values for 
 // multilayer inductors in the 915MHz frequency band. Per table 5-15.
 // Yes these are not linear.
 // Caution: this table is indexed by the values of enum TransmitPower
 // Do not change one without changing the other.
 // If you do not like these values, use setPaTable() directly.
-PROGMEM static const uint8_t paPowerValues[] =
+PROGMEM static const uint8_t paPowerValues[] = 
 {
     0x03, // -30dBm
     0x0e, // -20dBm
@@ -110,12 +101,12 @@ bool RH_CC110::init()
     // Add by Adrien van den Bossche <vandenbo@univ-tlse2.fr> for Teensy
     // ARM M4 requires the below. else pin interrupt doesn't work properly.
     // On all other platforms, its innocuous, belt and braces
-    pinMode(_interruptPin, INPUT);
+    pinMode(_interruptPin, INPUT); 
 
     // Set up interrupt handler
     // Since there are a limited number of interrupt glue functions isr*() available,
     // we can only support a limited number of devices simultaneously
-    // ON some devices, notably most Arduinos, the interrupt pin passed in is actuallt the
+    // ON some devices, notably most Arduinos, the interrupt pin passed in is actuallt the 
     // interrupt number. You have to figure out the interruptnumber-to-interruptpin mapping
     // yourself based on knwledge of what Arduino board you are running on.
     if (_myInterruptIndex == 0xff)
@@ -138,7 +129,7 @@ bool RH_CC110::init()
 
     spiWriteRegister(RH_CC110_REG_02_IOCFG0, RH_CC110_GDO_CFG_CRC_OK_AUTORESET);  // gdo0 interrupt on CRC_OK
     spiWriteRegister(RH_CC110_REG_06_PKTLEN, RH_CC110_MAX_PAYLOAD_LEN); // max packet length
-    spiWriteRegister(RH_CC110_REG_07_PKTCTRL1, RH_CC110_CRC_AUTOFLUSH); // no append status, crc autoflush, no addr check
+    spiWriteRegister(RH_CC110_REG_07_PKTCTRL1, RH_CC110_CRC_AUTOFLUSH | RH_CC110_APPEND_STATUS); // append status, crc autoflush, no addr check
     spiWriteRegister(RH_CC110_REG_08_PKTCTRL0, RH_CC110_PKT_FORMAT_NORMAL | RH_CC110_CRC_EN | RH_CC110_LENGTH_CONFIG_VARIABLE);
     spiWriteRegister(RH_CC110_REG_13_MDMCFG1, RH_CC110_NUM_PREAMBLE_4); // 4 preamble bytes, chan spacing not used
     spiWriteRegister(RH_CC110_REG_17_MCSM1, RH_CC110_CCA_MODE_RSSI_PACKET | RH_CC110_RXOFF_MODE_RX | RH_CC110_TXOFF_MODE_IDLE);
@@ -172,13 +163,17 @@ void RH_CC110::handleInterrupt()
 	// Radio is configured to stay in RX until we move it to IDLE after a CRC_OK message for us
 	// We only get interrupts in RX mode, on CRC_OK
 
+#if 0
+	// SIGH: reading RH_CC110_REG_34_RSSI here does not yield the RSSI of when the packet was received
+	// Must get it from the end of the packet read
 	uint8_t raw_rssi = spiBurstReadRegister(RH_CC110_REG_34_RSSI); // Was set when sync word was detected
 	// Conversion of RSSI value to received power level in dBm per TI section 5.18.2
-	if (raw_rssi >= 128)
+	if (raw_rssi >= 128) 
 	    _lastRssi = (((int16_t)raw_rssi - 256) / 2) - 74;
-	else
+	else 
 	    _lastRssi = ((int16_t)raw_rssi / 2) - 74;
-
+#endif
+	
 	_bufLen = spiReadRegister(RH_CC110_REG_3F_FIFO);
 	if (_bufLen < 4)
 	{
@@ -187,9 +182,18 @@ void RH_CC110::handleInterrupt()
 	    clearRxBuf();
 	    return;
 	}
-	spiBurstRead(RH_CC110_REG_3F_FIFO | RH_CC110_SPI_BURST_MASK | RH_CC110_SPI_READ_MASK, _buf, _bufLen);
+	
+	// Because we have RH_CC110_APPEND_STATUS set, we can read another 2 octets, the RSSI and the CRC state
+	spiBurstRead(RH_CC110_REG_3F_FIFO | RH_CC110_SPI_BURST_MASK | RH_CC110_SPI_READ_MASK, _buf, _bufLen + 2);
+	// And then decode the RSSI
+	int  raw_rssi = _buf[_bufLen];
+	if (raw_rssi >= 128) 
+	    _lastRssi = (((int16_t)raw_rssi - 256) / 2) - 74;
+	else 
+	    _lastRssi = ((int16_t)raw_rssi / 2) - 74;
+	
 	// All good so far. See if its for us
-	validateRxBuf();
+	validateRxBuf(); 
 	if (_rxBufValid)
 	    setModeIdle(); // Done
     }
@@ -198,17 +202,17 @@ void RH_CC110::handleInterrupt()
 // These are low level functions that call the interrupt handler for the correct
 // instance of RH_CC110.
 // 3 interrupts allows us to have 3 different devices
-void INTERRUPT_ATTR RH_CC110::isr0()
+void RH_INTERRUPT_ATTR RH_CC110::isr0()
 {
     if (_deviceForInterrupt[0])
 	_deviceForInterrupt[0]->handleInterrupt();
 }
-void INTERRUPT_ATTR RH_CC110::isr1()
+void RH_INTERRUPT_ATTR RH_CC110::isr1()
 {
     if (_deviceForInterrupt[1])
 	_deviceForInterrupt[1]->handleInterrupt();
 }
-void INTERRUPT_ATTR RH_CC110::isr2()
+void RH_INTERRUPT_ATTR RH_CC110::isr2()
 {
     if (_deviceForInterrupt[2])
 	_deviceForInterrupt[2]->handleInterrupt();
@@ -319,7 +323,7 @@ bool RH_CC110::send(const uint8_t* data, uint8_t len)
     waitPacketSent(); // Make sure we dont interrupt an outgoing message
     setModeIdle();
 
-    if (!waitCAD())
+    if (!waitCAD()) 
 	return false;  // Check channel activity
 
     spiWriteRegister(RH_CC110_REG_3F_FIFO, len + RH_CC110_HEADER_LEN);
@@ -341,12 +345,26 @@ uint8_t RH_CC110::maxMessageLength()
     return RH_CC110_MAX_MESSAGE_LEN;
 }
 
+void RH_CC110::handleOverFlows(uint8_t status)
+{
+    spiCommand(RH_CC110_STROBE_3A_SFRX);
+    //Handle RX and TX overflows so we don't get stuck in either state
+    if( (status&RH_CC110_STATUS_RXFIFO_OVERFLOW) == RH_CC110_STATUS_RXFIFO_OVERFLOW ) {
+        spiCommand(RH_CC110_STROBE_3A_SFRX);
+        clearRxBuf();
+    }
+    else if( (status&RH_CC110_STATUS_TXFIFO_UNDERFLOW) == RH_CC110_STATUS_TXFIFO_UNDERFLOW ) {
+        spiCommand(RH_CC110_STROBE_3B_SFTX);
+    }
+}
+
 void RH_CC110::setModeIdle()
 {
     if (_mode != RHModeIdle)
     {
-	spiCommand(RH_CC110_STROBE_36_SIDLE);
-	_mode = RHModeIdle;
+        uint8_t status = spiCommand(RH_CC110_STROBE_36_SIDLE);
+        _mode = RHModeIdle;
+        handleOverFlows(status);
     }
 }
 
@@ -382,8 +400,10 @@ void RH_CC110::setModeTx()
 }
 
 uint8_t RH_CC110::statusRead()
-{
-    return spiCommand(RH_CC110_STROBE_3D_SNOP);
+{	
+    uint8_t status = spiCommand(RH_CC110_STROBE_3D_SNOP);
+    handleOverFlows(status);
+    return status;
 }
 
 // Sigh, this chip has no TXDONE type interrupt, so we have to poll

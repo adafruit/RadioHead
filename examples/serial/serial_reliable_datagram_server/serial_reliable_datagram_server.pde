@@ -46,6 +46,7 @@ void setup()
   driver.serial().begin(9600);
   if (!manager.init())
     Serial.println("init failed");
+//  manager.setTimeout(2000); // Might need this at slow data rates or if a radio is involved
 }
 
 uint8_t data[] = "And hello back to you";

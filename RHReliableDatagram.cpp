@@ -9,7 +9,7 @@
 //
 // Author: Mike McCauley (mikem@airspayce.com)
 // Copyright (C) 2011 Mike McCauley
-// $Id: RHReliableDatagram.cpp,v 1.17 2017/03/08 09:30:47 mikem Exp $
+// $Id: RHReliableDatagram.cpp,v 1.18 2018/11/08 02:31:43 mikem Exp $
 
 #include <RHReliableDatagram.h>
 
@@ -53,7 +53,22 @@ bool RHReliableDatagram::sendtoWait(uint8_t* buf, uint8_t len, uint8_t address)
     while (retries++ <= _retries)
     {
 	setHeaderId(thisSequenceNumber);
-	setHeaderFlags(RH_FLAGS_NONE, RH_FLAGS_ACK); // Clear the ACK flag
+
+        // Set and clear header flags depending on if this is an
+        // initial send or a retry.
+        uint8_t headerFlagsToSet = RH_FLAGS_NONE;
+        // Always clear the ACK flag
+        uint8_t headerFlagsToClear = RH_FLAGS_ACK;
+        if (retries == 1) {
+            // On an initial send, clear the RETRY flag in case
+            // it was previously set
+            headerFlagsToClear |= RH_FLAGS_RETRY;
+        } else {
+            // Not an initial send, set the RETRY flag
+            headerFlagsToSet = RH_FLAGS_RETRY;
+        }
+        setHeaderFlags(headerFlagsToSet, headerFlagsToClear);
+
 	sendto(buf, len, address);
 	waitPacketSent();
 
@@ -130,8 +145,13 @@ bool RHReliableDatagram::recvfromAck(uint8_t* buf, uint8_t* len, uint8_t* from, 
 		// Acknowledge message with ACK set in flags and ID set to received ID
 		acknowledge(_id, _from);
 	    }
-	    // If we have not seen this message before, then we are interested in it
-	    if (_id != _seenIds[_from])
+            // Filter out retried messages that we have seen before. This explicitly
+            // only filters out messages that are marked as retries to protect against
+            // the scenario where a transmitting device sends just one message and
+            // shuts down between transmissions. Devices that do this will report the
+            // the same ID each time since their internal sequence number will reset
+            // to zero each time the device starts up.
+	    if ((RH_ENABLE_EXPLICIT_RETRY_DEDUP && !(_flags & RH_FLAGS_RETRY)) || _id != _seenIds[_from])
 	    {
 		if (from)  *from =  _from;
 		if (to)    *to =    _to;

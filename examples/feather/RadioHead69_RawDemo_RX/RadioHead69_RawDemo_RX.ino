@@ -6,7 +6,7 @@
 // higher level messaging abilities.
 // It is designed to work with the other example RadioHead69_RawDemo_TX.
 // Demonstrates the use of AES encryption, setting the frequency and
-// modem configuration
+// modem configuration.
 
 #include <SPI.h>
 #include <RH_RF69.h>
@@ -84,11 +84,9 @@
 // Singleton instance of the radio driver
 RH_RF69 rf69(RFM69_CS, RFM69_INT);
 
-int16_t packetnum = 0;  // packet counter, we increment per xmission
-
 void setup() {
   Serial.begin(115200);
-  //while (!Serial) { delay(1); } // wait until serial console is open, remove if not tethered to computer
+  //while (!Serial) delay(1); // Wait for Serial Console (comment out line if no computer)
 
   pinMode(LED, OUTPUT);
   pinMode(RFM69_RST, OUTPUT);

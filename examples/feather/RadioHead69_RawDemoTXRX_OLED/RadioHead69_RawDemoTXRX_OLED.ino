@@ -176,7 +176,6 @@ void setup() {
   delay(500);
 }
 
-
 void loop() {
   if (rf69.waitAvailableTimeout(100)) {
     // Should be a message for us now

@@ -26,7 +26,7 @@ Adafruit_SSD1306 oled = Adafruit_SSD1306();
   #define BUTTON_B 16
   #define BUTTON_C  2
   #define LED       0
-#elif defined(ESP32)
+#elif defined(ESP32) && !defined(ARDUINO_ADAFRUIT_FEATHER_ESP32S2)
   #define BUTTON_A 15
   #define BUTTON_B 32
   #define BUTTON_C 14

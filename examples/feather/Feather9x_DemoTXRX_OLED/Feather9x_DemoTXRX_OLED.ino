@@ -1,16 +1,18 @@
 #include <SPI.h>
 #include <RH_RF95.h>
-
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 
+/************ OLED Setup ***************/
+
 Adafruit_SSD1306 oled = Adafruit_SSD1306();
+
 #if defined(ESP8266)
-  #define BUTTON_A 0
+  #define BUTTON_A  0
   #define BUTTON_B 16
-  #define BUTTON_C 2
-  #define LED      0
+  #define BUTTON_C  2
+  #define LED       0
 #elif defined(ESP32) && !defined(ARDUINO_ADAFRUIT_FEATHER_ESP32S2)
   #define BUTTON_A 15
   #define BUTTON_B 32
@@ -20,65 +22,84 @@ Adafruit_SSD1306 oled = Adafruit_SSD1306();
   #define BUTTON_A PA15
   #define BUTTON_B PC7
   #define BUTTON_C PC5
-  #define LED PB5
+  #define LED      PB5
 #elif defined(TEENSYDUINO)
-  #define BUTTON_A 4
-  #define BUTTON_B 3
-  #define BUTTON_C 8
-  #define LED 13
+  #define BUTTON_A  4
+  #define BUTTON_B  3
+  #define BUTTON_C  8
+  #define LED      13
 #elif defined(ARDUINO_NRF52832_FEATHER)
   #define BUTTON_A 31
   #define BUTTON_B 30
   #define BUTTON_C 27
-  #define LED 17
-#else // 32u4, M0, ESP32S2, and 328p
-  #define BUTTON_A 9
-  #define BUTTON_B 6
-  #define BUTTON_C 5
+  #define LED      17
+#elif defined(ARDUINO_ADAFRUIT_FEATHER_RP2040_RFM)
+  #define BUTTON_A  9
+  #define BUTTON_B  6
+  #define BUTTON_C  5
+  #define LED      LED_BUILTIN
+#else  // 32u4, M0, and 328p
+  #define BUTTON_A  9
+  #define BUTTON_B  6
+  #define BUTTON_C  5
   #define LED      13
 #endif
 
-
-#if defined (__AVR_ATmega32U4__) // Feather 32u4 w/Radio
-  #define RFM95_CS      8
-  #define RFM95_INT     7
-  #define RFM95_RST     4
-#endif
-
-#if defined(ARDUINO_SAMD_FEATHER_M0)
-  // Feather M0 w/Radio
-  #define RFM95_CS      8
-  #define RFM95_INT     3
-  #define RFM95_RST     4
-#endif
-
-#if defined (__AVR_ATmega328P__)  // Feather 328P w/wing
-  #define RFM95_INT     3  // 
-  #define RFM95_CS      4  //
-  #define RFM95_RST     2  // "A"
-#endif
-
-#if defined(ESP32)    // ESP32 feather w/wing
-  #define RFM95_RST     13   // same as LED
-  #define RFM95_CS      33   // "B"
-  #define RFM95_INT     27   // "A"
-#endif
-
-#if defined(ARDUINO_ADAFRUIT_FEATHER_ESP32S2) || defined(ARDUINO_NRF52840_FEATHER) || defined(ARDUINO_NRF52840_FEATHER_SENSE)
-  #define RFM95_INT     9  // "A"
-  #define RFM95_CS      10  // "B"
-  #define RFM95_RST     11  // "C"
-#endif
-
-#if defined(ARDUINO_NRF52832_FEATHER)
-  /* nRF52832 feather w/wing */
-  #define RFM95_RST     7   // "A"
-  #define RFM95_CS      11   // "B"
-  #define RFM95_INT     31   // "C"
-#endif
+/************ Radio Setup ***************/
 
 // Change to 434.0 or other frequency, must match RX's freq!
 #define RF95_FREQ 915.0
+
+// First 3 here are boards w/radio BUILT-IN. Boards using FeatherWing follow.
+#if defined (__AVR_ATmega32U4__)  // Feather 32u4 w/Radio
+  #define RFM95_CS    8
+  #define RFM95_INT   7
+  #define RFM95_RST   4
+  #define LED        13
+
+#elif defined(ADAFRUIT_FEATHER_M0) || defined(ADAFRUIT_FEATHER_M0_EXPRESS) || defined(ARDUINO_SAMD_FEATHER_M0)  // Feather M0 w/Radio
+  #define RFM95_CS    8
+  #define RFM95_INT   3
+  #define RFM95_RST   4
+  #define LED        13
+
+#elif defined(ARDUINO_ADAFRUIT_FEATHER_RP2040_RFM)  // Feather RP2040 w/Radio
+  #define RFM95_CS   16
+  #define RFM95_INT  21
+  #define RFM95_RST  17
+  #define LED        LED_BUILTIN
+
+#elif defined (__AVR_ATmega328P__)  // Feather 328P w/wing
+  #define RFM95_CS    4  //
+  #define RFM95_INT   3  //
+  #define RFM95_RST   2  // "A"
+  #define LED        13
+
+#elif defined(ESP8266)  // ESP8266 feather w/wing
+  #define RFM95_CS    2  // "E"
+  #define RFM95_INT  15  // "B"
+  #define RFM95_RST  16  // "D"
+  #define LED         0
+
+#elif defined(ARDUINO_ADAFRUIT_FEATHER_ESP32S2) || defined(ARDUINO_NRF52840_FEATHER) || defined(ARDUINO_NRF52840_FEATHER_SENSE)
+  #define RFM95_CS   10  // "B"
+  #define RFM95_INT   9  // "A"
+  #define RFM95_RST  11  // "C"
+  #define LED        13
+
+#elif defined(ESP32)  // ESP32 feather w/wing
+  #define RFM95_CS   33  // "B"
+  #define RFM95_INT  27  // "A"
+  #define RFM95_RST  13  // same as LED
+  #define LED        13
+
+#elif defined(ARDUINO_NRF52832_FEATHER)  // nRF52832 feather w/wing
+  #define RFM95_CS   11  // "B"
+  #define RFM95_INT  31  // "C"
+  #define RFM95_RST   7  // "A"
+  #define LED        17
+
+#endif
 
 int16_t packetnum = 0;  // packet counter, we increment per xmission
 
@@ -88,7 +109,7 @@ RH_RF95 rf95(RFM95_CS, RFM95_INT);
 void setup() {
   delay(500);
   Serial.begin(115200);
-  while (!Serial) { delay(1); } // wait until serial console is open, remove if not tethered to computer
+  while (!Serial) delay(1); // wait until serial console is open, remove if not tethered to computer
 
   // Initialize OLED display
   oled.begin(SSD1306_SWITCHCAPVCC, 0x3C);  // initialize with the I2C addr 0x3C (for the 128x32)
@@ -97,17 +118,16 @@ void setup() {
   oled.clearDisplay();
   oled.display();
 
-
   pinMode(BUTTON_A, INPUT_PULLUP);
   pinMode(BUTTON_B, INPUT_PULLUP);
   pinMode(BUTTON_C, INPUT_PULLUP);
-  
-  pinMode(LED, OUTPUT);     
+
+  pinMode(LED, OUTPUT);
   pinMode(RFM95_RST, OUTPUT);
   digitalWrite(RFM95_RST, HIGH);
 
   Serial.println("Feather LoRa RX/TX Test!");
-  
+
   // manual reset
   digitalWrite(RFM95_RST, LOW);
   delay(10);
@@ -128,8 +148,6 @@ void setup() {
   }
 
   rf95.setTxPower(23, false);
-  
-  pinMode(LED, OUTPUT);
 
   Serial.print("LoRa radio @"); Serial.print((int)RF95_FREQ); Serial.println(" MHz");
 
@@ -147,10 +165,10 @@ void setup() {
 
 void loop() {
   if (rf95.available()) {
-    // Should be a message for us now   
+    // Should be a message for us now
     uint8_t buf[RH_RF95_MAX_MESSAGE_LEN];
     uint8_t len = sizeof(buf);
-    
+
     if (! rf95.recv(buf, &len)) {
       Serial.println("Receive failed");
       return;
@@ -164,13 +182,11 @@ void loop() {
     oled.setCursor(0,0);
     oled.println((char*)buf);
     oled.print("RSSI: "); oled.print(rf95.lastRssi());
-    oled.display(); 
+    oled.display();
   }
-  
-  if (!digitalRead(BUTTON_A) || !digitalRead(BUTTON_B) || !digitalRead(BUTTON_C))
-  {
+
+  if (!digitalRead(BUTTON_A) || !digitalRead(BUTTON_B) || !digitalRead(BUTTON_C)) {
     Serial.println("Button pressed!");
-    
     char radiopacket[20] = "Button #";
     if (!digitalRead(BUTTON_A)) radiopacket[8] = 'A';
     if (!digitalRead(BUTTON_B)) radiopacket[8] = 'B';

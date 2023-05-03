@@ -47,6 +47,7 @@ void setup()
   driver.serial().begin(9600);
   if (!manager.init())
     Serial.println("init failed");
+  //manager.setTimeout(2000); // Might need this at slow data rates or if a radio is involved
 }
 
 uint8_t data[] = "Hello World!";
@@ -63,7 +64,7 @@ void loop()
     // Now wait for a reply from the server
     uint8_t len = sizeof(buf);
     uint8_t from;   
-    if (manager.recvfromAckTimeout(buf, &len, 2000, &from))
+    if (manager.recvfromAckTimeout(buf, &len, 6000, &from))
     {
       Serial.print("got reply from : 0x");
       Serial.print(from, HEX);

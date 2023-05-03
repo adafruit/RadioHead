@@ -2,7 +2,7 @@
 // Author: Mike McCauley (mikem@airspayce.com)
 // Copyright (C) 2011 Mike McCauley
 // Contributed by Joanna Rutkowska
-// $Id: RHGenericSPI.h,v 1.8 2017/11/06 00:04:08 mikem Exp $
+// $Id: RHGenericSPI.h,v 1.9 2020/01/05 07:02:23 mikem Exp $
 
 #ifndef RHGenericSPI_h
 #define RHGenericSPI_h
@@ -89,6 +89,29 @@ public:
     /// \return The octet read from SPI while the data octet was sent
     virtual uint8_t transfer(uint8_t data) = 0;
 
+#if (RH_PLATFORM == RH_PLATFORM_MONGOOSE_OS)
+    /// Transfer up to 2 bytes on the SPI interface
+    /// \param[in] byte0 The first byte to be sent on the SPI interface
+    /// \param[in] byte1 The second byte to be sent on the SPI interface
+    /// \return The second byte clocked in as the second byte is sent.
+    virtual uint8_t transfer2B(uint8_t byte0, uint8_t byte1) = 0;
+
+    /// Read a number of bytes on the SPI interface from an NRF device
+    /// \param[in] reg The NRF device register to read
+    /// \param[out] dest The buffer to hold the bytes read
+    /// \param[in] len The number of bytes to read
+    /// \return The NRF status byte
+    virtual uint8_t spiBurstRead(uint8_t reg, uint8_t* dest, uint8_t len) = 0;
+
+    /// Wrte a number of bytes on the SPI interface to an NRF device
+    /// \param[in] reg The NRF device register to read
+    /// \param[out] src The buffer to hold the bytes write
+    /// \param[in] len The number of bytes to write
+    /// \return The NRF status byte
+    virtual uint8_t spiBurstWrite(uint8_t reg, const uint8_t* src, uint8_t len) = 0;
+
+#endif
+
     /// SPI Configuration methods
     /// Enable SPI interrupts (if supported)
     /// This can be used in an SPI slave to indicate when an SPI message has been received
@@ -142,8 +165,10 @@ public:
     /// Base does nothing
     /// Might be overridden in subclass
     /// \param[in] interruptNumber The number of the interrupt
-    virtual void usingInterrupt(uint8_t interruptNumber){}
-    
+    virtual void usingInterrupt(uint8_t interruptNumber){
+      (void)interruptNumber;
+    }
+
 protected:
     
     /// The configure SPI Bus frequency, one of RHGenericSPI::Frequency

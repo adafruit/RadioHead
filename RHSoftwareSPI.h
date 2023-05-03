@@ -82,7 +82,6 @@ private:
     uint8_t _miso;
     uint8_t _mosi;
     uint8_t _sck;
-    uint8_t _bitOrder;
     uint8_t _delayCounts;
     uint8_t _clockPolarity;
     uint8_t _clockPhase;

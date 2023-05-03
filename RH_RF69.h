@@ -1,7 +1,7 @@
 // RH_RF69.h
 // Author: Mike McCauley (mikem@airspayce.com)
 // Copyright (C) 2014 Mike McCauley
-// $Id: RH_RF69.h,v 1.36 2017/10/03 06:04:59 mikem Exp $
+// $Id: RH_RF69.h,v 1.38 2020/04/09 23:40:34 mikem Exp $
 //
 ///
 
@@ -267,6 +267,30 @@
 #define RH_RF69_PACKETCONFIG1_ADDRESSFILTERING_NODE_BC      0x04
 #define RH_RF69_PACKETCONFIG1_ADDRESSFILTERING_RESERVED     0x06
 
+// RH_RF69_REG_3B_AUTOMODES
+#define RH_RF69_AUTOMODE_ENTER_COND_NONE                    0x00
+#define RH_RF69_AUTOMODE_ENTER_COND_FIFO_NOT_EMPTY          0x20
+#define RH_RF69_AUTOMODE_ENTER_COND_FIFO_LEVEL              0x40
+#define RH_RF69_AUTOMODE_ENTER_COND_CRC_OK                  0x60
+#define RH_RF69_AUTOMODE_ENTER_COND_PAYLOAD_READY           0x80
+#define RH_RF69_AUTOMODE_ENTER_COND_SYNC_ADDRESS            0xa0
+#define RH_RF69_AUTOMODE_ENTER_COND_PACKET_SENT             0xc0
+#define RH_RF69_AUTOMODE_ENTER_COND_FIFO_EMPTY              0xe0
+
+#define RH_RF69_AUTOMODE_EXIT_COND_NONE                     0x00
+#define RH_RF69_AUTOMODE_EXIT_COND_FIFO_EMPTY               0x04
+#define RH_RF69_AUTOMODE_EXIT_COND_FIFO_LEVEL               0x08
+#define RH_RF69_AUTOMODE_EXIT_COND_CRC_OK                   0x0c
+#define RH_RF69_AUTOMODE_EXIT_COND_PAYLOAD_READY            0x10
+#define RH_RF69_AUTOMODE_EXIT_COND_SYNC_ADDRESS             0x14
+#define RH_RF69_AUTOMODE_EXIT_COND_PACKET_SENT              0x18
+#define RH_RF69_AUTOMODE_EXIT_COND_TIMEOUT                  0x1c
+
+#define RH_RF69_AUTOMODE_INTERMEDIATE_MODE_SLEEP            0x00
+#define RH_RF69_AUTOMODE_INTERMEDIATE_MODE_STDBY            0x01
+#define RH_RF69_AUTOMODE_INTERMEDIATE_MODE_RX               0x02
+#define RH_RF69_AUTOMODE_INTERMEDIATE_MODE_TX               0x03
+
 // RH_RF69_REG_3C_FIFOTHRESH
 #define RH_RF69_FIFOTHRESH_TXSTARTCONDITION_NOTEMPTY        0x80
 #define RH_RF69_FIFOTHRESH_FIFOTHRESHOLD                    0x7f
@@ -529,6 +553,27 @@
 /// \code
 /// RH_RF69 driver(15, 0);
 /// \endcode
+/// If you are connecting an RF69 to a Sparkfun nRF52832 Breakout board 
+/// with Arduino 1.8.9 with board:
+/// "SparkFun nRF52 Boards by Sparkfun Electronics version 0.2.3",
+/// you can connect like this:
+/// \code
+///                 nRF52832     RFM69W
+///                 GND----------GND   (ground in)
+///                 3V3----------3.3V  (3.3V in)
+/// interrupt 0 pin 02-----------DIO0  (interrupt request out)
+///          SS pin 08-----------NSS   (chip select in)
+///     SCK SPI pin 13-----------SCK   (SPI clock in)
+///    MOSI SPI pin 11-----------MOSI  (SPI Data in)
+///    MISO SPI pin 12-----------MISO  (SPI Data out)
+/// \endcode
+/// and initialise with
+/// \code
+/// RHSoftwareSPI softwarespi;
+/// RH_RF69 driver(8, 2, softwarespi);
+/// and inside your setup() function:
+///    softwarespi.setPins(12, 11, 13);
+/// \endcode
 ///
 /// It is possible to have 2 or more radios connected to one Arduino, provided
 /// each radio has its own SS and interrupt line (SCK, SDI and SDO are common
@@ -548,6 +593,25 @@
 /// -random termination of communication after 5-30 packets sent/received
 /// -"fake ok" state, where initialization passes fluently, but communication doesn't happen
 /// -shields hang Arduino boards, especially during the flashing
+///
+/// \par Encryption
+///
+/// This driver support the on-chip AES encryption provided by the RF69.
+/// You can enable encryption by calling setEncryptionKey() after init() has been called.
+/// If both transmitter and receiver have been configured with the same AES key,
+/// then the receiver will recover the unencrypted message sent by the receiver.
+/// However, you should note that there is no way for RF69 nor for the RadioHead
+/// drivers to know whether the AES 
+/// key for a message is 'correct' or not. This is because the RF69 CRC covers the 
+/// _encrypted_ payload not the plaintext.
+///
+/// In RadioHead managers that support addressing,
+/// the RF69 AES encryption includes the RadioHead payload and the TO and FROM addresses, so 
+/// occasionally (average one in 256 messages), a message encrypted with the 
+/// 'wrong' key will have the 'correct' destination address, and will therefore be 
+/// accepted by RadioHead as a 'random' message content from a 'random' sender.
+/// Its up to your code to figure out whether the message makes sense or not.
+///
 /// \par Interrupts
 ///
 /// The RH_RF69 driver uses interrupts to react to events in the RF69 module,
@@ -842,7 +906,7 @@ public:
     /// You should be sure to call this function frequently enough to not miss any messages
     /// It is recommended that you call it in your main loop.
     /// \param[in] buf Location to copy the received message
-    /// \param[in,out] len Pointer to available space in buf. Set to the actual number of octets copied.
+    /// \param[in,out] len Pointer to the number of octets available in buf. The number be reset to the actual number of octets copied.
     /// \return true if a valid message was copied to buf
     bool        recv(uint8_t* buf, uint8_t* len);
 
@@ -869,6 +933,7 @@ public:
     /// networks from each other. Default is { 0x2d, 0xd4 }.
     /// Caution: tests here show that with a single sync word (ie where len == 1), 
     /// RFM69 reception can be unreliable.
+    /// To disable sync word generation and detection, call with the defaults: setSyncWords();
     /// \param[in] syncWords Array of sync words, 1 to 4 octets long. NULL if no sync words to be used.
     /// \param[in] len Number of sync words to set, 1 to 4. 0 if no sync words to be used.
     void           setSyncWords(const uint8_t* syncWords = NULL, uint8_t len = 0);

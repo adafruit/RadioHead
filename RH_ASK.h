@@ -1,7 +1,7 @@
 // RH_ASK.h
 //
 // Copyright (C) 2014 Mike McCauley
-// $Id: RH_ASK.h,v 1.18 2017/07/25 05:26:50 mikem Exp $
+// $Id: RH_ASK.h,v 1.22 2020/05/06 22:26:45 mikem Exp $
 
 #ifndef RH_ASK_h
 #define RH_ASK_h
@@ -198,7 +198,24 @@
 /// then:
 /// Connect D3 (pin 2) as the output to the transmitter
 /// Connect D4 (pin 3) as the input from the receiver.
-/// 
+///
+/// With AtTiny x17 (such as 3217 etc) using Spencer Kondes megaTinyCore, You can initialise like this:
+/// RH_ASK driver(2000, 6, 7);
+/// which will transmit on digital pin 7 == PB4 == physical pin 12 on Attiny x17
+/// and receive on  digital pin 6 == PB5 == physical pin 11 on Attiny x17
+/// Uses Timer B1.
+///
+/// With AtTiny x16 (such as 3216 etc) using Spencer Kondes megaTinyCore, You can initialise like this:
+/// RH_ASK driver(2000, 11, 12);
+/// which will transmit on digital pin 12 == PC2 == physical pin 14 on Attiny x16
+/// and receive on  digital pin 11 == PC1 == physical pin 13 on Attiny x16
+/// Uses Timer B1.
+///
+/// With AtTiny x14 (such as 1614 etc) using Spencer Kondes megaTinyCore, You can initialise like this:
+/// RH_ASK driver(2000, 6, 7);
+/// which will transmit on digital pin 7 == PB0 == physical pin 9 on Attiny x14
+/// and receive on  digital pin 6 == PB1 == physical pin 8 on Attiny x16
+/// Uses Timer B1.
 ///
 /// For testing purposes you can connect 2 Arduino RH_ASK instances directly, by
 /// connecting pin 12 of one to 11 of the other and vice versa, like this for a duplex connection:
@@ -247,7 +264,7 @@
 /// \code
 /// RH_ASK driver(2000, PA3, PA4);
 /// \endcode
-/// and connect the serail to pins PA3 and PA4
+/// and connect the serial to pins PA3 and PA4
 class RH_ASK : public RHGenericDriver
 {
 public:
@@ -280,9 +297,9 @@ public:
     /// You should be sure to call this function frequently enough to not miss any messages
     /// It is recommended that you call it in your main loop.
     /// \param[in] buf Location to copy the received message
-    /// \param[in,out] len Pointer to available space in buf. Set to the actual number of octets copied.
+    /// \param[in,out] len Pointer to the number of octets available in buf. The number be reset to the actual number of octets copied.
     /// \return true if a valid message was copied to buf
-    virtual bool    recv(uint8_t* buf, uint8_t* len);
+    RH_INTERRUPT_ATTR virtual bool    recv(uint8_t* buf, uint8_t* len);
 
     /// Waits until any previous transmit packet is finished being transmitted with waitPacketSent().
     /// Then loads a message into the transmitter and starts the transmitter. Note that a message length
@@ -299,18 +316,18 @@ public:
 
     /// If current mode is Rx or Tx changes it to Idle. If the transmitter or receiver is running, 
     /// disables them.
-    void           setModeIdle();
+    RH_INTERRUPT_ATTR void           setModeIdle();
 
     /// If current mode is Tx or Idle, changes it to Rx. 
     /// Starts the receiver in the RF69.
-    void           setModeRx();
+    RH_INTERRUPT_ATTR void           setModeRx();
 
     /// If current mode is Rx or Idle, changes it to Rx. F
     /// Starts the transmitter in the RF69.
     void           setModeTx();
 
     /// dont call this it used by the interrupt handler
-    void            handleTimerInterrupt();
+    RH_INTERRUPT_ATTR void            handleTimerInterrupt();
 
     /// Returns the current speed in bits per second
     /// \return The current speed in bits per second
@@ -329,7 +346,7 @@ protected:
     void            timerSetup();
 
     /// Read the rxPin in a platform dependent way, taking into account whether it is inverted or not
-    bool            readRx();
+    RH_INTERRUPT_ATTR bool            readRx();
 
     /// Write the txPin in a platform dependent way
     void            writeTx(bool value);
@@ -338,7 +355,7 @@ protected:
     void            writePtt(bool value);
 
     /// Translates a 6 bit symbol to its 4 bit plaintext equivalent
-    uint8_t         symbol_6to4(uint8_t symbol);
+    RH_INTERRUPT_ATTR uint8_t         symbol_6to4(uint8_t symbol);
 
     /// The receiver handler function, called a 8 times the bit rate
     void            receiveTimer();

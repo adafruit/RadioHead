@@ -7,13 +7,13 @@
 //
 // Author: Philippe.Rochat'at'gmail.com
 // Contributed to the RadioHead project by the author
-// $Id: RHEncryptedDriver.h,v 1.2 2017/10/03 06:04:59 mikem Exp $
+// $Id: RHEncryptedDriver.h,v 1.4 2020/07/05 08:52:21 mikem Exp $
 
 #ifndef RHEncryptedDriver_h
 #define RHEncryptedDriver_h
 
 #include <RHGenericDriver.h>
-#ifdef RH_ENABLE_ENCRYPTION_MODULE
+#if defined(RH_ENABLE_ENCRYPTION_MODULE) || defined(DOXYGEN)
 #include <BlockCipher.h>
 
 // Undef this if trailing 0 on each enrypted message is ok.
@@ -50,7 +50,7 @@ public:
     /// \param[in] blockcipher The blockcipher (from arduinolibs) that crypt/decrypt data. Ensure that
     /// the blockcipher has had its key set before sending or receiving messages.
     RHEncryptedDriver(RHGenericDriver& driver, BlockCipher& blockcipher);
-	
+
     /// Calls the real driver's init()
     /// \return The value returned from the driver init() method;
     virtual bool init() { return _driver.init();};
@@ -244,5 +244,8 @@ private:
 /// @example serial_encrypted_reliable_datagram_server.pde
 
 
+#else // RH_ENABLE_ENCRYPTION_MODULE
+#error "You have included RHEncryptedDriver.h, but not enabled RH_ENABLE_ENCRYPTION_MODULE in RadioHead.h"
 #endif
+
 #endif

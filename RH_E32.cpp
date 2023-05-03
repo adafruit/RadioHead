@@ -1,10 +1,12 @@
 // RH_E32.cpp
 //
 // Copyright (C) 2017 Mike McCauley
-// $Id: RH_E32.cpp,v 1.2 2017/06/24 20:36:15 mikem Exp $
+// $Id: RH_E32.cpp,v 1.6 2020/01/07 23:35:02 mikem Exp $
+
+#include <RadioHead.h>
+#ifdef RH_HAVE_SERIAL // No serial
 
 #include <RH_E32.h>
-#include <Stream.h>
 
 RH_E32::RH_E32(Stream *s, uint8_t m0_pin, uint8_t m1_pin, uint8_t aux_pin)
   :
@@ -15,8 +17,8 @@ RH_E32::RH_E32(Stream *s, uint8_t m0_pin, uint8_t m1_pin, uint8_t aux_pin)
 {
   // Prevent glitches at startup
   pinMode(_aux_pin, INPUT);
-  digitalWrite(_m0_pin, true);
-  digitalWrite(_m1_pin, true);
+  digitalWrite(_m0_pin, HIGH);
+  digitalWrite(_m1_pin, HIGH);
   pinMode(_m0_pin, OUTPUT);
   pinMode(_m1_pin, OUTPUT);
 }
@@ -97,23 +99,23 @@ void RH_E32::setOperatingMode(OperatingMode mode)
   switch (mode)
     {
     case ModeNormal:
-      digitalWrite(_m0_pin, false);
-      digitalWrite(_m1_pin, false);
+      digitalWrite(_m0_pin, LOW);
+      digitalWrite(_m1_pin, LOW);
       break;
       
     case ModeWakeUp:
-      digitalWrite(_m0_pin, true);
-      digitalWrite(_m1_pin, false);
+      digitalWrite(_m0_pin, HIGH);
+      digitalWrite(_m1_pin, LOW);
       break;
       
     case ModePowerSaving:
-      digitalWrite(_m0_pin, false);
-      digitalWrite(_m1_pin, true);
+      digitalWrite(_m0_pin, LOW);
+      digitalWrite(_m1_pin, HIGH);
       break;
       
     case ModeSleep:
-      digitalWrite(_m0_pin, true);
-      digitalWrite(_m1_pin, true);
+      digitalWrite(_m0_pin, HIGH);
+      digitalWrite(_m1_pin, HIGH);
       break;
       
     }
@@ -340,3 +342,5 @@ bool RH_E32::setFrequency(uint16_t frequency)
   return writeParameters(params);
   
 }
+
+#endif // RH_HAVE_SERIAL

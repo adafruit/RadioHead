@@ -1,7 +1,7 @@
 // RH_NRF24.h
 // Author: Mike McCauley
 // Copyright (C) 2012 Mike McCauley
-// $Id: RH_NRF24.h,v 1.20 2017/07/25 05:26:50 mikem Exp $
+// $Id: RH_NRF24.h,v 1.21 2020/06/15 23:39:39 mikem Exp $
 //
 
 #ifndef RH_NRF24_h
@@ -347,7 +347,13 @@
 /// \code
 ///
 /// You can override the default settings for the CSN and CE pins 
-/// in the NRF24() constructor if you wish to connect the slave select CSN to other than the normal one for your 
+/// in the NRF24() constructor if you wish to connect the slave select CSN to other than the normal one for your
+///
+/// Caution: on the Raspberry Pi Zero, the hardware SPI, is only connected to the 
+/// ICSP-header. So in order to use the RF, one must either connect it to the SPI-pins 
+/// of the ICSP-header or use the software SPI provided by RHSoftwareSPI.
+/// the mapping of the SPI-Pins for each board here: 
+/// https://www.arduino.cc/en/Reference/SPI
 /// Arduino (D10 for Diecimila, Uno etc and D53 for Mega)
 ///
 /// Caution: on some Arduinos such as the Mega 2560, if you set the slave select pin to be other than the usual SS 
@@ -583,7 +589,7 @@ public:
     /// You should be sure to call this function frequently enough to not miss any messages
     /// It is recommended that you call it in your main loop.
     /// \param[in] buf Location to copy the received message
-    /// \param[in,out] len Pointer to available space in buf. Set to the actual number of octets copied.
+    /// \param[in,out] len Pointer to the number of octets available in buf. The number be reset to the actual number of octets copied.
     /// \return true if a valid message was copied to buf
     bool        recv(uint8_t* buf, uint8_t* len);
 

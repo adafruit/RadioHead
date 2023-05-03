@@ -78,7 +78,7 @@ public:
     /// You should be sure to call this function frequently enough to not miss any messages
     /// It is recommended that you call it in your main loop.
     /// \param[in] buf Location to copy the received message
-    /// \param[in,out] len Pointer to available space in buf. Set to the actual number of octets copied.
+    /// \param[in,out] len Pointer to the number of octets available in buf. The number be reset to the actual number of octets copied.
     /// \param[in] from If present and not NULL, the referenced uint8_t will be set to the FROM address
     /// \param[in] to If present and not NULL, the referenced uint8_t will be set to the TO address
     /// \param[in] id If present and not NULL, the referenced uint8_t will be set to the ID
@@ -97,7 +97,10 @@ public:
 
     /// Starts the Driver receiver and blocks until a valid received 
     /// message is available.
-    void            waitAvailable();
+    /// \param[in] polldelay Time between polling available() in milliseconds. This can be useful
+    /// in multitaking environment like Linux to prevent waitAvailableTimeout
+    /// using all the CPU while polling for receiver activity
+    void            waitAvailable(uint16_t polldelay = 0);
 
     /// Blocks until the transmitter 
     /// is no longer transmitting.
@@ -111,8 +114,11 @@ public:
 
     /// Starts the Driver receiver and blocks until a received message is available or a timeout
     /// \param[in] timeout Maximum time to wait in milliseconds.
+    /// \param[in] polldelay Time between polling available() in milliseconds. This can be useful
+    /// in multitaking environment like Linux to prevent waitAvailableTimeout
+    /// using all the CPU while polling for receiver activity
     /// \return true if a message is available
-    bool            waitAvailableTimeout(uint16_t timeout);
+    bool            waitAvailableTimeout(uint16_t timeout, uint16_t polldelay = 0);
 
     /// Sets the TO header to be sent in all subsequent messages
     /// \param[in] to The new TO header value

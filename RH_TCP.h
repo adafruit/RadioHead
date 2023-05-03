@@ -89,14 +89,20 @@ public:
 
     /// Wait until a new message is available from the driver.
     /// Blocks until a complete message is received as reported by available()
-    virtual void waitAvailable();
+    /// \param[in] polldelay Time between polling available() in milliseconds. This can be useful
+    /// in multitaking environment like Linux to prevent waitAvailableTimeout
+    /// using all the CPU while polling for receiver activity
+    virtual void waitAvailable(uint16_t polldelay = 0);
 
     /// Wait until a new message is available from the driver
     /// or the timeout expires
     /// Blocks until a complete message is received as reported by available()
     /// \param[in] timeout The maximum time to wait in milliseconds
+    /// \param[in] polldelay Time between polling available() in milliseconds. This can be useful
+    /// in multitaking environment like Linux to prevent waitAvailableTimeout
+    /// using all the CPU while polling for receiver activity
     /// \return true if a message is available as reported by available()
-    virtual bool waitAvailableTimeout(uint16_t timeout);
+    virtual bool waitAvailableTimeout(uint16_t timeout, uint16_t polldelay = 0);
 
     /// Turns the receiver on if it not already on.
     /// If there is a valid message available, copy it to buf and return true
@@ -105,7 +111,7 @@ public:
     /// You should be sure to call this function frequently enough to not miss any messages
     /// It is recommended that you call it in your main loop.
     /// \param[in] buf Location to copy the received message
-    /// \param[in,out] len Pointer to available space in buf. Set to the actual number of octets copied.
+    /// \param[in,out] len Pointer to the number of octets available in buf. The number be reset to the actual number of octets copied.
     /// \return true if a valid message was copied to buf
     virtual bool recv(uint8_t* buf, uint8_t* len);
 

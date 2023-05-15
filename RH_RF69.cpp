@@ -362,7 +362,12 @@ void RH_RF69::setModeRx()
 	    spiWrite(RH_RF69_REG_5A_TESTPA1, RH_RF69_TESTPA1_NORMAL);
 	    spiWrite(RH_RF69_REG_5C_TESTPA2, RH_RF69_TESTPA2_NORMAL);
 	}
-	spiWrite(RH_RF69_REG_25_DIOMAPPING1, RH_RF69_DIOMAPPING1_DIO0MAPPING_01); // Set interrupt line 0 PayloadReady
+	// PROPOSED: Need to preserve the settings that are not being changed
+	//    Example, caller wants to control DIO1 interrupt trigger 
+	byte oldRegister = spiRead(RH_RF69_REG_25_DIOMAPPING1);
+	spiWrite(RH_RF69_REG_25_DIOMAPPING1,
+         (oldRegister & ~RH_RF69_DIOMAPPING1_DIO0MAPPING) |                    	
+	     RH_RF69_DIOMAPPING1_DIO0MAPPING_01); // Set interrupt line 0 PayloadReady
 	setOpMode(RH_RF69_OPMODE_MODE_RX); // Clears FIFO
 	_mode = RHModeRx;
     }
@@ -379,7 +384,12 @@ void RH_RF69::setModeTx()
 	    spiWrite(RH_RF69_REG_5A_TESTPA1, RH_RF69_TESTPA1_BOOST);
 	    spiWrite(RH_RF69_REG_5C_TESTPA2, RH_RF69_TESTPA2_BOOST);
 	}
-	spiWrite(RH_RF69_REG_25_DIOMAPPING1, RH_RF69_DIOMAPPING1_DIO0MAPPING_00); // Set interrupt line 0 PacketSent
+	// PROPOSED: Need to preserve the settings that are not being changed
+	//    Example, caller wants to control DIO1 interrupt trigger 
+	byte oldRegister = spiRead(RH_RF69_REG_25_DIOMAPPING1);
+	spiWrite(RH_RF69_REG_25_DIOMAPPING1,
+         (oldRegister & ~RH_RF69_DIOMAPPING1_DIO0MAPPING) |                    	
+	     RH_RF69_DIOMAPPING1_DIO0MAPPING_00); // Set interrupt line 0 PacketSent
 	setOpMode(RH_RF69_OPMODE_MODE_TX); // Clears FIFO
 	_mode = RHModeTx;
     }

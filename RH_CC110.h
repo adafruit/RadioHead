@@ -81,11 +81,11 @@
 #define RH_CC110_REG_24_FSCAL2                 0x24
 #define RH_CC110_REG_25_FSCAL1                 0x25
 #define RH_CC110_REG_26_FSCAL0                 0x26
-#define RH_CC110_REG_27_RCCTRL1                0x28
-#define RH_CC110_REG_28_RCCTRL0                0x29
-#define RH_CC110_REG_29_FSTEST                 0x2a
-#define RH_CC110_REG_2A_PTEST                  0x2b
-#define RH_CC110_REG_2B_AGCTEST                0x2c
+#define RH_CC110_REG_27_RCCTRL1                0x27
+#define RH_CC110_REG_28_RCCTRL0                0x28
+#define RH_CC110_REG_29_FSTEST                 0x29
+#define RH_CC110_REG_2A_PTEST                  0x2a
+#define RH_CC110_REG_2B_AGCTEST                0x2b
 #define RH_CC110_REG_2C_TEST2                  0x2c
 #define RH_CC110_REG_2D_TEST1                  0x2d
 #define RH_CC110_REG_2E_TEST0                  0x2e
@@ -115,11 +115,14 @@
 #define RH_CC110_REG_33_CRC_REG                0x33
 #define RH_CC110_REG_34_RSSI                   0x34
 #define RH_CC110_REG_35_MARCSTATE              0x35
-
+#define RH_CC110_REG_36_WORTIME1               0x36
+#define RH_CC110_REG_36_WORTIME0               0x37
 #define RH_CC110_REG_38_PKTSTATUS              0x38
-
+#define RH_CC110_REG_39_VCO_VC_DAC             0x39
 #define RH_CC110_REG_3A_TXBYTES                0x3a
 #define RH_CC110_REG_3B_RXBYTES                0x3b
+#define RH_CC110_REG_3C_RCCCTRL1_STATUS        0x3c
+#define RH_CC110_REG_3D_RCCCTRL0_STATUS        0x3d
 
 // PATABLE, TXFIFO, RXFIFO also support burst
 #define RH_CC110_REG_3E_PATABLE                0x3e
@@ -628,7 +631,7 @@ public:
     /// These are indexes into MODEM_CONFIG_TABLE. We strongly recommend you use these symbolic
     /// definitions and not their integer equivalents: its possible that new values will be
     /// introduced in later versions (though we will try to avoid it).
-    /// All configs use SYNC_MODE = RH_CC110_SYNC_MODE_16_16 (2 byte sync)
+    /// All configs use SYNC_MODE = RH_CC110_SYNC_MODE_30_32 (4 byte sync)
     typedef enum
     {
 	GFSK_Rb1_2Fd5_2 = 0,   ///< GFSK, Data Rate: 1.2kBaud, Dev: 5.2kHz, RX BW 58kHz, optimised for sensitivity
